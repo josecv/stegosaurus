@@ -24,16 +24,50 @@ public class BMPSteganographer extends Steganographer {
     }
     
     /**
+     * Hide the given bit in the LSB of the carrier int.
+     * @param bit either 0 or 1, the bit to place in the carrier
+     * @param carrier the int whose LSB will be modified
+     * @return the modified carrier.
+     */
+    protected static int HideInLSB(int bit, int carrier) {
+        System.out.println("Dr. Fluttershy expected that.");
+        System.out.println(bit);
+        System.out.println(carrier);
+        int retval;
+        if (bit == 0) {
+            /* If we have a zero, zero out the last bit */
+            retval = carrier & 0xfffffffe;
+        } else {
+            retval = carrier | 1;
+        }
+        System.out.println(retval);
+        System.out.println("We getting 20 percent cooler.");
+        return retval;
+    }
+    
+    protected void WriteToTarget(byte[] header, byte[] dib, byte[] data) {
+        try {
+            ostream = new FileOutputStream(target);
+            ostream.write(header);
+            ostream.write(dib);
+            ostream.write(data);
+            ostream.close();
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        }
+    }
+    
+    /**
      * Hide the data given in the target.
      * @param data the data to hide.
      */
     @Override
-    public void Hide(byte[] data) {
+    public void Hide(BitInputStream datastream) {
+        /* TODO: This is in want of some serious refactoring */
         try {
             instream = new FileInputStream(target);
             byte[] header = new byte[14];
             instream.read(header);
-            /* Fuck Java's array methods, man */
             /* The standard says the first thing we want is the size of the
              * entire BMP image
              */
@@ -51,23 +85,25 @@ public class BMPSteganographer extends Steganographer {
             /* How many bytes are in each pixel? */
             int pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2);
             int data_size = IntFromBytes(Arrays.copyOfRange(dib, 20, 24), 4);
-            //byte[] imgdata = new byte[data_size];
             /* TODO Transition so this is done in place */
             byte[] newimgdata = new byte[data_size];
             //instream.read(imgdata);
-            BitInputStream datastream = new BitInputStream(data);
             /* Number of bytes read */
             int bytes_read = 0;
+            /* The read loop; while there are bytes to be read, read them. */
             while (datastream.available() > 0) {
                 byte[] pixel_bytes = new byte[pixel_size];
                 instream.read(pixel_bytes);
                 int pixel = IntFromBytes(Arrays.copyOfRange(pixel_bytes, 0,
                         pixel_size), pixel_size);
-                pixel &= datastream.read();
+                /* Actually place the bit in the lsb of the pixel */
+                pixel = HideInLSB(datastream.read(), pixel);
                 bytes_read += pixel_size;
+                /* Do we need to offset the row so it's still a power of 4? */
                 if (bytes_read % pixel_size == 0) {
                     instream.skip((4 * (bytes_read / 4  + 1) - bytes_read) % 4);
                 }
+                /* Transform pixels into sets of bytes */
                 for (int i = 0; i < pixel_size; i++) {
                     /* Remove bits more significant than the ones we care about
                      * by anding the pixel with the apropriate power of two
@@ -78,6 +114,8 @@ public class BMPSteganographer extends Steganographer {
                     newimgdata[bytes_read - pixel_size + 1] = val;
                 }
             }
+            instream.close();
+            this.WriteToTarget(header, dib, newimgdata);
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }

@@ -4,6 +4,8 @@
  */
 package steganographers;
 
+import stegostreams.BitInputStream;
+
 
 /**
  * Hides data into a given file. Completely agnostic as to what the data may
@@ -24,9 +26,9 @@ public abstract class Steganographer {
      * Hide the data given into this steganographer's target. Notice that this
      * make no effort to preserve any previous data that may have been hidden
      * there.
-     * @param data the data to hide, as a byte array.
+     * @param datastream the data to hide, as a stream of bits.
      */
-    public abstract void Hide(byte[] data);
+    public abstract void Hide(BitInputStream datastream);
 
     /**
      * Interpret the byte array given as a little endian int composed of size
