@@ -30,9 +30,6 @@ public class BMPSteganographer extends Steganographer {
      * @return the modified carrier.
      */
     protected static int HideInLSB(int bit, int carrier) {
-        System.out.println("Dr. Fluttershy expected that.");
-        System.out.println(bit);
-        System.out.println(carrier);
         int retval;
         if (bit == 0) {
             /* If we have a zero, zero out the last bit */
@@ -40,17 +37,16 @@ public class BMPSteganographer extends Steganographer {
         } else {
             retval = carrier | 1;
         }
-        System.out.println(retval);
-        System.out.println("We getting 20 percent cooler.");
         return retval;
     }
     
-    protected void WriteToTarget(byte[] header, byte[] dib, byte[] data) {
+    protected void WriteToTarget(byte[] header, byte[] dib, byte[] data, byte[] rest) {
         try {
             ostream = new FileOutputStream(target);
             ostream.write(header);
             ostream.write(dib);
             ostream.write(data);
+            ostream.write(rest);
             ostream.close();
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
@@ -83,26 +79,23 @@ public class BMPSteganographer extends Steganographer {
             int h = IntFromBytes(Arrays.copyOfRange(dib, 8, 12), 4);
             /* TODO: Stop assuming that no compression is being used */
             /* How many bytes are in each pixel? */
-            int pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2);
+            int pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2) / 8;
             int data_size = IntFromBytes(Arrays.copyOfRange(dib, 20, 24), 4);
             /* TODO Transition so this is done in place */
-            byte[] newimgdata = new byte[data_size];
-            //instream.read(imgdata);
+            byte[] newimgdata = new byte[datastream.available() * pixel_size];
+            //instream.read(newimgdata);
             /* Number of bytes read */
             int bytes_read = 0;
             /* The read loop; while there are bytes to be read, read them. */
             while (datastream.available() > 0) {
                 byte[] pixel_bytes = new byte[pixel_size];
                 instream.read(pixel_bytes);
+                System.out.println("Dr. Fluttershy expected that.");
                 int pixel = IntFromBytes(Arrays.copyOfRange(pixel_bytes, 0,
                         pixel_size), pixel_size);
                 /* Actually place the bit in the lsb of the pixel */
                 pixel = HideInLSB(datastream.read(), pixel);
                 bytes_read += pixel_size;
-                /* Do we need to offset the row so it's still a power of 4? */
-                if (bytes_read % pixel_size == 0) {
-                    instream.skip((4 * (bytes_read / 4  + 1) - bytes_read) % 4);
-                }
                 /* Transform pixels into sets of bytes */
                 for (int i = 0; i < pixel_size; i++) {
                     /* Remove bits more significant than the ones we care about
@@ -110,12 +103,16 @@ public class BMPSteganographer extends Steganographer {
                      * minus one, and then shift as to the right to lose
                      * bits less significant than the ones we care about.
                      */
+                    System.out.println(bytes_read - pixel_size + i);
                     byte val = (byte) ((((1 << ((1 + i) * 8)) - 1) & pixel) >> (i * 8));
-                    newimgdata[bytes_read - pixel_size + 1] = val;
+                    newimgdata[bytes_read - pixel_size + i] = val;
                 }
+                System.out.println("Sing with me now, sing for the year");
             }
+            byte[] rest = new byte[data_size - newimgdata.length];
+            instream.read(rest);
             instream.close();
-            this.WriteToTarget(header, dib, newimgdata);
+            this.WriteToTarget(header, dib, newimgdata, rest);
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }
