@@ -12,8 +12,22 @@ import stegostreams.BitInputStream;
  */
 public class BMPSteganographer extends Steganographer {
     
+    /**
+     * Carrier input stream.
+     */
     private FileInputStream instream;
+    /**
+     * Carrier output stream.
+     */
     private FileOutputStream ostream;
+    /**
+     * BMP File header.
+     */
+    private byte[] header;
+    /**
+     * Dib header.
+     */
+    private byte[] dib;
     
     /**
      * Create a new BMP steganographer to hide data in the file given.
@@ -21,6 +35,11 @@ public class BMPSteganographer extends Steganographer {
      */
     public BMPSteganographer(String target) {
         super(target);
+        try {
+            instream = new FileInputStream(target);
+        } catch (IOException ioe) {
+            System.out.println(ioe.getMessage());
+        }
     }
     
     /**
@@ -61,8 +80,7 @@ public class BMPSteganographer extends Steganographer {
     public void Hide(BitInputStream datastream) {
         /* TODO: This is in want of some serious refactoring */
         try {
-            instream = new FileInputStream(target);
-            byte[] header = new byte[14];
+            header = new byte[14];
             instream.read(header);
             /* The standard says the first thing we want is the size of the
              * entire BMP image
@@ -72,7 +90,7 @@ public class BMPSteganographer extends Steganographer {
             int offset = IntFromBytes(Arrays.copyOfRange(header, 10, 14), 4);
             /* The size of the dib header */
             int dib_size = offset - 14;
-            byte[] dib = new byte[dib_size];
+            dib = new byte[dib_size];
             instream.read(dib);
             /* Dimensions of the picture in pixels */
             int w = IntFromBytes(Arrays.copyOfRange(dib, 4, 8), 4);
@@ -90,7 +108,6 @@ public class BMPSteganographer extends Steganographer {
             while (datastream.available() > 0) {
                 byte[] pixel_bytes = new byte[pixel_size];
                 instream.read(pixel_bytes);
-                System.out.println("Dr. Fluttershy expected that.");
                 int pixel = IntFromBytes(Arrays.copyOfRange(pixel_bytes, 0,
                         pixel_size), pixel_size);
                 /* Actually place the bit in the lsb of the pixel */
@@ -103,11 +120,9 @@ public class BMPSteganographer extends Steganographer {
                      * minus one, and then shift as to the right to lose
                      * bits less significant than the ones we care about.
                      */
-                    System.out.println(bytes_read - pixel_size + i);
                     byte val = (byte) ((((1 << ((1 + i) * 8)) - 1) & pixel) >> (i * 8));
                     newimgdata[bytes_read - pixel_size + i] = val;
                 }
-                System.out.println("Sing with me now, sing for the year");
             }
             byte[] rest = new byte[data_size - newimgdata.length];
             instream.read(rest);
