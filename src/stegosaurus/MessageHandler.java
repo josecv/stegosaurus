@@ -27,9 +27,14 @@ public class MessageHandler {
      * @return the array of bytes representing the message.
      */
     public byte[] AsByteArray() {
-        byte[] retval = new byte[msg.length()];
+        int l = msg.length();
+        byte[] retval = new byte[l + 4];
+        for (int i = 0; i < 4; i++) {
+            retval[i] = (byte) ((l & (0xFF << (8 * i))) >> (8 * i));
+            System.out.println(Integer.toHexString(retval[i]));
+        }
         for (int i = 0; i < msg.length(); i++) {
-            retval[i] = (byte) msg.charAt(i);
+            retval[i + 4] = (byte) msg.charAt(i);
         }
         return retval;
     }

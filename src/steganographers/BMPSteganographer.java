@@ -37,6 +37,14 @@ public class BMPSteganographer extends Steganographer {
         super(target);
         try {
             instream = new FileInputStream(target);
+            header = new byte[14];
+            instream.read(header);
+            /* Where the actual data begins */
+            int offset = IntFromBytes(Arrays.copyOfRange(header, 10, 14), 4);
+            /* The size of the dib header */
+            int dib_size = offset - 14;
+            dib = new byte[dib_size];
+            instream.read(dib);
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }
@@ -59,7 +67,7 @@ public class BMPSteganographer extends Steganographer {
         return retval;
     }
     
-    protected void WriteToTarget(byte[] header, byte[] dib, byte[] data, byte[] rest) {
+    protected void WriteToTarget(byte[] data, byte[] rest) {
         try {
             ostream = new FileOutputStream(target);
             ostream.write(header);
@@ -80,21 +88,6 @@ public class BMPSteganographer extends Steganographer {
     public void Hide(BitInputStream datastream) {
         /* TODO: This is in want of some serious refactoring */
         try {
-            header = new byte[14];
-            instream.read(header);
-            /* The standard says the first thing we want is the size of the
-             * entire BMP image
-             */
-            int size = IntFromBytes(Arrays.copyOfRange(header, 2, 6), 4);
-            /* Where the actual data begins */
-            int offset = IntFromBytes(Arrays.copyOfRange(header, 10, 14), 4);
-            /* The size of the dib header */
-            int dib_size = offset - 14;
-            dib = new byte[dib_size];
-            instream.read(dib);
-            /* Dimensions of the picture in pixels */
-            int w = IntFromBytes(Arrays.copyOfRange(dib, 4, 8), 4);
-            int h = IntFromBytes(Arrays.copyOfRange(dib, 8, 12), 4);
             /* TODO: Stop assuming that no compression is being used */
             /* How many bytes are in each pixel? */
             int pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2) / 8;
@@ -127,7 +120,7 @@ public class BMPSteganographer extends Steganographer {
             byte[] rest = new byte[data_size - newimgdata.length];
             instream.read(rest);
             instream.close();
-            this.WriteToTarget(header, dib, newimgdata, rest);
+            this.WriteToTarget(newimgdata, rest);
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }
