@@ -6,7 +6,7 @@ package steganographers;
 
 import stegostreams.BitInputStream;
 
-
+/* TODO: Make me an output stream! */
 /**
  * Hides data into a given file. Completely agnostic as to what the data may
  * be, only makes use of byte arrays.
