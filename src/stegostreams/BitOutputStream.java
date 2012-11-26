@@ -40,7 +40,12 @@ public class BitOutputStream extends OutputStream {
      * Return the data as a Byte array.
      * @return the collected data.
      */
-    public Byte[] data() {
-        return (Byte[]) (data.toArray());
+    public byte[] data() {
+        /* TODO: This sucks. Is there a one liner for this? */
+        byte[] retval = new byte[data.size()];
+        for (int i = 0; i < data.size(); i++) {
+            retval[i] = data.get(i);
+        }
+        return retval;
     }
 }
