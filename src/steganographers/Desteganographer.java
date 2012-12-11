@@ -27,8 +27,13 @@ public abstract class Desteganographer {
      * @return 
      */
     public byte[] UnHide() {
-        int size = Desteganographer.IntFromBytes(this.UnHide(4), 4);
-        return this.UnHide(size);
+        for (byte b : this.UnHide(4)) {
+            //System.out.println(b);
+            int d = 1 + 1;
+        }
+        //int size = Desteganographer.IntFromBytes(this.UnHide(4), 4);
+        //return this.UnHide(size);
+        return new byte[1];
     }
     
     /**
