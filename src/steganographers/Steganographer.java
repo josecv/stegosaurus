@@ -1,38 +1,70 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package steganographers;
 
+import java.io.InputStream;
 import stegostreams.BitInputStream;
 
-/* TODO: Make me an output stream! */
+/*
+ * TODO: Make me an output stream!
+ */
 /**
- * Hides data into a given file. Completely agnostic as to what the data may
- * be, only makes use of byte arrays.
+ * Hides/Unhides a payload from a carrier. Can only do one of those two things,
+ * since the carrier stream will be closed after performing the operation.
+ *
  * @author joe
  */
 public abstract class Steganographer {
+
     protected String target;
     /**
+     * The carrier input stream.
+     */
+    protected InputStream instream;
+
+    /**
      * Initialize a steganographer.
+     *
      * @param target the file where the data will be hidden.
      */
-    public Steganographer(String target) {
-        this.target = target;
+    public Steganographer(InputStream carrier) {
+        this.instream = carrier;
     }
 
     /**
      * Hide the data given into this steganographer's target. Notice that this
      * make no effort to preserve any previous data that may have been hidden
      * there.
+     *
      * @param datastream the data to hide, as a stream of bits.
+     * @return a byte array with the hidden data.
+     * @throws Exception
      */
-    public abstract void Hide(BitInputStream datastream);
+    public abstract byte[] Hide(BitInputStream datastream) throws Exception;
 
+    /**
+     * UnHide an entire message from the carrier.
+     * @return a byte array, the bytes found in there.
+     * @throws Exception 
+     */    
+    public byte[] UnHide() throws Exception {
+    	byte[] unhidden = UnHide(4);
+        int size = IntFromBytes(unhidden, 4);
+        byte[] retval = UnHide(size);
+        instream.close();
+        return retval;
+    }
+    
+    /**
+     * Unhides count bytes from the carrier.
+     * @param count the number of bytes to take out.
+     * @return a portion of the payload.
+     * @throws Exception 
+     */
+    public abstract byte[] UnHide(int count) throws Exception;
+    
     /**
      * Interpret the byte array given as a little endian int composed of size
      * bytes.
+     *
      * @param bytes the byte array in question
      * @param size the number of bytes composing the int
      * @return the int worked out from the byte array

@@ -34,6 +34,7 @@ public class BitOutputStream extends OutputStream {
         byte current = data.get(i / 8);
         current |= ((byte) (b)) << (i % 8);
         data.set(i / 8, current);
+        i++;
     }
     
     /**

@@ -3,7 +3,10 @@
  * and open the template in the editor.
  */
 package stegosaurus;
-import steganographers.BMPDesteganographer;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
 import steganographers.BMPSteganographer;
 import stegostreams.BitInputStream;
 
@@ -19,13 +22,20 @@ public class Stegosaurus {
     public static void main(String[] args) {
         String t = args[0];
         String m = args[1];
-        BMPSteganographer stego = new BMPSteganographer(t);
-        MessageHandler h = new MessageHandler(m);
-        stego.Hide(new BitInputStream(h.AsByteArray()));
-        BMPDesteganographer destego = new BMPDesteganographer(t);
-        for (byte b : destego.UnHide()) {
-            System.out.println((char) (b));
+        try {
+            BMPSteganographer stego = new BMPSteganographer(new FileInputStream(t));
+            MessageHandler h = new MessageHandler(m);
+            byte[] hidden = stego.Hide(new BitInputStream(h.AsByteArray()));
+            FileOutputStream out = new FileOutputStream(t);
+            out.write(hidden);
+            out.close();
+            BMPSteganographer destego = new BMPSteganographer(new FileInputStream(t));
+            for (byte b : destego.UnHide()) {
+                System.out.println((char) (b));
+            }
+        } catch (Exception e) {
+            System.out.println("Tragedy!!");
         }
-        System.out.println("If you only see this you're a lucky pirate");
+        System.out.println("We are setting sail!");
     }
 }

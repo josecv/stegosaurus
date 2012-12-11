@@ -1,25 +1,18 @@
 package steganographers;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
+import stegosaurus.utils.ArrayUtils;
 import stegostreams.BitInputStream;
+import stegostreams.BitOutputStream;
 
 
 /**
- * Hides data into a BMP file.
+ * Hides/Unhides data into a BMP file.
  * @author joe
  */
 public class BMPSteganographer extends Steganographer {
     
-    /**
-     * Carrier input stream.
-     */
-    private FileInputStream instream;
-    /**
-     * Carrier output stream.
-     */
-    private FileOutputStream ostream;
     /**
      * BMP File header.
      */
@@ -30,13 +23,22 @@ public class BMPSteganographer extends Steganographer {
     private byte[] dib;
     
     /**
+     * The number of bytes that go into each pixel.
+     */
+    private int pixel_size;
+    
+    /**
+     * The size of the data portion of the BMP file, in bytes.
+     */
+    private int data_size;
+    
+    /**
      * Create a new BMP steganographer to hide data in the file given.
      * @param target the path to the file where the data will be hidden.
      */
-    public BMPSteganographer(String target) {
-        super(target);
+    public BMPSteganographer(InputStream carrier) {
+        super(carrier);
         try {
-            instream = new FileInputStream(target);
             header = new byte[14];
             instream.read(header);
             /* Where the actual data begins */
@@ -45,6 +47,9 @@ public class BMPSteganographer extends Steganographer {
             int dib_size = offset - 14;
             dib = new byte[dib_size];
             instream.read(dib);
+            /* How many bytes are in each pixel? */
+            pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2) / 8;
+            data_size = IntFromBytes(Arrays.copyOfRange(dib, 20, 24), 4);
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }
@@ -67,62 +72,65 @@ public class BMPSteganographer extends Steganographer {
         return retval;
     }
     
-    protected void WriteToTarget(byte[] data, byte[] rest) {
-        try {
-            ostream = new FileOutputStream(target);
-            ostream.write(header);
-            ostream.write(dib);
-            ostream.write(data);
-            ostream.write(rest);
-            ostream.close();
-        } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
-        }
+    
+    /**
+     * Return the next pixel inside the bmp image, as an int.
+     * @return int the next pixel to be read.
+     */
+    private int NextPixel() throws IOException {
+        byte[] pixel_bytes = new byte[pixel_size];
+        instream.read(pixel_bytes);
+        return IntFromBytes(Arrays.copyOfRange(pixel_bytes, 0, pixel_size),
+                pixel_size);
     }
     
     /**
      * Hide the data given in the target.
      * @param data the data to hide.
+     * 
+     * @return a byte array with the hidden data.
      */
     @Override
-    public void Hide(BitInputStream datastream) {
+    public byte[] Hide(BitInputStream datastream) throws IOException {
         /* TODO: This is in want of some serious refactoring */
-        try {
-            /* TODO: Stop assuming that no compression is being used */
-            /* How many bytes are in each pixel? */
-            int pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2) / 8;
-            int data_size = IntFromBytes(Arrays.copyOfRange(dib, 20, 24), 4);
-            /* TODO Transition so this is done in place */
-            byte[] newimgdata = new byte[datastream.available() * pixel_size];
-            //instream.read(newimgdata);
-            /* Number of bytes read */
-            int bytes_read = 0;
-            /* The read loop; while there are bytes to be read, read them. */
-            while (datastream.available() > 0) {
-                byte[] pixel_bytes = new byte[pixel_size];
-                instream.read(pixel_bytes);
-                int pixel = IntFromBytes(Arrays.copyOfRange(pixel_bytes, 0,
-                        pixel_size), pixel_size);
-                /* Actually place the bit in the lsb of the pixel */
-                pixel = HideInLSB(datastream.read(), pixel);
-                bytes_read += pixel_size;
-                /* Transform pixels into sets of bytes */
-                for (int i = 0; i < pixel_size; i++) {
-                    /* Remove bits more significant than the ones we care about
-                     * by anding the pixel with the apropriate power of two
-                     * minus one, and then shift as to the right to lose
-                     * bits less significant than the ones we care about.
-                     */
-                    byte val = (byte) ((((1 << ((1 + i) * 8)) - 1) & pixel) >> (i * 8));
-                    newimgdata[bytes_read - pixel_size + i] = val;
-                }
+        /* TODO: Stop assuming that no compression is being used */
+        byte[] newimgdata = new byte[datastream.available() * pixel_size];
+        /* Number of bytes read */
+        int bytes_read = 0;
+        /* The read loop; while there are bytes to be read, read them. */
+        while (datastream.available() > 0) {
+            int pixel = NextPixel();
+            /* Actually place the bit in the lsb of the pixel */
+            pixel = HideInLSB(datastream.read(), pixel);
+            bytes_read += pixel_size;
+            /* Transform pixels into sets of bytes */
+            for (int i = 0; i < pixel_size; i++) {
+                /* Remove bits more significant than the ones we care about
+                 * by anding the pixel with the apropriate power of two
+                 * minus one, and then shift as to the right to lose
+                 * bits less significant than the ones we care about.
+                 */
+                byte val = (byte) ((((1 << ((1 + i) * 8)) - 1) & pixel) >> (i * 8));
+                newimgdata[bytes_read - pixel_size + i] = val;
             }
-            byte[] rest = new byte[data_size - newimgdata.length];
-            instream.read(rest);
-            instream.close();
-            this.WriteToTarget(newimgdata, rest);
-        } catch (IOException ioe) {
-            System.out.println(ioe.getMessage());
         }
+        byte[] rest = new byte[data_size - newimgdata.length];
+        instream.read(rest);
+        instream.close();
+        /* TODO: This part sucks big time */
+        return ArrayUtils.addAll(ArrayUtils.addAll(ArrayUtils.addAll(header,
+                dib), newimgdata), rest);
+    }
+    
+    @Override
+    public byte[] UnHide(int count) throws IOException {
+        byte[] retval;
+        try (BitOutputStream ostream = new BitOutputStream()) {
+            for (int i = 0; i < count * 8; i++) {
+                ostream.write(NextPixel() & 1);
+            }
+            retval = ostream.data();
+        }
+        return retval;
     }
 }
