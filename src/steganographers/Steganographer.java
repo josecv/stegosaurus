@@ -4,7 +4,8 @@ import java.io.InputStream;
 import stegostreams.BitInputStream;
 
 /*
- * TODO: Make me an output stream!
+ * TODO: Make some kind of abstract Stegano-thing and then have it have two
+ * abstract children: Stego and DeStego, and etc.
  */
 /**
  * Hides/Unhides a payload from a carrier. Can only do one of those two things,

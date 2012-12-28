@@ -33,11 +33,25 @@ public class BMPSteganographer extends Steganographer {
     private int data_size;
     
     /**
+     * The number of bytes that have been read so far.
+     */
+    private int bytes_read;
+    
+    /**
+     * The Width of the image.
+     */
+    private int width;
+    
+    private byte[] newimgdata;
+    
+    /**
      * Create a new BMP steganographer to hide data in the file given.
      * @param target the path to the file where the data will be hidden.
      */
     public BMPSteganographer(InputStream carrier) {
         super(carrier);
+        bytes_read = 0;
+        width = 0;
         try {
             header = new byte[14];
             instream.read(header);
@@ -49,7 +63,11 @@ public class BMPSteganographer extends Steganographer {
             instream.read(dib);
             /* How many bytes are in each pixel? */
             pixel_size = IntFromBytes(Arrays.copyOfRange(dib, 14, 16), 2) / 8;
-            data_size = IntFromBytes(Arrays.copyOfRange(dib, 20, 24), 4);
+            width = IntFromBytes(Arrays.copyOfRange(dib, 4, 8), 4);
+            /* TODO: Investigate why this does not work */
+            //data_size = IntFromBytes(Arrays.copyOfRange(dib, 20, 24), 4);
+            data_size = instream.available();
+            newimgdata = new byte[data_size];
         } catch (IOException ioe) {
             System.out.println(ioe.getMessage());
         }
@@ -75,13 +93,21 @@ public class BMPSteganographer extends Steganographer {
     
     /**
      * Return the next pixel inside the bmp image, as an int.
-     * @return int the next pixel to be read.
+     * @return int the offset in which to find the just read pixel's LSB.
      */
     private int NextPixel() throws IOException {
-        byte[] pixel_bytes = new byte[pixel_size];
-        instream.read(pixel_bytes);
-        return IntFromBytes(Arrays.copyOfRange(pixel_bytes, 0, pixel_size),
-                pixel_size);
+        /* Do we have to account for an offset? */
+        if (bytes_read % width == 0 && width % 4 != 0) {
+            /* Essentially we want to find the next multiple of 4 and then
+             * substract the width from it so as to know how many bytes
+             * to skip */
+            int skip = ((width / 4) + 1) * 4 - width;
+            instream.read(newimgdata, bytes_read, skip);
+            bytes_read += skip;
+        }
+        instream.read(newimgdata, bytes_read, pixel_size);
+        bytes_read += pixel_size;
+        return bytes_read - pixel_size;
     }
     
     /**
@@ -92,34 +118,19 @@ public class BMPSteganographer extends Steganographer {
      */
     @Override
     public byte[] Hide(BitInputStream datastream) throws IOException {
+        /* TODO: Make me go byte by byte */
         /* TODO: This is in want of some serious refactoring */
         /* TODO: Stop assuming that no compression is being used */
-        byte[] newimgdata = new byte[datastream.available() * pixel_size];
-        /* Number of bytes read */
-        int bytes_read = 0;
         /* The read loop; while there are bytes to be read, read them. */
         while (datastream.available() > 0) {
-            int pixel = NextPixel();
+            int off = NextPixel();
             /* Actually place the bit in the lsb of the pixel */
-            pixel = HideInLSB(datastream.read(), pixel);
-            bytes_read += pixel_size;
-            /* Transform pixels into sets of bytes */
-            for (int i = 0; i < pixel_size; i++) {
-                /* Remove bits more significant than the ones we care about
-                 * by anding the pixel with the apropriate power of two
-                 * minus one, and then shift as to the right to lose
-                 * bits less significant than the ones we care about.
-                 */
-                byte val = (byte) ((((1 << ((1 + i) * 8)) - 1) & pixel) >> (i * 8));
-                newimgdata[bytes_read - pixel_size + i] = val;
-            }
+            newimgdata[off] = (byte) HideInLSB(datastream.read(),
+                    newimgdata[off]);
         }
-        byte[] rest = new byte[data_size - newimgdata.length];
-        instream.read(rest);
+        instream.read(newimgdata, bytes_read, data_size - bytes_read);
         instream.close();
-        /* TODO: This part sucks big time */
-        return ArrayUtils.addAll(ArrayUtils.addAll(ArrayUtils.addAll(header,
-                dib), newimgdata), rest);
+        return ArrayUtils.addAll(ArrayUtils.addAll(header, dib), newimgdata);
     }
     
     @Override
@@ -127,7 +138,7 @@ public class BMPSteganographer extends Steganographer {
         byte[] retval;
         try (BitOutputStream ostream = new BitOutputStream()) {
             for (int i = 0; i < count * 8; i++) {
-                ostream.write(NextPixel() & 1);
+                ostream.write(newimgdata[NextPixel()] & 1);
             }
             retval = ostream.data();
         }

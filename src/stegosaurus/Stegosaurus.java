@@ -34,7 +34,7 @@ public class Stegosaurus {
                 System.out.println((char) (b));
             }
         } catch (Exception e) {
-            System.out.println("Tragedy!!");
+            e.printStackTrace();
         }
         System.out.println("We are setting sail!");
     }
