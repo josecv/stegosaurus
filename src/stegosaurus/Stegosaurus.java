@@ -6,12 +6,14 @@ package stegosaurus;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-
-import steganographers.BMPSteganographer;
+import steganographers.Desteganographer;
+import steganographers.Steganographer;
+import steganographers.coders.BMPHider;
+import steganographers.coders.BMPUnHider;
 import stegostreams.BitInputStream;
 
 /**
- *
+ * A nifty tester thingy.
  * @author joe
  */
 public class Stegosaurus {
@@ -23,13 +25,14 @@ public class Stegosaurus {
         String t = args[0];
         String m = args[1];
         try {
-            BMPSteganographer stego = new BMPSteganographer(new FileInputStream(t));
+            Steganographer stego = new Steganographer(new BMPHider(new FileInputStream(t)));
             MessageHandler h = new MessageHandler(m);
             byte[] hidden = stego.Hide(new BitInputStream(h.AsByteArray()));
-            FileOutputStream out = new FileOutputStream(t);
-            out.write(hidden);
-            out.close();
-            BMPSteganographer destego = new BMPSteganographer(new FileInputStream(t));
+            try (FileOutputStream out = new FileOutputStream(t)) {
+                out.write(hidden);
+            }
+            System.out.println("Encoded!");
+            Desteganographer destego = new Desteganographer(new BMPUnHider(new FileInputStream(t)));
             for (byte b : destego.UnHide()) {
                 System.out.println((char) (b));
             }

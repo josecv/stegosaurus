@@ -1,6 +1,7 @@
 package steganographers;
 
 import java.io.InputStream;
+import steganographers.coders.Hider;
 import stegostreams.BitInputStream;
 
 /*
@@ -8,26 +9,21 @@ import stegostreams.BitInputStream;
  * abstract children: Stego and DeStego, and etc.
  */
 /**
- * Hides/Unhides a payload from a carrier. Can only do one of those two things,
- * since the carrier stream will be closed after performing the operation.
+ * Mediates with a Hider to hide a payload in a carrier. Not re-usable.
  *
  * @author joe
  */
-public abstract class Steganographer {
-
-    protected String target;
-    /**
-     * The carrier input stream.
-     */
-    protected InputStream instream;
+public class Steganographer {
+    
+    private Hider hider;
 
     /**
      * Initialize a steganographer.
      *
-     * @param target the file where the data will be hidden.
+     * @param h the hider into which the payload will be hidden.
      */
-    public Steganographer(InputStream carrier) {
-        this.instream = carrier;
+    public Steganographer(Hider h) {
+        this.hider = h;
     }
 
     /**
@@ -39,42 +35,8 @@ public abstract class Steganographer {
      * @return a byte array with the hidden data.
      * @throws Exception
      */
-    public abstract byte[] Hide(BitInputStream datastream) throws Exception;
-
-    /**
-     * UnHide an entire message from the carrier.
-     * @return a byte array, the bytes found in there.
-     * @throws Exception 
-     */    
-    public byte[] UnHide() throws Exception {
-    	byte[] unhidden = UnHide(4);
-        int size = IntFromBytes(unhidden, 4);
-        byte[] retval = UnHide(size);
-        instream.close();
-        return retval;
-    }
-    
-    /**
-     * Unhides count bytes from the carrier.
-     * @param count the number of bytes to take out.
-     * @return a portion of the payload.
-     * @throws Exception 
-     */
-    public abstract byte[] UnHide(int count) throws Exception;
-    
-    /**
-     * Interpret the byte array given as a little endian int composed of size
-     * bytes.
-     *
-     * @param bytes the byte array in question
-     * @param size the number of bytes composing the int
-     * @return the int worked out from the byte array
-     */
-    protected static int IntFromBytes(byte[] bytes, int size) {
-        int retval = 0;
-        for (int i = 0; i < size; i++) {
-            retval += ((int) bytes[i]) << (i * 8);
-        }
-        return retval;
+    public byte[] Hide(BitInputStream datastream) throws Exception {
+        this.hider.Hide(datastream, datastream.available());
+        return this.hider.close();
     }
 }
