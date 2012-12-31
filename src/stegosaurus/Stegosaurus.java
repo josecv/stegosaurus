@@ -34,8 +34,9 @@ public class Stegosaurus {
             System.out.println("Encoded!");
             Desteganographer destego = new Desteganographer(new BMPUnHider(new FileInputStream(t)));
             for (byte b : destego.UnHide()) {
-                System.out.println((char) (b));
+                System.out.print((char) (b));
             }
+            System.out.println();
         } catch (Exception e) {
             e.printStackTrace();
         }

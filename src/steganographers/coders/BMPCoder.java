@@ -11,6 +11,7 @@ import stegutils.StegUtils;
 
 /**
  * A BMP Hider or Unhider.
+ *
  * @author joe
  */
 public abstract class BMPCoder extends ImgCoder {
@@ -40,9 +41,14 @@ public abstract class BMPCoder extends ImgCoder {
      * is read.
      */
     protected byte[] imgdata;
+    /**
+     * The image's header.
+     */
+    protected byte[] header;
 
     public BMPCoder(InputStream in) throws Exception {
         super(in);
+        header = ReadHeader();
         bytes_read = 0;
         /*
          * Where the actual data begins
@@ -67,16 +73,21 @@ public abstract class BMPCoder extends ImgCoder {
         imgdata = new byte[data_size];
     }
 
-    @Override
-    protected byte[] ReadHeader() throws Exception {
+    /**
+     * Read and return the image header.
+     *
+     * @return the BMP's header.
+     * @throws Exception
+     */
+    private byte[] ReadHeader() throws Exception {
         byte[] retval = new byte[14];
         instream.read(retval);
         return retval;
     }
 
     /**
-     * Read the next pixel of the image into imgdata, and return the offset
-     * in which its LSB may be found.
+     * Read the next pixel of the image into imgdata, and return the offset in
+     * which its LSB may be found.
      *
      * @return int the offset in which to find the just read pixel's LSB.
      */
@@ -97,9 +108,10 @@ public abstract class BMPCoder extends ImgCoder {
         bytes_read += pixel_size;
         return bytes_read - pixel_size;
     }
-    
+
     /**
      * Hide the given bit in the LSB of the carrier int.
+     *
      * @param bit either 0 or 1, the bit to place in the carrier
      * @param carrier the int whose LSB will be modified
      * @return the modified carrier.
@@ -107,7 +119,9 @@ public abstract class BMPCoder extends ImgCoder {
     protected static int HideInLSB(int bit, int carrier) {
         int retval;
         if (bit == 0) {
-            /* If we have a zero, zero out the last bit */
+            /*
+             * If we have a zero, zero out the last bit
+             */
             retval = carrier & 0xfffffffe;
         } else {
             retval = carrier | 1;
