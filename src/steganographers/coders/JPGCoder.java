@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package steganographers.coders;
 
 import java.io.IOException;
@@ -64,7 +60,31 @@ public abstract class JPGCoder extends ImgCoder {
     /**
      * A Buffer with the entire JPG file. Used so that we can look ahead.
      */
-    private byte[] buffer;
+    protected byte[] buffer;
+
+    /**
+     * Return whether the given byte is an RSTn marker. It would be indicated by
+     * being 0xDn, where n=0..7.
+     *
+     * @param b the byte to test.
+     * @return true if it is an RSTn marker.
+     */
+    protected static boolean IsRSTMarker(byte b) {
+        byte lsb = (byte) (b & 0x0F);
+        byte msb = (byte) (b & 0xF0);
+        return 0 <= lsb && lsb <= 7 && msb == 0xD0;
+    }
+
+    /**
+     * Return whether the given byte is an application specific marker. It would
+     * be indicated by being 0xEn.
+     *
+     * @param b the byte to test.
+     * @return true if it is an APPn marker.
+     */
+    protected static boolean IsAPPMarker(byte b) {
+        return (b & 0xF0) == 0xE0;
+    }
 
     /*
      * Unfortunately, I think we have no real choice in the matter here: We

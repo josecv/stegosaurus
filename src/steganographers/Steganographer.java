@@ -1,6 +1,5 @@
 package steganographers;
 
-import java.io.InputStream;
 import steganographers.coders.Hider;
 import stegostreams.BitInputStream;
 
