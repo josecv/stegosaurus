@@ -30,7 +30,6 @@ public class Stegosaurus {
             try (FileOutputStream out = new FileOutputStream(t)) {
                 out.write(hidden);
             }
-            System.out.println("Encoded!");
             Desteganographer destego = new Desteganographer(new BMPUnHider(new FileInputStream(t)));
             for (byte b : destego.UnHide()) {
                 System.out.print((char) (b));
@@ -39,6 +38,6 @@ public class Stegosaurus {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("We are setting sail!");
+        System.out.println("We are setting sail!!");
     }
 }
