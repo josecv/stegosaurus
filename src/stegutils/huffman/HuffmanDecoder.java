@@ -123,7 +123,7 @@ public abstract class HuffmanDecoder {
      * Decode every bit inside the BitInputStream given, and return the
      * resulting bytes.
      *
-     * @param in the inputstream to read from.
+     * @param in the BitInputStream to read from.
      * @return the huffman decoded bytes.
      */
     public byte[] Decode(BitInputStream in) {

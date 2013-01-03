@@ -2,6 +2,7 @@ package steganographers.coders;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 /*
  * The JPEG standard splits a file into chunks delimited by markers which are
@@ -15,7 +16,7 @@ import java.io.InputStream;
  *
  * @author joe
  */
-public abstract class JPGCoder extends ImgCoder {
+public abstract class JPEGCoder extends ImgCoder {
 
     /**
      * Code for the start of image marker.
@@ -61,6 +62,11 @@ public abstract class JPGCoder extends ImgCoder {
      * A Buffer with the entire JPG file. Used so that we can look ahead.
      */
     protected byte[] buffer;
+    
+    /**
+     * The index of the last returned segment.
+     */
+    protected int segment_index;
 
     /**
      * Return whether the given byte is an RSTn marker. It would be indicated by
@@ -86,22 +92,31 @@ public abstract class JPGCoder extends ImgCoder {
         return (b & 0xF0) == 0xE0;
     }
 
-    /*
-     * Unfortunately, I think we have no real choice in the matter here: We
-     * _have_ to read in the entire image in one go, since the InputStreams are
-     * non-rewindable and we need to look at the next marker to figure out when
-     * a piece of file is over.
-     */
     /**
      * Initialize the JPGCoder.
      *
      * @param in the InputStream with the JPEG image.
      * @throws Exception
      */
-    public JPGCoder(InputStream in) throws Exception {
+    public JPEGCoder(InputStream in) throws Exception {
         super(in);
         buffer = new byte[instream.available()];
-        instream.read(buffer);
+        for (int i = 0; i < buffer.length; i++) {
+        	buffer[i] = (byte) instream.read();
+        }
+        segment_index = 0;
+    }
+    
+    /**
+     * Get the next segment in this jpeg file.
+     * @return the next segment, which begins with a marker.
+     * @throws IOException on read error
+     */
+    public byte[] NextSegment() throws IOException {
+    	int marker = FindMarker(segment_index);
+    	byte[] retval = Arrays.copyOfRange(buffer, segment_index, marker);
+    	segment_index = marker;
+    	return retval;
     }
 
     /**
@@ -112,16 +127,22 @@ public abstract class JPGCoder extends ImgCoder {
      * @param start the location of the preceding marker.
      *
      * @return where to find the next marker.
+     * @throws IOException on file read error.
      */
     protected int FindMarker(int start) throws IOException {
         /*
          * The first two bytes are a marker, so skip them
          */
-        int c = start + 2;
-        int i = 0, j = 0;
-        while (i != 0xFF || j == 0xFF || j == 0) {
-            i = buffer[c] & 0xFF;
-            j = buffer[c + 1] & 0xFF;
+        int c = start;
+        /* FUCK ELEGANCE!! */
+        /* TODO: Add elegance */
+        if (c + 2 == buffer.length) {
+        	return buffer.length;
+        }
+        short i = 0, j = 0;
+        while ((i != 0xFF || j == 0xFF || j == 0) && (c + 2 < buffer.length)) {
+            i = (short) (buffer[c + 1] & 0xFF);
+            j = (short) (buffer[c + 2] & 0xFF);
             c++;
         }
         return c;
