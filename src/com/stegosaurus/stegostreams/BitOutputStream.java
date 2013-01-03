@@ -1,4 +1,4 @@
-package stegostreams;
+package com.stegosaurus.stegostreams;
 import java.io.OutputStream;
 import java.util.ArrayList;
 

@@ -2,12 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package steganographers.coders;
+package com.stegosaurus.steganographers.coders;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import stegutils.StegUtils;
+
+import com.stegosaurus.stegutils.StegUtils;
+
+import steganographers.coders.ImgCoder;
 
 /**
  * A BMP Hider or Unhider.

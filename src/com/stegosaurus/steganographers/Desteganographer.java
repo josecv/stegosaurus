@@ -2,10 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package steganographers;
+package com.stegosaurus.steganographers;
 
-import steganographers.coders.UnHider;
-import stegutils.StegUtils;
+import com.stegosaurus.steganographers.coders.UnHider;
+import com.stegosaurus.stegutils.StegUtils;
+
 
 /**
  * Mediates with an UnHider to unhide a payload from a carrier.

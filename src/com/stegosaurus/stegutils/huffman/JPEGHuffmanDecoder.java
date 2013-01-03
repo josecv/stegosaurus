@@ -1,4 +1,4 @@
-package stegutils.huffman;
+package com.stegosaurus.stegutils.huffman;
 
 /* TODO: This is written to be easily testable, but it's
  * quite ill-designed. Refactor it without losing that testability.

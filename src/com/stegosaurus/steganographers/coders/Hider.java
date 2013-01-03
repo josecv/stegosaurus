@@ -2,9 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package steganographers.coders;
+package com.stegosaurus.steganographers.coders;
 
-import stegostreams.BitInputStream;
+import com.stegosaurus.stegostreams.BitInputStream;
+
+import steganographers.coders.Coder;
 
 
 /**

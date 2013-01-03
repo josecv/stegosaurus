@@ -1,7 +1,8 @@
-package steganographers;
+package com.stegosaurus.steganographers;
 
-import steganographers.coders.Hider;
-import stegostreams.BitInputStream;
+import com.stegosaurus.steganographers.coders.Hider;
+import com.stegosaurus.stegostreams.BitInputStream;
+
 
 /*
  * TODO: Make some kind of abstract Stegano-thing and then have it have two

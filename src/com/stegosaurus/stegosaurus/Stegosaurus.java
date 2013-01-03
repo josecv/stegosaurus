@@ -1,16 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package stegosaurus;
+package com.stegosaurus.stegosaurus;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import steganographers.Desteganographer;
-import steganographers.Steganographer;
-import steganographers.coders.BMPHider;
-import steganographers.coders.BMPUnHider;
-import stegostreams.BitInputStream;
+
+import com.stegosaurus.steganographers.Desteganographer;
+import com.stegosaurus.steganographers.Steganographer;
+import com.stegosaurus.steganographers.coders.BMPHider;
+import com.stegosaurus.steganographers.coders.BMPUnHider;
+import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegutils.MessageHandler;
+
 
 /**
  * A nifty tester thingy.

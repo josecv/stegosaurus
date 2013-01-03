@@ -2,12 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package steganographers.coders;
+package com.stegosaurus.steganographers.coders;
 
 import java.io.IOException;
 import java.io.InputStream;
-import stegostreams.BitOutputStream;
-import stegutils.ArrayUtils;
+
+import steganographers.coders.BMPCoder;
+import com.stegosaurus.steganographers.coders.UnHider;
+import com.stegosaurus.stegostreams.BitOutputStream;
+import com.stegosaurus.stegutils.ArrayUtils;
+
 
 /**
  * Remove payloads from BMP carriers.

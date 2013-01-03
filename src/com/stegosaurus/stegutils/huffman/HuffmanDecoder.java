@@ -2,11 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package stegutils.huffman;
+package com.stegosaurus.stegutils.huffman;
 
 import java.util.ArrayList;
-import stegostreams.BitInputStream;
-import stegutils.ArrayUtils;
+
+import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegutils.ArrayUtils;
+
 
 /**
  * Performs Huffman Decoding on a BitInputStream. Construction of the Tree is

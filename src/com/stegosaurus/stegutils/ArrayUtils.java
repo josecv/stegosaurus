@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package stegutils;
+package com.stegosaurus.stegutils;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;

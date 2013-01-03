@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package stegosaurus;
+package com.stegosaurus.stegutils;
 
 /**
  * Worries about the logic of dealing with the user's messages.

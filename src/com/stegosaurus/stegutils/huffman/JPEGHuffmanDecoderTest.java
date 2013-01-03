@@ -1,4 +1,4 @@
-package stegutils.huffman;
+package com.stegosaurus.stegutils.huffman;
 
 import static org.junit.Assert.*;
 

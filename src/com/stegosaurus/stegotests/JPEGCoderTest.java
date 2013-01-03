@@ -1,4 +1,4 @@
-package stegotests;
+package com.stegosaurus.stegotests;
 
 import static org.junit.Assert.*;
 
@@ -6,8 +6,10 @@ import java.io.InputStream;
 import java.util.Arrays;
 
 import org.junit.Test;
-import steganographers.coders.JPEGCoder;
-import stegotests.testutils.ByteStream;
+
+import com.stegosaurus.steganographers.coders.JPEGCoder;
+import com.stegosaurus.stegotests.testutils.ByteStream;
+
 
 /*
  * AHOY MATEY!! Bad testing practices at large here.

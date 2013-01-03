@@ -1,4 +1,4 @@
-package stegotests.testutils;
+package com.stegosaurus.stegotests.testutils;
 
 import java.io.IOException;
 import java.io.InputStream;

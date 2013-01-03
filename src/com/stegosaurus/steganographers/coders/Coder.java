@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package steganographers.coders;
+package com.stegosaurus.steganographers.coders;
 
 /**
  * Either a Hider or an Un-Hider.

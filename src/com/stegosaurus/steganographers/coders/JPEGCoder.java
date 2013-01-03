@@ -1,8 +1,10 @@
-package steganographers.coders;
+package com.stegosaurus.steganographers.coders;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+
+import steganographers.coders.ImgCoder;
 
 /*
  * The JPEG standard splits a file into chunks delimited by markers which are
