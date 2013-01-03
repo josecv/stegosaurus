@@ -1,4 +1,4 @@
-package com.stegosaurus.stegutils.huffman;
+package com.stegosaurus.stegotests;
 
 import static org.junit.Assert.*;
 
@@ -6,9 +6,10 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-/* TODO: MOVE ME!! */
+import com.stegosaurus.huffman.trees.TreeNode;
+import com.stegosaurus.huffman.trees.JPEGTreeNode;
 
-public class JPEGHuffmanDecoderTest {
+public class JPEGTreeNodeTest {
 
 	/**
 	 * The Huffman table we'll be using to test. Very unusual table, but still,
@@ -18,13 +19,17 @@ public class JPEGHuffmanDecoderTest {
 			00, 00, 00, 00, 00, 00, 00, 00, 01, 02, 03, 04, 05, 06, 07, 0x08,
 			0x09, 0x0A, 0x0B };
 
+	/**
+	 * The same table, but sorted by the amount of bits required to encode
+	 * each member.
+	 */
 	private final static byte[][] len_sorted_table = { {}, { 0 },
 			{ 1, 2, 3, 4, 5 }, { 6 }, { 7 }, { 0x08 }, { 0x09 }, { 0x0A },
 			{ 0x0B }, {}, {}, {}, {}, {}, {}, {} };
 
 	@Test
 	public void testSortTableByLength() {
-		byte[][] retval = JPEGHuffmanDecoder.SortTableByLength(table);
+		byte[][] retval = JPEGTreeNode.SortTableByLength(table);
 		assertTrue(retval.length == 16);
 		try {
 			assertTrue(Arrays.deepEquals(retval, len_sorted_table));
@@ -41,9 +46,8 @@ public class JPEGHuffmanDecoderTest {
 	}
 
 	@Test
-	public void testBuildTree() {
-		HuffmanDecoder.TreeNode tree = JPEGHuffmanDecoder
-				.BuildTree(len_sorted_table);
+	public void testCTOR() {
+		JPEGTreeNode tree = new JPEGTreeNode(table);
 		/* Depth 2 */
 		assertTrue("0 inserted in wrong position",
 				tree.left().left().data() == 0);
@@ -59,7 +63,7 @@ public class JPEGHuffmanDecoderTest {
 		assertTrue("5 inserted in wrong position", tree.right().right().left()
 				.data() == 5);
 		/* 4 */
-		HuffmanDecoder.TreeNode depth3root = tree.right().right().right();
+		TreeNode depth3root = tree.right().right().right();
 		assertTrue("6 inserted in wrong position",
 				depth3root.left().data() == 6);
 		/* 5 */
@@ -81,15 +85,15 @@ public class JPEGHuffmanDecoderTest {
 
 	@Test
 	public void testInsertWithDepth() {
-		HuffmanDecoder.TreeNode tree = new HuffmanDecoder.TreeNode();
-		JPEGHuffmanDecoder.InsertWithDepth((byte) 2, 1, tree);
+		TreeNode tree = new TreeNode();
+		tree.InsertWithDepth((byte) 2, 1);
 		assertTrue("InsertWithDepth inserting in wrong direction",
 				tree.right() == null);
 		assertTrue("InsertWithDepth inserting wrong data: "
 				+ tree.left().data(), tree.left().data() == 2);
-		JPEGHuffmanDecoder.InsertWithDepth((byte) 3, 3, tree);
-		JPEGHuffmanDecoder.InsertWithDepth((byte) 4, 3, tree);
-		JPEGHuffmanDecoder.InsertWithDepth((byte) 5, 3, tree);
+		tree.InsertWithDepth((byte) 3, 3);
+		tree.InsertWithDepth((byte) 4, 3);
+		tree.InsertWithDepth((byte) 5, 3);
 		assertTrue("Future insertions violate the leaf 2.", tree.left()
 				.IsLeaf());
 		assertTrue("Wrong Insertion of value 3", tree.right().left().left()
@@ -100,8 +104,8 @@ public class JPEGHuffmanDecoderTest {
 				.data() == 5);
 		assertTrue("Phantom node created by insertion", tree.right().right()
 				.right() == null);
-		JPEGHuffmanDecoder.InsertWithDepth((byte) 6, 4, tree);
-		JPEGHuffmanDecoder.InsertWithDepth((byte) 7, 4, tree);
+		tree.InsertWithDepth((byte) 6, 4);
+		tree.InsertWithDepth((byte) 7, 4);
 		assertTrue("Future insertions violate the leaf 3", tree.right().left()
 				.left().IsLeaf());
 		assertTrue("Future insertions violate the leaf 4", tree.right().left()
