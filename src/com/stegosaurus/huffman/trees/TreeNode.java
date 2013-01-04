@@ -1,5 +1,10 @@
 package com.stegosaurus.huffman.trees;
 
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.stegosaurus.huffman.HuffmanCode;
+
 /**
  * The root of a binary tree.
  * 
@@ -162,6 +167,58 @@ public class TreeNode {
 				return false;
 			}
 		}
-
 	}
+
+	/* TODO: Factor out the repetition here */
+
+	/**
+	 * Produce a map representation of this tree going from the values encoded
+	 * to a HuffmanCode structure.
+	 * 
+	 * @return a Map mapping from the encoded values to the corresponding
+	 *         HuffmanCodes.
+	 */
+	public Map<Byte, HuffmanCode> AsMap() {
+		Map<Byte, HuffmanCode> retval = new TreeMap<>();
+		if (left != null) {
+			retval.putAll(left.AsMap(0, 1));
+		}
+		if (right != null) {
+			retval.putAll(right.AsMap(1, 1));
+		}
+		return retval;
+	}
+
+	/**
+	 * Same as with the other AsMap, but prepend prefix to any codes
+	 * encountered. Thus, if, say, the code for 0xAD is 011, and prefix is 101,
+	 * the code becomes 101011.
+	 * 
+	 * @param prefix
+	 *            a prefix to prepend to all encountered codes
+	 * @param len
+	 *            the length of the prefix.
+	 * @return a Map going from the encoded values to the corresponding
+	 *         HuffmanCodes.
+	 */
+	private Map<Byte, HuffmanCode> AsMap(int prefix, int len) {
+		Map<Byte, HuffmanCode> retval = new TreeMap<>();
+		if (IsLeaf()) {
+			HuffmanCode code = new HuffmanCode(data, prefix, len);
+			retval.put(data, code);
+		} else {
+			/*
+			 * For a movement to the left, append a 0. For one to the right
+			 * append a 1.
+			 */
+			if (left != null) {
+				retval.putAll(left.AsMap((prefix << 1), len + 1));
+			}
+			if (right != null) {
+				retval.putAll(right.AsMap(((prefix << 1) | 1), len + 1));
+			}
+		}
+		return retval;
+	}
+
 }

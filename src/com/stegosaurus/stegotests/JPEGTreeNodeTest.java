@@ -1,13 +1,17 @@
 package com.stegosaurus.stegotests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.junit.Test;
 
-import com.stegosaurus.huffman.trees.TreeNode;
+import com.stegosaurus.huffman.HuffmanCode;
 import com.stegosaurus.huffman.trees.JPEGTreeNode;
+import com.stegosaurus.huffman.trees.TreeNode;
 
 public class JPEGTreeNodeTest {
 
@@ -20,8 +24,8 @@ public class JPEGTreeNodeTest {
 			0x09, 0x0A, 0x0B };
 
 	/**
-	 * The same table, but sorted by the amount of bits required to encode
-	 * each member.
+	 * The same table, but sorted by the amount of bits required to encode each
+	 * member.
 	 */
 	private final static byte[][] len_sorted_table = { {}, { 0 },
 			{ 1, 2, 3, 4, 5 }, { 6 }, { 7 }, { 0x08 }, { 0x09 }, { 0x0A },
@@ -116,7 +120,31 @@ public class JPEGTreeNodeTest {
 				.left().data() == 6);
 		assertTrue("Wrong Insertion of value 7", tree.right().right().right()
 				.right().data() == 7);
+	}
 
+	@Test
+	public void testAsMap() {
+		TreeNode tree = new JPEGTreeNode(table);
+		Map<Byte, HuffmanCode> retval = tree.AsMap();
+		TreeMap<Byte, HuffmanCode> expected = new TreeMap<>();
+		expected.put((byte) 0, new HuffmanCode(0, 0, 2));
+		expected.put((byte) 1, new HuffmanCode(1, 0b010, 3));
+		expected.put((byte) 2, new HuffmanCode(2, 0b011, 3));
+		expected.put((byte) 3, new HuffmanCode(3, 0b100, 3));
+		expected.put((byte) 4, new HuffmanCode(4, 0b101, 3));
+		expected.put((byte) 5, new HuffmanCode(5, 0b110, 3));
+		expected.put((byte) 6, new HuffmanCode(6, 0b1110, 4));
+		expected.put((byte) 7, new HuffmanCode(7, 0b11110, 5));
+		expected.put((byte) 8, new HuffmanCode(8, 0b111110, 6));
+		expected.put((byte) 9, new HuffmanCode(9, 0b1111110, 7));
+		expected.put((byte) 0xA, new HuffmanCode(0xA, 0b11111110, 8));
+		expected.put((byte) 0xB, new HuffmanCode(0xB, 0b111111110, 9));
+		for (Byte key : expected.keySet()) {
+			assertTrue(
+					"Wrong value for key " + key + ", got: " + retval.get(key)
+							+ " expected: " + expected.get(key),
+					expected.get(key).equals(retval.get(key)));
+		}
 	}
 
 }

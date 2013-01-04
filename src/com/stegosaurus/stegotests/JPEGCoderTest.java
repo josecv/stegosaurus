@@ -10,7 +10,6 @@ import org.junit.Test;
 import com.stegosaurus.steganographers.coders.JPEGCoder;
 import com.stegosaurus.stegotests.testutils.ByteStream;
 
-
 /*
  * AHOY MATEY!! Bad testing practices at large here.
  * TODO: Make me less... bad.
@@ -43,6 +42,12 @@ public class JPEGCoderTest {
 			0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B,
 			(byte) 0xFF, (byte) 0xD9 };
 
+	/**
+	 * A tiny concrete class to test the JPEGCoder easily.
+	 * 
+	 * @author joe
+	 * 
+	 */
 	private class TestableCoder extends JPEGCoder {
 
 		public TestableCoder(InputStream in) throws Exception {

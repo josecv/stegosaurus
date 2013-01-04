@@ -45,6 +45,13 @@ public abstract class BMPCoder extends ImgCoder {
 	 */
 	protected byte[] header;
 
+	/**
+	 * Initialize the BMPCoder to take care of the given carrier.
+	 * 
+	 * @param in
+	 *            the carrier.
+	 * @throws Exception
+	 */
 	public BMPCoder(InputStream in) throws Exception {
 		super(in);
 		header = ReadHeader();
