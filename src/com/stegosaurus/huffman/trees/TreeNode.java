@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import com.stegosaurus.huffman.HuffmanCode;
 
 /**
- * The root of a binary tree.
+ * The root of a huffman binary tree.
  * 
  * @author joe
  * 

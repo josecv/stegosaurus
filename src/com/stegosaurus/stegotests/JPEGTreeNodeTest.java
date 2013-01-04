@@ -19,7 +19,7 @@ public class JPEGTreeNodeTest {
 	 * The Huffman table we'll be using to test. Very unusual table, but still,
 	 * taken from an actual file.
 	 */
-	private final static byte[] table = { 00, 01, 05, 01, 01, 01, 01, 01, 01,
+	protected final static byte[] table = { 00, 01, 05, 01, 01, 01, 01, 01, 01,
 			00, 00, 00, 00, 00, 00, 00, 00, 01, 02, 03, 04, 05, 06, 07, 0x08,
 			0x09, 0x0A, 0x0B };
 
