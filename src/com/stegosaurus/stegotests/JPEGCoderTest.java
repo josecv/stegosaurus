@@ -2,11 +2,15 @@ package com.stegosaurus.stegotests;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Map;
 
 import org.junit.Test;
 
+import com.stegosaurus.huffman.HuffmanDecoder;
+import com.stegosaurus.huffman.JPEGHuffmanDecoder;
 import com.stegosaurus.steganographers.coders.JPEGCoder;
 import com.stegosaurus.stegotests.testutils.ByteStream;
 
@@ -105,6 +109,26 @@ public class JPEGCoderTest {
 			return null;
 		}
 
+		@Override
+		protected void LoadWorkingSet() throws IOException {
+			super.LoadWorkingSet();
+		}
+
+		public byte[] working_data() {
+			return working_data;
+		}
+
+		public byte[] data() {
+			return data;
+		}
+
+		public Map<Integer, HuffmanDecoder> decoders() {
+			return decoders;
+		}
+
+		public byte[][] subsampling() {
+			return subsampling;
+		}
 	}
 
 	@Test
@@ -112,7 +136,7 @@ public class JPEGCoderTest {
 		ByteStream stream = new ByteStream(data);
 		byte[] retval = { (byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF };
 		try {
-			TestableCoder coder = new TestableCoder(stream);
+			JPEGCoder coder = new TestableCoder(stream);
 			retval = coder.NextSegment();
 			byte[] SOI_EXPECTED = { (byte) 0xFF, (byte) 0xD8 };
 			assertTrue("SOI not returned right",
@@ -157,6 +181,38 @@ public class JPEGCoderTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Exception came out of nowhere: " + e.getMessage());
+		}
+	}
+
+	@Test
+	public void testLoadWorkingSet() {
+		try {
+			ByteStream b = new ByteStream(data);
+			TestableCoder c = new TestableCoder(b);
+			c.LoadWorkingSet();
+			assertTrue("Working data getting loaded badly",
+					Arrays.equals(c.working_data(), SOS));
+			HuffmanDecoder huff = new JPEGHuffmanDecoder(Arrays.copyOfRange(
+					DHT, 5, DHT.length));
+			assertFalse("Decoder not being emplaced",
+					c.decoders().get(0) == null);
+			assertTrue("Huffman decoder being created badly",
+					huff.equals(c.decoders().get(0)));
+			byte[][] subsamp = new byte[3][2];
+			subsamp[0][0] = 2;
+			subsamp[0][1] = 1;
+			subsamp[1][0] = 1;
+			subsamp[1][1] = 1;
+			subsamp[2][0] = 1;
+			subsamp[2][1] = 1;
+			assertTrue("Subsampling array being loaded badly",
+					Arrays.deepEquals(subsamp, c.subsampling()));
+			byte[] expected_data = Arrays.copyOfRange(data, 0, 192);
+			assertTrue("Data being loaded badly",
+					Arrays.equals(expected_data, c.data()));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Unexpected exception " + e.getMessage());
 		}
 	}
 }

@@ -64,4 +64,19 @@ public abstract class HuffmanDecoder {
 		}
 		return n.data();
 	}
+
+	/**
+	 * Return whether this decoder equals the object given.
+	 * 
+	 * @return true if o is a HuffmanDecoder and it uses the exact same code as
+	 *         this one.
+	 */
+	public boolean equals(Object o) {
+		if (o instanceof HuffmanDecoder) {
+			HuffmanDecoder h = (HuffmanDecoder) o;
+			return root.equals(h.root);
+		} else {
+			return false;
+		}
+	}
 }

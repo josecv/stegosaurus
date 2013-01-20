@@ -1,0 +1,39 @@
+package com.stegosaurus.stegotests;
+
+import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
+import org.junit.Test;
+
+import com.stegosaurus.huffman.HuffmanEncoder;
+import com.stegosaurus.huffman.JPEGHuffmanDecoder;
+
+public class HuffmanEncoderTest {
+
+	@Test
+	public void testEncode() {
+		HuffmanEncoder encoder = new HuffmanEncoder(new JPEGHuffmanDecoder(
+				JPEGTreeNodeTest.table));
+		byte[] data = {0, 2, 9, 3, 1, 0xA};
+		/* 00 011 1111110 100 010 11111110 */
+		/* 00011111 11101000 10111111 10000000 */
+		byte[] expected = {0b00011111, (byte) 0b11101000, (byte) 0b10111111, (byte) 0b10000000};
+		byte[] retval = new byte[0];
+		try {
+			retval = encoder.Encode(data);
+			assertTrue("Wrong value returned", Arrays.equals(retval, expected));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Unexpected exception: " + e.getMessage());
+		} catch (AssertionError ae) {
+			System.out.print("[");
+			for (byte b: retval) {
+				System.out.print(b + ", ");
+			}
+			System.out.println("]");
+			fail(ae.getMessage());
+		}
+	}
+
+}

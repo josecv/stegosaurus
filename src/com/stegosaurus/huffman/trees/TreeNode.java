@@ -221,4 +221,38 @@ public class TreeNode {
 		return retval;
 	}
 
+	/**
+	 * Return whether o is equal to this tree.
+	 * 
+	 * @return true if o is a tree and its children are equal to this tree's
+	 *         children. If they're leafs, return treu if they have the same data.
+	 */
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof TreeNode) {
+			TreeNode tree = (TreeNode) o;
+			if (this.IsLeaf()) {
+				if (tree.IsLeaf()) {
+					return tree.data == this.data;
+				} else {
+					return false;
+				}
+			} else {
+				boolean l = false, r = false;
+				if (left != null && tree.left != null) {
+					l = left.equals(tree.left);
+				} else if (left == null && tree.left == null) {
+					l = true;
+				}
+				if (right != null && tree.right != null) {
+					r = right.equals(tree.right);
+				} else if (right == null && tree.right == null) {
+					r = true;
+				}
+				return r && l;
+			}
+		} else {
+			return false;
+		}
+	}
 }

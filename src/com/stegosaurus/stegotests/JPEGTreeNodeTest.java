@@ -1,5 +1,6 @@
 package com.stegosaurus.stegotests;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -145,6 +146,15 @@ public class JPEGTreeNodeTest {
 							+ " expected: " + expected.get(key),
 					expected.get(key).equals(retval.get(key)));
 		}
+	}
+	
+	@Test
+	public void testEquals() {
+		TreeNode tree = new JPEGTreeNode(table);
+		TreeNode tree2 = new JPEGTreeNode(table);
+		assertFalse("tree == tree2", tree == tree2);
+		assertTrue("tree.equals tree2 is false", tree.equals(tree2));
+		assertTrue("tree2.equals tree is false", tree2.equals(tree));
 	}
 
 }

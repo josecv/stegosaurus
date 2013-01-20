@@ -20,4 +20,13 @@ public class HuffmanDecoderTest {
 		byte[] expected = {0x00, 0x01, 0x02, 0x06, 0x06};
 		assertTrue("Wrong return value from decode", Arrays.equals(expected, retval));
 	}
+	
+	@Test
+	public void testEquals() {
+		HuffmanDecoder huff = new JPEGHuffmanDecoder(JPEGTreeNodeTest.table);
+		HuffmanDecoder huff2 = new JPEGHuffmanDecoder(JPEGTreeNodeTest.table);
+		assertTrue("huff.equals huff2 returning false", huff.equals(huff2));
+		assertTrue("huff2.equals huff returning false", huff2.equals(huff));
+		assertFalse("huff == huff2", huff == huff2);
+	}
 }

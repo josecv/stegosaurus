@@ -3,8 +3,8 @@ package com.stegosaurus.steganographers.coders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.huffman.JPEGHuffmanDecoder;
@@ -91,7 +91,7 @@ public abstract class JPEGCoder extends ImgCoder {
 	/**
 	 * Huffman decoders for the usual components.
 	 */
-	protected Map<Byte, HuffmanDecoder> decoders;
+	protected Map<Integer, HuffmanDecoder> decoders;
 
 	/**
 	 * The numbers for the chroma subsampling. Being the ID - 1 (so as to be 0
@@ -139,7 +139,7 @@ public abstract class JPEGCoder extends ImgCoder {
 			buffer[i] = (byte) instream.read();
 		}
 		segment_index = 0;
-		decoders = new HashMap<>();
+		decoders = new TreeMap<>();
 		data = new byte[0];
 	}
 
@@ -215,7 +215,7 @@ public abstract class JPEGCoder extends ImgCoder {
 				}
 				break;
 			case DHT_MARKER:
-				byte id = segment[4];
+				int id = segment[4];
 				decoders.put(
 						id,
 						new JPEGHuffmanDecoder(Arrays.copyOfRange(segment, 5,
