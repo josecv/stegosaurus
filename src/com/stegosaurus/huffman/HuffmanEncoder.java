@@ -35,7 +35,6 @@ public class HuffmanEncoder {
 			int c = hc.code;
 			int len = hc.length;
 			for (int i = len - 1; i >= 0; i--) {
-				System.out.print((c >> i) & 1);
 				os.write((c >> i) & 1);
 			}
 			System.out.println();
