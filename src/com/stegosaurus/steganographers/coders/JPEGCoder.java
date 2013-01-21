@@ -195,12 +195,14 @@ public abstract class JPEGCoder extends ImgCoder {
 	 * Read sequences until we come across image data. Place relevant data such
 	 * as Huffman tables in appropriate fields, as well as in the data field.
 	 * Place the image data in the working_data field, but not in the data
-	 * field. Apropriate closing of the working set, particularly the placing of
-	 * the image data in the data field is left to children classes.
+	 * field. Appropriate closing of the working set, particularly the placing
+	 * of the image data in the data field is left to children classes.
 	 * 
+	 * @return this jpeg coder.
 	 * @throws IOException
+	 *             on read errors.
 	 */
-	protected void LoadWorkingSet() throws IOException {
+	protected JPEGCoder LoadWorkingSet() throws IOException {
 		byte[] segment = NextSegment();
 		while (segment != null && segment[1] != SOS_MARKER
 				&& !IsRSTMarker(segment[1])) {
@@ -228,5 +230,6 @@ public abstract class JPEGCoder extends ImgCoder {
 			segment = NextSegment();
 		}
 		working_data = segment;
+		return this;
 	}
 }
