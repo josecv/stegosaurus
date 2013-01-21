@@ -179,7 +179,7 @@ public class TreeNode {
 	 *         HuffmanCodes.
 	 */
 	public Map<Byte, HuffmanCode> AsMap() {
-		Map<Byte, HuffmanCode> retval = new TreeMap<>();
+		Map<Byte, HuffmanCode> retval = new TreeMap<Byte, HuffmanCode>();
 		if (left != null) {
 			retval.putAll(left.AsMap(0, 1));
 		}
@@ -202,7 +202,7 @@ public class TreeNode {
 	 *         HuffmanCodes.
 	 */
 	private Map<Byte, HuffmanCode> AsMap(int prefix, int len) {
-		Map<Byte, HuffmanCode> retval = new TreeMap<>();
+		Map<Byte, HuffmanCode> retval = new TreeMap<Byte, HuffmanCode>();
 		if (IsLeaf()) {
 			HuffmanCode code = new HuffmanCode(data, prefix, len);
 			retval.put(data, code);

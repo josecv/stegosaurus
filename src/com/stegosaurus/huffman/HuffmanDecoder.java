@@ -35,7 +35,7 @@ public abstract class HuffmanDecoder {
 	 * @return the huffman decoded bytes.
 	 */
 	public byte[] Decode(SequentialBitInputStream in) {
-		ArrayList<Byte> retval = new ArrayList<>();
+		ArrayList<Byte> retval = new ArrayList<Byte>();
 		/*
 		 * For every set of bits, the first leaf encountered contains the byte
 		 * that they stand for.

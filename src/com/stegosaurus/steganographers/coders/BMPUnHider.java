@@ -42,12 +42,11 @@ public class BMPUnHider extends BMPCoder implements UnHider {
 	@Override
 	public byte[] UnHide(int count) throws IOException {
 		byte[] retval;
-		try (BitOutputStream ostream = new BitOutputStream()) {
-			for (int i = 0; i < count * 8; i++) {
-				ostream.write(imgdata[NextPixel()] & 1);
-			}
-			retval = ostream.data();
+		BitOutputStream ostream = new BitOutputStream();
+		for (int i = 0; i < count * 8; i++) {
+			ostream.write(imgdata[NextPixel()] & 1);
 		}
+		retval = ostream.data();
 		payload = ArrayUtils.addAll(payload, retval);
 		return retval;
 	}

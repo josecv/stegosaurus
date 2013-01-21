@@ -139,7 +139,7 @@ public abstract class JPEGCoder extends ImgCoder {
 			buffer[i] = (byte) instream.read();
 		}
 		segment_index = 0;
-		decoders = new TreeMap<>();
+		decoders = new TreeMap<Integer, HuffmanDecoder>();
 		data = new byte[0];
 	}
 
