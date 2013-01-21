@@ -4,8 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.stegosaurus.stegutils.ArrayUtils;
-
+import org.apache.commons.lang3.ArrayUtils;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.steganographers.coders.Hider;
 

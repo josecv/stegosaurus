@@ -6,7 +6,7 @@ import java.io.InputStream;
 import com.stegosaurus.steganographers.coders.BMPCoder;
 import com.stegosaurus.steganographers.coders.UnHider;
 import com.stegosaurus.stegostreams.BitOutputStream;
-import com.stegosaurus.stegutils.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Remove payloads from BMP carriers.
@@ -47,6 +47,7 @@ public class BMPUnHider extends BMPCoder implements UnHider {
 			ostream.write(imgdata[NextPixel()] & 1);
 		}
 		retval = ostream.data();
+		ostream.close();
 		payload = ArrayUtils.addAll(payload, retval);
 		return retval;
 	}

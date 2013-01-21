@@ -2,10 +2,9 @@ package com.stegosaurus.steganographers.coders;
 
 import java.io.InputStream;
 
-import com.stegosaurus.steganographers.coders.BMPCoder;
-import com.stegosaurus.steganographers.coders.Hider;
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.stegosaurus.stegostreams.BitInputStream;
-import com.stegosaurus.stegutils.ArrayUtils;
 
 /**
  * Hides payload data in a BMP carrier.

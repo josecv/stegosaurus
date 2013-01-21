@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 import com.stegosaurus.huffman.trees.TreeNode;
 import com.stegosaurus.stegostreams.SequentialBitInputStream;
-import com.stegosaurus.stegutils.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
+
 
 /**
  * Performs Huffman Decoding on a BitInputStream. Construction of the Tree is

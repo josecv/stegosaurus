@@ -8,7 +8,7 @@ import java.util.TreeMap;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.huffman.JPEGHuffmanDecoder;
-import com.stegosaurus.stegutils.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 /*
  * The JPEG standard splits a file into chunks delimited by markers which are
