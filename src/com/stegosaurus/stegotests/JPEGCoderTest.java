@@ -110,8 +110,8 @@ public class JPEGCoderTest {
 		}
 
 		@Override
-		protected void LoadWorkingSet() throws IOException {
-			super.LoadWorkingSet();
+		protected JPEGCoder LoadWorkingSet() throws IOException {
+			return super.LoadWorkingSet();
 		}
 
 		public byte[] working_data() {
