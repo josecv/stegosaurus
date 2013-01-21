@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegostreams.SequentialBitOutputStream;
+import com.stegosaurus.huffman.HuffmanCode;
 
 public class HuffmanEncoder {
 	protected Map<Byte, HuffmanCode> code;

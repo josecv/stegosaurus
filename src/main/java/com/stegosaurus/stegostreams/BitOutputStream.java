@@ -21,7 +21,7 @@ public class BitOutputStream extends OutputStream {
 
 	public BitOutputStream() {
 		super();
-		data = new ArrayList<>();
+		data = new ArrayList<Byte>();
 	}
 
 	/**
