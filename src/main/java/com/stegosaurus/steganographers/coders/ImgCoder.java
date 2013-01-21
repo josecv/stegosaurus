@@ -2,7 +2,7 @@ package com.stegosaurus.steganographers.coders;
 
 import java.io.InputStream;
 
-import steganographers.coders.Coder;
+import com.stegosaurus.steganographers.coders.Coder;
 
 /**
  * A coder which operates on images.

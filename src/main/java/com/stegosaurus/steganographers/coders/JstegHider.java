@@ -4,9 +4,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import stegutils.ArrayUtils;
+import com.stegosaurus.stegutils.ArrayUtils;
 
 import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.steganographers.coders.Hider;
+
 
 /**
  * A JPEG hider which makes use of the Jsteg algorithm.

@@ -4,7 +4,7 @@
  */
 package com.stegosaurus.steganographers.coders;
 
-import steganographers.coders.Coder;
+import com.stegosaurus.steganographers.coders.Coder;
 
 /**
  * UnHides payloads from carriers. Close returns the entire payload.

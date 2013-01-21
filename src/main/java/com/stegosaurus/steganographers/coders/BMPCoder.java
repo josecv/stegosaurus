@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 import com.stegosaurus.stegutils.StegUtils;
 
-import steganographers.coders.ImgCoder;
+import com.stegosaurus.steganographers.coders.ImgCoder;
 
 /**
  * A BMP Hider or Unhider.

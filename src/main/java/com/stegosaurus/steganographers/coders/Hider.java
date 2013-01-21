@@ -6,7 +6,7 @@ package com.stegosaurus.steganographers.coders;
 
 import com.stegosaurus.stegostreams.BitInputStream;
 
-import steganographers.coders.Coder;
+import com.stegosaurus.steganographers.coders.Coder;
 
 
 /**

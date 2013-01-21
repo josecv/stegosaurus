@@ -3,7 +3,7 @@ package com.stegosaurus.steganographers.coders;
 import java.io.IOException;
 import java.io.InputStream;
 
-import steganographers.coders.BMPCoder;
+import com.stegosaurus.steganographers.coders.BMPCoder;
 import com.stegosaurus.steganographers.coders.UnHider;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegutils.ArrayUtils;

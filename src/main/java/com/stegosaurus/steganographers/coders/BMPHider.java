@@ -2,7 +2,7 @@ package com.stegosaurus.steganographers.coders;
 
 import java.io.InputStream;
 
-import steganographers.coders.BMPCoder;
+import com.stegosaurus.steganographers.coders.BMPCoder;
 import com.stegosaurus.steganographers.coders.Hider;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.stegutils.ArrayUtils;

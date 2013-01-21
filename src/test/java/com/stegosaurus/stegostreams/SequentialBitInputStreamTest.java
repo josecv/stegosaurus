@@ -1,4 +1,4 @@
-package com.stegosaurus.stegotests;
+package com.stegosaurus.stegostreams;
 
 import static org.junit.Assert.*;
 

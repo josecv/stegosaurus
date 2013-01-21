@@ -1,4 +1,4 @@
-package com.stegosaurus.stegotests;
+package com.stegosaurus.huffman.trees;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,7 +20,7 @@ public class JPEGTreeNodeTest {
 	 * The Huffman table we'll be using to test. Very unusual table, but still,
 	 * taken from an actual file.
 	 */
-	protected final static byte[] table = { 00, 01, 05, 01, 01, 01, 01, 01, 01,
+	private final static byte[] table = { 00, 01, 05, 01, 01, 01, 01, 01, 01,
 			00, 00, 00, 00, 00, 00, 00, 00, 01, 02, 03, 04, 05, 06, 07, 0x08,
 			0x09, 0x0A, 0x0B };
 
@@ -34,7 +34,7 @@ public class JPEGTreeNodeTest {
 
 	@Test
 	public void testSortTableByLength() {
-		byte[][] retval = JPEGTreeNode.SortTableByLength(table);
+		byte[][] retval = JPEGTreeNode.SortTableByLength(getTable());
 		assertTrue(retval.length == 16);
 		try {
 			assertTrue(Arrays.deepEquals(retval, len_sorted_table));
@@ -52,7 +52,7 @@ public class JPEGTreeNodeTest {
 
 	@Test
 	public void testCTOR() {
-		JPEGTreeNode tree = new JPEGTreeNode(table);
+		JPEGTreeNode tree = new JPEGTreeNode(getTable());
 		/* Depth 2 */
 		assertTrue("0 inserted in wrong position",
 				tree.left().left().data() == 0);
@@ -150,11 +150,15 @@ public class JPEGTreeNodeTest {
 	
 	@Test
 	public void testEquals() {
-		TreeNode tree = new JPEGTreeNode(table);
-		TreeNode tree2 = new JPEGTreeNode(table);
+		TreeNode tree = new JPEGTreeNode(getTable());
+		TreeNode tree2 = new JPEGTreeNode(getTable());
 		assertFalse("tree == tree2", tree == tree2);
 		assertTrue("tree.equals tree2 is false", tree.equals(tree2));
 		assertTrue("tree2.equals tree is false", tree2.equals(tree));
+	}
+
+	public static byte[] getTable() {
+		return table;
 	}
 
 }
