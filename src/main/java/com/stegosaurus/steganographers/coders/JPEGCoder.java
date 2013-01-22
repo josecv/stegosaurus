@@ -2,6 +2,7 @@ package com.stegosaurus.steganographers.coders;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
@@ -126,6 +127,26 @@ public abstract class JPEGCoder extends ImgCoder {
 	}
 
 	/**
+	 * Given a JPEG segment, remove the 0x00 bytes that follow any legitimate
+	 * 0xFF bytes, so that the data might be dealt with.
+	 * 
+	 * @param segment
+	 *            the segment in question
+	 * @return the segment, with 0x00 bytes removed.
+	 */
+	public static byte[] Unescape(byte[] segment) {
+		ArrayList<Byte> s = new ArrayList<Byte>(Arrays.asList(ArrayUtils
+				.toObject(segment)));
+		int i;
+		for (i = s.size() - 1; i > 0; i--) {
+			if (s.get(i) == 0 && s.get(i - 1) == (byte) 0xFF) {
+				s.remove(i);
+			}
+		}
+		return ArrayUtils.toPrimitive(s.toArray(new Byte[s.size()]));
+	}
+
+	/**
 	 * Initialize the JPGCoder.
 	 * 
 	 * @param in
@@ -217,6 +238,9 @@ public abstract class JPEGCoder extends ImgCoder {
 				}
 				break;
 			case DHT_MARKER:
+				/* TODO: There may be a bunch of huffman tables here.
+				 * Fix this.
+				 */
 				int id = segment[4];
 				decoders.put(
 						id,

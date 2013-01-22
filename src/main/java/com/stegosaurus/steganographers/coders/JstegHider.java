@@ -1,13 +1,10 @@
 package com.stegosaurus.steganographers.coders;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.apache.commons.lang3.ArrayUtils;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.steganographers.coders.Hider;
-
 
 /**
  * A JPEG hider which makes use of the Jsteg algorithm.
@@ -18,24 +15,9 @@ import com.stegosaurus.steganographers.coders.Hider;
 public class JstegHider extends JPEGCoder implements Hider {
 
 	/**
-	 * An enum declaring an 8x8 block as either a Luma or Chroma component.
-	 * 
-	 * @author joe
-	 * 
-	 */
-	private enum BlockType {
-		L, CB, CR
-	};
-
-	/**
 	 * The 8x8 block being dealt with right now.
 	 */
 	private byte[] current_block;
-
-	/**
-	 * The type of the 8x8 block currently being dealt with.
-	 */
-	private BlockType current_block_type;
 
 	/**
 	 * The index in the working set that we are dealing with right now.
@@ -47,6 +29,18 @@ public class JstegHider extends JPEGCoder implements Hider {
 	 * row.
 	 */
 	private int blocks_of_type;
+
+	/**
+	 * The number of the component we are dealing with. EG if this is a
+	 * "typical" coloured JPEG image, and we are dealing with a Luma macroblock,
+	 * this is 0.
+	 */
+	private int component;
+
+	/**
+	 * The number of components in the current scan. Usually 3.
+	 */
+	private int numberOfComponents;
 
 	/**
 	 * {@inheritDoc}
@@ -66,31 +60,11 @@ public class JstegHider extends JPEGCoder implements Hider {
 	}
 
 	/**
-	 * Given a JPEG segment, remove the 0x00 bytes that follow any legitimate
-	 * 0xFF bytes, so that the data might be dealt with.
-	 * 
-	 * @param segment
-	 *            the segment in question
-	 * @return the segment, with 0x00 bytes removed.
-	 */
-	private static byte[] Unescape(byte[] segment) {
-		ArrayList<Byte> s = new ArrayList<Byte>(Arrays.asList(ArrayUtils
-				.toObject(segment)));
-		int i;
-		for (i = s.size() - 1; i >= 0; i--) {
-			if (s.get(i) == 0 && s.get(i) == 0xFF) {
-				s.remove(i);
-			}
-		}
-		return ArrayUtils.toPrimitive(s.toArray(new Byte[s.size()]));
-	}
-
-	/**
 	 * Load the next 8x8 block from the working set.
 	 * 
 	 * @return
 	 */
-	private JstegHider LoadBlock() {
+	private JPEGCoder LoadBlock() {
 		current_block = Arrays.copyOfRange(working_data, working_index,
 				working_index + 64);
 		working_index += 64;
@@ -105,9 +79,8 @@ public class JstegHider extends JPEGCoder implements Hider {
 		if (working_data.length == 0) {
 			LoadWorkingSet();
 			working_data = Unescape(working_data);
-			current_block_type = BlockType.L;
 			blocks_of_type = 0;
-			working_index = 0; 
+			working_index = 0;
 			LoadBlock();
 		}
 	}
