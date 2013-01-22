@@ -3,7 +3,10 @@ package com.stegosaurus.steganographers.coders;
 import java.io.InputStream;
 import java.util.Arrays;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegostreams.SequentialBitInputStream;
 import com.stegosaurus.steganographers.coders.Hider;
 
 /**
@@ -15,14 +18,9 @@ import com.stegosaurus.steganographers.coders.Hider;
 public class JstegHider extends JPEGCoder implements Hider {
 
 	/**
-	 * The 8x8 block being dealt with right now.
+	 * The 8x8 block being dealt with right now, unencoded.
 	 */
 	private byte[] current_block;
-
-	/**
-	 * The index in the working set that we are dealing with right now.
-	 */
-	private int working_index;
 
 	/**
 	 * The number of blocks of the current block type that we have seen in a
@@ -50,6 +48,11 @@ public class JstegHider extends JPEGCoder implements Hider {
 	private byte[] huffmanTableId;
 
 	/**
+	 * An entire scan (at least before the next reset marker), as an input stream.
+	 */
+	private BitInputStream scan;
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public JstegHider(InputStream in) throws Exception {
@@ -72,9 +75,6 @@ public class JstegHider extends JPEGCoder implements Hider {
 	 * @return
 	 */
 	private JPEGCoder LoadBlock() {
-		current_block = Arrays.copyOfRange(working_data, working_index,
-				working_index + 64);
-		working_index += 64;
 		return this;
 	}
 
@@ -95,12 +95,7 @@ public class JstegHider extends JPEGCoder implements Hider {
 			byte table = working_data[i + 1];
 			huffmanTableId[id - 1] = table;
 		}
-		/*
-		 * The working index becomes two bytes for the marker, plus two bytes
-		 * for the size, plus a byte for the number of components, so 5, plus i,
-		 * the component info.
-		 */
-		working_index = i + 5;
+		data = ArrayUtils.addAll(data, Arrays.copyOf(working_data, i + 5));
 		return LoadBlock();
 	}
 
