@@ -43,6 +43,13 @@ public class JstegHider extends JPEGCoder implements Hider {
 	private int numberOfComponents;
 
 	/**
+	 * The huffman table for each component. The indices are the component ids -
+	 * 1 (eg 0 for Luma) and the values are the name of the Huffman table to
+	 * use.
+	 */
+	private byte[] huffmanTableId;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public JstegHider(InputStream in) throws Exception {
@@ -72,16 +79,38 @@ public class JstegHider extends JPEGCoder implements Hider {
 	}
 
 	/**
+	 * {@inheritDoc} Also unescapes the working data, and loads in the component
+	 * information
+	 * 
+	 * @TODO: Consider pulling up responsibility for some of the stuff here
+	 */
+	@Override
+	protected JPEGCoder LoadWorkingSet() {
+		working_data = Unescape(working_data);
+		blocks_of_type = 0;
+		numberOfComponents = working_data[4];
+		int i;
+		for (i = 0; i < numberOfComponents * 2; i += 2) {
+			byte id = working_data[i];
+			byte table = working_data[i + 1];
+			huffmanTableId[id - 1] = table;
+		}
+		/*
+		 * The working index becomes two bytes for the marker, plus two bytes
+		 * for the size, plus a byte for the number of components, so 5, plus i,
+		 * the component info.
+		 */
+		working_index = i + 5;
+		return LoadBlock();
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void Hide(BitInputStream datastream, int count) throws Exception {
 		if (working_data.length == 0) {
 			LoadWorkingSet();
-			working_data = Unescape(working_data);
-			blocks_of_type = 0;
-			working_index = 0;
-			LoadBlock();
 		}
 	}
 

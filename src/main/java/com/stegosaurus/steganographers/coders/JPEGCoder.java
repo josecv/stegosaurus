@@ -91,6 +91,7 @@ public abstract class JPEGCoder extends ImgCoder {
 
 	/**
 	 * Huffman decoders for the usual components.
+	 * @TODO: This probably sucks performance-wise.
 	 */
 	protected Map<Integer, HuffmanDecoder> decoders;
 
@@ -239,7 +240,6 @@ public abstract class JPEGCoder extends ImgCoder {
 				break;
 			case DHT_MARKER:
 				/* TODO: There may be a bunch of huffman tables here.
-				 * Fix this.
 				 */
 				int id = segment[4];
 				decoders.put(
