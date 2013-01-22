@@ -3,7 +3,7 @@ package com.stegosaurus.huffman;
 import java.util.ArrayList;
 
 import com.stegosaurus.huffman.trees.TreeNode;
-import com.stegosaurus.stegostreams.SequentialBitInputStream;
+import com.stegosaurus.stegostreams.BitInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 
 
@@ -35,7 +35,7 @@ public abstract class HuffmanDecoder {
 	 *            the BitInputStream to read from.
 	 * @return the huffman decoded bytes.
 	 */
-	public byte[] Decode(SequentialBitInputStream in) {
+	public byte[] Decode(BitInputStream in) {
 		ArrayList<Byte> retval = new ArrayList<Byte>();
 		/*
 		 * For every set of bits, the first leaf encountered contains the byte
@@ -54,7 +54,7 @@ public abstract class HuffmanDecoder {
 	 *            the bit input stream with the encoded data.
 	 * @return the next decoded byte.
 	 */
-	public byte DecodeNext(SequentialBitInputStream in) {
+	public byte DecodeNext(BitInputStream in) {
 		TreeNode n = root;
 		while (!n.IsLeaf() && in.available() > 0) {
 			if (in.read() == 0) {

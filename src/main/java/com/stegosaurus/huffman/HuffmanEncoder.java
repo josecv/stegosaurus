@@ -7,7 +7,17 @@ import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegostreams.SequentialBitOutputStream;
 import com.stegosaurus.huffman.HuffmanCode;
 
+/**
+ * Performs encoding of arbitrary bytes into bit streams according to a specific
+ * code.
+ * 
+ * @author joe
+ * 
+ */
 public class HuffmanEncoder {
+	/**
+	 * The inner representation of the code we're using.
+	 */
 	protected Map<Byte, HuffmanCode> code;
 
 	/**
