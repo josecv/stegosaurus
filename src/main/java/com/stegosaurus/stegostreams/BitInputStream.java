@@ -27,7 +27,7 @@ public class BitInputStream extends InputStream {
 	 *            the array of bytes whose bits we will return one by one.
 	 */
 	public BitInputStream(byte[] in) {
-		this.in = in;
+		this.in = in.clone();
 		index = 0;
 	}
 

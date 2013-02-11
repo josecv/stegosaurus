@@ -23,7 +23,7 @@ public class ByteStream extends InputStream {
 
 	public ByteStream(byte[] arr) {
 		i = 0;
-		this.arr = arr;
+		this.arr = arr.clone();
 	}
 	
 	@Override

@@ -22,6 +22,6 @@ public class JPEGHuffmanDecoder extends HuffmanDecoder {
 	 */
 	public JPEGHuffmanDecoder(byte[] table) {
 		super();
-		root = new JPEGTreeNode(table);
+		root = new JPEGTreeNode(table.clone());
 	}
 }
