@@ -26,7 +26,7 @@ public class Stegosaurus {
         try {
             Steganographer stego = new Steganographer(new BMPHider(new FileInputStream(t)));
             MessageHandler h = new MessageHandler(m);
-            byte[] hidden = stego.Hide(new BitInputStream(h.AsByteArray()));
+            byte[] hidden = stego.hide(new BitInputStream(h.AsByteArray()));
             try (FileOutputStream out = new FileOutputStream(t)) {
                 out.write(hidden);
             }

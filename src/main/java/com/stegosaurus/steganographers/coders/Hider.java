@@ -19,5 +19,5 @@ public interface Hider extends Coder {
      * @param datastrem the stream containing the payload.
      * @param count the number of bits from the payload to hide.
      */
-    public void Hide(BitInputStream datastream, int count) throws Exception;
+    public void hide(BitInputStream datastream, int count) throws Exception;
 }
