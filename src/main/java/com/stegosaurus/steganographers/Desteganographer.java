@@ -4,6 +4,8 @@
  */
 package com.stegosaurus.steganographers;
 
+import java.io.IOException;
+
 import com.stegosaurus.steganographers.coders.UnHider;
 import com.stegosaurus.stegutils.StegUtils;
 
@@ -15,26 +17,25 @@ import com.stegosaurus.stegutils.StegUtils;
  */
 public class Desteganographer {
 
-    private UnHider unhider;
+  private UnHider unhider;
 
-    public Desteganographer(UnHider u) {
-        this.unhider = u;
-    }
+  public Desteganographer(UnHider u) {
+    this.unhider = u;
+  }
 
-    /**
-     * UnHide an entire message from the carrier.
-     *
-     * @return a byte array, the bytes found in there.
-     * @throws Exception
-     */
-    public byte[] UnHide() throws Exception {
-        byte[] unhidden = unhider.UnHide(4);
-        int size = StegUtils.IntFromBytes(unhidden, 4);
-        byte[] retval = unhider.UnHide(size);
-        /* We don't want the starting four bytes in the message, so trim them
-         * by not returning unhider.close
-         */
-        unhider.close();
-        return retval;
-    }
+  /**
+   * UnHide an entire message from the carrier.
+   *
+   * @return a byte array, the bytes found in there.
+   * @throws Exception
+   */
+  public byte[] unHider() throws IOException {
+    byte[] unhidden = unhider.unHide(4);
+    int size = StegUtils.intFromBytes(unhidden, 4);
+    byte[] retval = unhider.unHide(size);
+    /* We don't want the starting four bytes in the message, so trim them
+     * by not returning unhider.close */
+    unhider.close();
+    return retval;
+  }
 }

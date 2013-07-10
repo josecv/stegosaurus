@@ -34,7 +34,7 @@ public class JPEGTreeNodeTest {
 
 	@Test
 	public void testSortTableByLength() {
-		byte[][] retval = JPEGTreeNode.SortTableByLength(getTable());
+		byte[][] retval = JPEGTreeNode.sortTableByLength(getTable());
 		assertTrue(retval.length == 16);
 		try {
 			assertTrue(Arrays.deepEquals(retval, len_sorted_table));
@@ -91,16 +91,16 @@ public class JPEGTreeNodeTest {
 	@Test
 	public void testInsertWithDepth() {
 		TreeNode tree = new TreeNode();
-		tree.InsertWithDepth((byte) 2, 1);
+		tree.insertWithDepth((byte) 2, 1);
 		assertTrue("InsertWithDepth inserting in wrong direction",
 				tree.right() == null);
 		assertTrue("InsertWithDepth inserting wrong data: "
 				+ tree.left().data(), tree.left().data() == 2);
-		tree.InsertWithDepth((byte) 3, 3);
-		tree.InsertWithDepth((byte) 4, 3);
-		tree.InsertWithDepth((byte) 5, 3);
+		tree.insertWithDepth((byte) 3, 3);
+		tree.insertWithDepth((byte) 4, 3);
+		tree.insertWithDepth((byte) 5, 3);
 		assertTrue("Future insertions violate the leaf 2.", tree.left()
-				.IsLeaf());
+				.isLeaf());
 		assertTrue("Wrong Insertion of value 3", tree.right().left().left()
 				.data() == 3);
 		assertTrue("Wrong Insertion of value 4", tree.right().left().right()
@@ -109,14 +109,14 @@ public class JPEGTreeNodeTest {
 				.data() == 5);
 		assertTrue("Phantom node created by insertion", tree.right().right()
 				.right() == null);
-		tree.InsertWithDepth((byte) 6, 4);
-		tree.InsertWithDepth((byte) 7, 4);
+		tree.insertWithDepth((byte) 6, 4);
+		tree.insertWithDepth((byte) 7, 4);
 		assertTrue("Future insertions violate the leaf 3", tree.right().left()
-				.left().IsLeaf());
+				.left().isLeaf());
 		assertTrue("Future insertions violate the leaf 4", tree.right().left()
-				.right().IsLeaf());
+				.right().isLeaf());
 		assertTrue("Future insertions violate the leaf 5", tree.right().right()
-				.left().IsLeaf());
+				.left().isLeaf());
 		assertTrue("Wrong Insertion of value 6", tree.right().right().right()
 				.left().data() == 6);
 		assertTrue("Wrong Insertion of value 7", tree.right().right().right()
@@ -126,7 +126,7 @@ public class JPEGTreeNodeTest {
 	@Test
 	public void testAsMap() {
 		TreeNode tree = new JPEGTreeNode(table);
-		Map<Byte, HuffmanCode> retval = tree.AsMap();
+		Map<Byte, HuffmanCode> retval = tree.asMap();
 		TreeMap<Byte, HuffmanCode> expected = new TreeMap<>();
 		expected.put((byte) 0, new HuffmanCode(0, 0, 2));
 		expected.put((byte) 1, new HuffmanCode(1, 0b010, 3));
@@ -152,9 +152,11 @@ public class JPEGTreeNodeTest {
 	public void testEquals() {
 		TreeNode tree = new JPEGTreeNode(getTable());
 		TreeNode tree2 = new JPEGTreeNode(getTable());
-		assertFalse("tree == tree2", tree == tree2);
+		assertFalse("tree == tree);2", tree == tree2);
 		assertTrue("tree.equals tree2 is false", tree.equals(tree2));
 		assertTrue("tree2.equals tree is false", tree2.equals(tree));
+    assertTrue("the trees have different hash codes",
+      tree.hashCode() == tree2.hashCode());
 	}
 
 	public static byte[] getTable() {

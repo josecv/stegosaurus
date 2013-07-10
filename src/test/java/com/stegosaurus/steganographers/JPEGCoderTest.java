@@ -117,17 +117,17 @@ public class JPEGCoderTest {
     }
 
     @Override
-    public byte[] close() throws Exception {
+    public byte[] close() {
       return null;
     }
 
     @Override
-    protected JPEGCoder LoadWorkingSet() throws IOException {
-      return super.LoadWorkingSet();
+    protected JPEGCoder loadWorkingSet() throws IOException {
+      return super.loadWorkingSet();
     }
 
-    public byte[] working_data() {
-      return working_data;
+    public byte[] workingData() {
+      return workingData;
     }
 
     public byte[] data() {
@@ -201,9 +201,9 @@ public class JPEGCoderTest {
     try {
       ByteStream b = new ByteStream(data);
       TestableCoder c = new TestableCoder(b);
-      c.LoadWorkingSet();
+      c.loadWorkingSet();
       assertTrue("Working data getting loaded badly",
-          Arrays.equals(c.working_data(), SOS));
+          Arrays.equals(c.workingData(), SOS));
       HuffmanDecoder huff = new JPEGHuffmanDecoder(Arrays.copyOfRange(
           DHT, 5, DHT.length));
       assertFalse("Decoder not being emplaced",
@@ -230,7 +230,7 @@ public class JPEGCoderTest {
   
   @Test
   public void testUnescape() {
-    byte[] retval = JPEGCoder.Unescape(SOS);
+    byte[] retval = JPEGCoder.unescape(SOS);
     assertTrue("Unescape failure.", Arrays.equals(retval, SOS_UNESCAPED));
   }
 }

@@ -27,7 +27,7 @@ public class BMPUnHider extends BMPCoder implements UnHider {
    *            an input stream with the carrier file.
    * @throws Exception
    */
-  public BMPUnHider(InputStream in) throws Exception {
+  public BMPUnHider(InputStream in) throws IOException {
     super(in);
     payload = new byte[0];
   }
@@ -40,7 +40,7 @@ public class BMPUnHider extends BMPCoder implements UnHider {
    * @return count bytes from the payload.
    */
   @Override
-  public byte[] UnHide(int count) throws IOException {
+  public byte[] unHide(int count) throws IOException {
     byte[] retval;
     BitOutputStream ostream = new BitOutputStream();
     for (int i = 0; i < count * 8; i++) {
@@ -58,7 +58,7 @@ public class BMPUnHider extends BMPCoder implements UnHider {
    * @return the payload.
    */
   @Override
-  public byte[] close() throws Exception {
+  public byte[] close() throws IOException {
     instream.close();
     return payload;
   }

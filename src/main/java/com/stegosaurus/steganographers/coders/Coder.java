@@ -1,5 +1,7 @@
 package com.stegosaurus.steganographers.coders;
 
+import java.io.IOException;
+
 /**
  * Either a Hider or an Un-Hider.
  * @author joe
@@ -11,5 +13,5 @@ public interface Coder {
      * @return either the payload or the carrier, depending on what kind of
      * coder this is.
      */
-    public byte[] close() throws Exception;
+    byte[] close() throws IOException;
 }

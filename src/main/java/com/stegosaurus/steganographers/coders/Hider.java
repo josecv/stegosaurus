@@ -4,6 +4,8 @@
  */
 package com.stegosaurus.steganographers.coders;
 
+import java.io.IOException;
+
 import com.stegosaurus.stegostreams.BitInputStream;
 
 import com.stegosaurus.steganographers.coders.Coder;
@@ -19,5 +21,5 @@ public interface Hider extends Coder {
      * @param datastrem the stream containing the payload.
      * @param count the number of bits from the payload to hide.
      */
-    public void hide(BitInputStream datastream, int count) throws Exception;
+    void hide(BitInputStream datastream, int count) throws IOException;
 }

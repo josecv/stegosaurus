@@ -82,12 +82,12 @@ public abstract class JPEGCoder extends ImgCoder {
   /**
    * A Buffer with the entire JPG file. Used so that we can look ahead.
    */
-  protected byte[] buffer;
+  private byte[] buffer;
 
   /**
    * The index of the last returned segment.
    */
-  protected int segment_index;
+  protected int segmentIndex;
 
   /**
    * Processed image data.
@@ -97,7 +97,7 @@ public abstract class JPEGCoder extends ImgCoder {
   /**
    * The image data that we are currently working on.
    */
-  protected byte[] working_data;
+  protected byte[] workingData;
 
   /**
    * Huffman decoders for the usual components.
@@ -132,7 +132,7 @@ public abstract class JPEGCoder extends ImgCoder {
    *            the byte to test.
    * @return true if it is an APPn marker.
    */
-  protected static boolean IsAPPMarker(byte b) {
+  protected static boolean isAPPMarker(byte b) {
     return (b & 0xF0) == 0xE0;
   }
 
@@ -144,7 +144,7 @@ public abstract class JPEGCoder extends ImgCoder {
    *            the segment in question
    * @return the segment, with 0x00 bytes removed.
    */
-  public static byte[] Unescape(byte[] segment) {
+  public static byte[] unescape(byte[] segment) {
     ArrayList<Byte> s = new ArrayList<Byte>(Arrays.asList(ArrayUtils
         .toObject(segment)));
     int i;
@@ -159,17 +159,15 @@ public abstract class JPEGCoder extends ImgCoder {
   /**
    * Initialize the JPGCoder.
    * 
-   * @param in
-   *            the InputStream with the JPEG image.
-   * @throws Exception
+   * @param in the InputStream with the JPEG image.
    */
-  public JPEGCoder(InputStream in) throws Exception {
+  public JPEGCoder(InputStream in) throws IOException {
     super(in);
     buffer = new byte[instream.available()];
     for (int i = 0; i < buffer.length; i++) {
       buffer[i] = (byte) instream.read();
     }
-    segment_index = 0;
+    segmentIndex = 0;
     decoders = new TreeMap<Integer, HuffmanDecoder>();
     data = new byte[0];
   }
@@ -182,14 +180,14 @@ public abstract class JPEGCoder extends ImgCoder {
    *             on read error
    */
   public byte[] nextSegment() throws IOException {
-    if (segment_index == -1) {
+    if (segmentIndex == -1) {
       return null;
     }
-    int marker = findMarker(segment_index);
-    byte[] retval = Arrays.copyOfRange(buffer, segment_index, marker);
-    segment_index = marker;
-    if (segment_index == buffer.length) {
-      segment_index = -1;
+    int marker = findMarker(segmentIndex);
+    byte[] retval = Arrays.copyOfRange(buffer, segmentIndex, marker);
+    segmentIndex = marker;
+    if (segmentIndex == buffer.length) {
+      segmentIndex = -1;
     }
     return retval;
   }
@@ -225,7 +223,7 @@ public abstract class JPEGCoder extends ImgCoder {
   /**
    * Read sequences until we come across image data. Place relevant data such
    * as Huffman tables in appropriate fields, as well as in the data field.
-   * Place the image data in the working_data field, but not in the data
+   * Place the image data in the workingData field, but not in the data
    * field. Appropriate closing of the working set, particularly the placing
    * of the image data in the data field is left to children classes.
    * 
@@ -233,7 +231,7 @@ public abstract class JPEGCoder extends ImgCoder {
    * @throws IOException
    *             on read errors.
    */
-  protected JPEGCoder LoadWorkingSet() throws IOException {
+  protected JPEGCoder loadWorkingSet() throws IOException {
     byte[] segment = nextSegment();
     while (segment != null && segment[1] != SOS_MARKER
            && !isRSTMarker(segment[1])) {
@@ -261,7 +259,7 @@ public abstract class JPEGCoder extends ImgCoder {
       data = ArrayUtils.addAll(data, segment);
       segment = nextSegment();
     }
-    working_data = segment;
+    workingData = segment;
     return this;
   }
 }

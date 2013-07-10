@@ -1,5 +1,7 @@
 package com.stegosaurus.steganographers;
 
+import java.io.IOException;
+
 import com.stegosaurus.steganographers.coders.Hider;
 import com.stegosaurus.stegostreams.BitInputStream;
 
@@ -33,9 +35,9 @@ public class Steganographer {
    *
    * @param datastream the data to hide, as a stream of bits.
    * @return a byte array with the hidden data.
-   * @throws Exception
+   * @throws IOException
    */
-  public byte[] hide(BitInputStream datastream) throws Exception {
+  public byte[] hide(BitInputStream datastream) throws IOException {
     this.hider.hide(datastream, datastream.available());
     return this.hider.close();
   }

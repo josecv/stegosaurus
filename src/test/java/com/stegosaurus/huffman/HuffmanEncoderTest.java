@@ -22,7 +22,7 @@ public class HuffmanEncoderTest {
 		byte[] expected = {0b00011111, (byte) 0b11101000, (byte) 0b10111111, (byte) 0b10000000};
 		byte[] retval = new byte[0];
 		try {
-			retval = encoder.Encode(data);
+			retval = encoder.encode(data);
 			assertTrue("Wrong value returned", Arrays.equals(retval, expected));
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -1,5 +1,6 @@
 package com.stegosaurus.steganographers.coders;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -19,7 +20,7 @@ public class BMPHider extends BMPCoder implements Hider {
    * @param in
    * @throws Exception
    */
-  public BMPHider(InputStream in) throws Exception {
+  public BMPHider(InputStream in) throws IOException {
     super(in);
   }
 
@@ -29,10 +30,12 @@ public class BMPHider extends BMPCoder implements Hider {
    * @return the carrier file (with the hidden payload, evidently).
    */
   @Override
-  public byte[] close() throws Exception {
-    instream.read(imgdata, bytes_read, data_size - bytes_read);
+  public byte[] close() throws IOException {
+    int bytesRead = getBytesRead();
+    instream.read(imgdata, bytesRead, getDataSize() - bytesRead);
     instream.close();
-    return ArrayUtils.addAll(ArrayUtils.addAll(header, dib), imgdata);
+    return ArrayUtils.addAll(ArrayUtils.addAll(getHeader(), getDib()),
+      imgdata);
   }
 
   /**
@@ -44,11 +47,11 @@ public class BMPHider extends BMPCoder implements Hider {
    *            the number of bits to take from the stream.
    */
   @Override
-  public void hide(BitInputStream datastream, int count) throws Exception {
+  public void hide(BitInputStream datastream, int count) throws IOException {
     for (int i = 0; i < count; i++) {
       int off = nextPixel();
       /* Actually place the bit in the lsb of the pixel */
-      imgdata[off] = (byte) HideInLSB(datastream.read(), imgdata[off]);
+      imgdata[off] = (byte) hideInLSB(datastream.read(), imgdata[off]);
     }
   }
 }

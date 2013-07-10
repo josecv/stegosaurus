@@ -4,6 +4,8 @@
  */
 package com.stegosaurus.steganographers.coders;
 
+import java.io.IOException;
+
 import com.stegosaurus.steganographers.coders.Coder;
 
 /**
@@ -17,5 +19,5 @@ public interface UnHider extends Coder {
      * 
      * @return the UnHidden bytes.
      */
-    public byte[] UnHide(int count) throws Exception;
+    byte[] unHide(int count) throws IOException;
 }
