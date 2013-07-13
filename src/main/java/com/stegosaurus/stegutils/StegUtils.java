@@ -46,7 +46,8 @@ public final class StegUtils {
    */
   public static int intFromBits(byte[] bits, int size) {
     int retval = 0;
-    for (int i = 0; i < size; i++) {
+    int len = bits.length < size ? bits.length : size;
+    for (int i = 0; i < len; i++) {
       retval += ((int) bits[i]) << (size - i - 1);
     }
     return retval;

@@ -9,6 +9,9 @@ import java.util.TreeMap;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.huffman.JPEGHuffmanDecoder;
+import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegutils.StegUtils;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 /*
@@ -32,7 +35,7 @@ public abstract class JPEGCoder extends ImgCoder {
 
   /**
    * Code for the start of frame marker. Indicates this as a baseline DCT JPG.
-   * Gives width height number of components and component subsampling.
+   * Gives width, height, number of components, and component subsampling.
    */
   protected static final byte SOF0_MARKER = (byte) 0xC0;
 
@@ -85,6 +88,21 @@ public abstract class JPEGCoder extends ImgCoder {
   private byte[] buffer;
 
   /**
+   * How many components the image has. Usually three
+   */
+  private byte numberOfComponents;
+
+  /**
+   * Pixel width of the image.
+   */
+  private int width;
+
+  /**
+   * Pixel height of the image.
+   */
+  private int height;
+
+  /**
    * The index of the last returned segment.
    */
   protected int segmentIndex;
@@ -110,6 +128,11 @@ public abstract class JPEGCoder extends ImgCoder {
    * indexed) as a row, and then the H on 0, and the V on 1.
    */
   protected byte[][] subsampling;
+
+  /**
+   * The total number of coefficients in the image.
+   */
+  private int coeffCount;
 
   /**
    * Return whether the given byte is an RSTn marker. It would be indicated by
@@ -176,8 +199,7 @@ public abstract class JPEGCoder extends ImgCoder {
    * Get the next segment in this jpeg file.
    * 
    * @return the next segment, which begins with a marker.
-   * @throws IOException
-   *             on read error
+   * @throws IOException on read error
    */
   public byte[] nextSegment() throws IOException {
     if (segmentIndex == -1) {
@@ -221,6 +243,114 @@ public abstract class JPEGCoder extends ImgCoder {
   }
 
   /**
+   * Figure out the number of coefficients in the image we're dealing with.
+   * This makes use of the subsampling, dimensions and component count we've
+   * read from the last SOF0 block, so if the image contains multiple SOF0
+   * blocks (which is likely illegal anyways) bad things will happen.
+   *
+   * @return this object
+   */
+  private JPEGCoder calculateCoeffCount() {
+    /* This was taken pretty much verbatim from Westfeld's source code.
+     * It can likely be simplified to a loopless algorithm that works with a
+     * couple of multiplications but I'm lazy */
+    coeffCount = 0;
+    /* Loop over the number of blocks across and the number of blocks down */
+    for(int h = 0; h < (height / 8 + 1); h ++) {
+      for(int w = 0; w < (width / 8 + 1); w++) {
+        /* Loop over the components (L, Cb, Cr) */
+        for(int c = 0; c < numberOfComponents; c++) {
+          /* Loop over the blocks themselves in the order of h then v */
+          for(int i = 0; i < subsampling[c][0]; i++) {
+            for(int j = 0; j < subsampling[c][1]; j++) {
+              /* Finally add up the coefficients */
+              coeffCount += 64;
+            }
+          }
+        }
+      }
+    }
+    return this;
+  }
+
+  /* TODO: Huffman decoding capabilities to go into their own class */
+  private int[] decode(byte[] segment) throws IOException {
+    int[] decoded = new int[coeffCount];
+    byte component = 0;
+    int total = 0;
+    /* The previous dc coeff to be read */
+    int lastDc = 0;
+    BitInputStream stream = new BitInputStream(segment);
+    while(stream.available() > 0) {
+      for(int n = 0; n < numberOfComponents; n++) {
+        /* TODO: WTF Happens with vertical subsampling?? */
+        for(int j = 0; j < subsampling[n][0] + subsampling[n][1]; j++) {
+          /* Bits [0-3] are the number, itself ranging from 0 to 3, and bit
+           * 4 is the component. Bits [5-7] are unused. */
+          int id = (n & 7) << 5 + (component & 1) << 4;
+          HuffmanDecoder decoder = decoders.get(id);
+          /* Decode a DC coeff.
+           * TODO: Pull out */
+          if(component == 0) {
+            /* Get the length of the rawdiff */
+            int len = decoder.decodeNext(stream);
+            /* And now for the DC itself */
+            byte[] dcBytes = new byte[len];
+            stream.read(dcBytes, 0, len);
+            int diff;
+            /* For whatever reason, the way this works is that we get the raw
+             * diff, here loaded into diffBytes, and if it starts with a 1,
+             * that becomes he diff. If it doesn't, we have that:
+             * diff = -(~rawdiff)
+             * Which is utterly strange and cannot be done in the natural
+             * fashion, but has to be done bit by bit. If we were to take
+             * diff = rawdiff and then perform the ~, Java would flip a whole
+             * bunch of bits that weren't in rawdiff originally, resulting in
+             * an entirely different number */
+            if(dcBytes[0] != 1) {
+              for(int i = 0; i < len; i++) {
+                dcBytes[i] = (byte) ~dcBytes[i];
+              }
+              diff = -(StegUtils.intFromBits(dcBytes, 32));
+            } else {
+              diff = StegUtils.intFromBits(dcBytes, 32);
+            }
+            int dc = lastDc + diff;
+            decoded[total] = dc;
+            total++;
+            lastDc = dc;
+            component = 1;
+          } else {
+            component = 0;
+          }
+        }
+      }
+    }
+    return decoded;
+  }
+
+  private JPEGCoder loadScan(byte[] segment) throws IOException {
+    /* TODO: Tidy */
+    int header = 0;
+    workingData = ArrayUtils.clone(segment);
+    /* Shave off the marker */
+    workingData = ArrayUtils.subarray(workingData, 0, 2);
+    header += 2;
+    int totalLen = (workingData[0] << 8) + workingData[1];
+    header += 2;
+    byte components = workingData[2];
+    assert this.numberOfComponents == components;
+    header += 1;
+    header += components * 2;
+    header += 3;
+    data = ArrayUtils.addAll(data,
+      ArrayUtils.subarray(workingData, 0, header));
+    workingData = ArrayUtils.subarray(workingData, 0, header);
+    workingData = decode(workingData);
+    return this;
+  }
+
+  /**
    * Read sequences until we come across image data. Place relevant data such
    * as Huffman tables in appropriate fields, as well as in the data field.
    * Place the image data in the workingData field, but not in the data
@@ -228,8 +358,7 @@ public abstract class JPEGCoder extends ImgCoder {
    * of the image data in the data field is left to children classes.
    * 
    * @return this jpeg coder.
-   * @throws IOException
-   *             on read errors.
+   * @throws IOException on read errors.
    */
   protected JPEGCoder loadWorkingSet() throws IOException {
     byte[] segment = nextSegment();
@@ -237,13 +366,16 @@ public abstract class JPEGCoder extends ImgCoder {
            && !isRSTMarker(segment[1])) {
       switch (segment[1]) {
         case SOF0_MARKER:
-          byte components = segment[9];
-          subsampling = new byte[components][];
-          for (int i = 0; i < components; i++) {
+          numberOfComponents = segment[9];
+          width = (segment[5] >> 8) + segment[6];
+          height = (segment[7] >> 8) + segment[8];
+          subsampling = new byte[numberOfComponents][];
+          for (int i = 0; i < numberOfComponents; i++) {
             subsampling[i] = new byte[2];
             subsampling[i][0] = (byte) (segment[11 + 3 * i] >> 4);
             subsampling[i][1] = (byte) (segment[11 + 3 * i] & 0x0F);
           }
+          calculateCoeffCount();
           break;
         case DHT_MARKER:
           /* TODO: There may be a bunch of huffman tables here. */
@@ -259,6 +391,12 @@ public abstract class JPEGCoder extends ImgCoder {
       data = ArrayUtils.addAll(data, segment);
       segment = nextSegment();
     }
+    /* TODO: Wait, what if we _do_ encounter an RST marker? */
+    /* The following breaks the test, so it's disabled for now. Obviously,
+     * It's where we want to go eventually */
+    /*if(segment[1] == SOS_MARKER) {
+      loadScan(segment);
+    }*/
     workingData = segment;
     return this;
   }
