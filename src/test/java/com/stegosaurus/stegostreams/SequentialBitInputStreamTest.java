@@ -28,4 +28,21 @@ public class SequentialBitInputStreamTest {
 				Arrays.equals(retval, expected));
 	}
 
+  @Test
+  public void testSkipToEndOfByte() {
+    byte[] arg = { 0b01001111, 0b00001101 };
+		BitInputStream st = new SequentialBitInputStream(arg);
+    for(int i = 0; i < 4; i++) {
+      st.read();
+    }
+    st.skipToEndOfByte();
+    try {
+      st.close();
+      for(int i = 0; i < 4; i++) {
+        assertEquals("Failed to skip all the way to next byte", st.read(), 0);
+      }
+    } catch(IOException e) {
+      fail("Unexpected exception: " + e);
+    }
+  }
 }

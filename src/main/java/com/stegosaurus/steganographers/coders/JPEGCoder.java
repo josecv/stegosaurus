@@ -10,6 +10,7 @@ import java.util.TreeMap;
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.huffman.JPEGHuffmanDecoder;
 import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegostreams.SequentialBitInputStream;
 import com.stegosaurus.stegutils.StegUtils;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -256,7 +257,7 @@ public abstract class JPEGCoder extends ImgCoder {
      * couple of multiplications but I'm lazy */
     coeffCount = 0;
     /* Loop over the number of blocks across and the number of blocks down */
-    for(int h = 0; h < (height / 8 + 1); h ++) {
+    for(int h = 0; h < (height / 8 + 1); h++) {
       for(int w = 0; w < (width / 8 + 1); w++) {
         /* Loop over the components (L, Cb, Cr) */
         for(int c = 0; c < numberOfComponents; c++) {
@@ -274,26 +275,30 @@ public abstract class JPEGCoder extends ImgCoder {
   }
 
   /* TODO: Huffman decoding capabilities to go into their own class */
-  private int[] decode(byte[] segment) throws IOException {
-    int[] decoded = new int[coeffCount];
+  private byte[] decode(byte[] segment) throws IOException {
+    byte[] decoded = new byte[10000000];
     byte component = 0;
     int total = 0;
     /* The previous dc coeff to be read */
     int lastDc = 0;
-    BitInputStream stream = new BitInputStream(segment);
-    while(stream.available() > 0) {
+    BitInputStream stream = new SequentialBitInputStream(segment);
+    bigloop : while(stream.available() > 0) {
       for(int n = 0; n < numberOfComponents; n++) {
         /* TODO: WTF Happens with vertical subsampling?? */
         for(int j = 0; j < subsampling[n][0] + subsampling[n][1]; j++) {
           /* Bits [0-3] are the number, itself ranging from 0 to 3, and bit
            * 4 is the component. Bits [5-7] are unused. */
-          int id = (n & 7) << 5 + (component & 1) << 4;
+          int id = ((n == 0 ? n : 1) << 4) + component;
+          if(!decoders.containsKey(id)) {
+            throw new IllegalStateException("Huffman decoder for key " + id +
+              " is nowhere to be found");
+          }
           HuffmanDecoder decoder = decoders.get(id);
           /* Decode a DC coeff.
            * TODO: Pull out */
           if(component == 0) {
             /* Get the length of the rawdiff */
-            int len = decoder.decodeNext(stream);
+            int len = decoder.decodeNext(stream) & 0xFF;
             /* And now for the DC itself */
             byte[] dcBytes = new byte[len];
             stream.read(dcBytes, 0, len);
@@ -307,7 +312,9 @@ public abstract class JPEGCoder extends ImgCoder {
              * diff = rawdiff and then perform the ~, Java would flip a whole
              * bunch of bits that weren't in rawdiff originally, resulting in
              * an entirely different number */
-            if(dcBytes[0] != 1) {
+            if(len == 0) {
+              diff = 0;
+            } else if(dcBytes[0] != 1) {
               for(int i = 0; i < len; i++) {
                 dcBytes[i] = (byte) ~dcBytes[i];
               }
@@ -316,26 +323,52 @@ public abstract class JPEGCoder extends ImgCoder {
               diff = StegUtils.intFromBits(dcBytes, dcBytes.length);
             }
             int dc = lastDc + diff;
-            decoded[total] = dc;
+            /* XXX FIGURE OUT WHAT THE FUCK IS UP WITH BYTE/INT/ETC ASAP! */
+            decoded[total] = (byte) dc;
             total++;
             lastDc = dc;
             component = 1;
           } else {
             component = 0;
+            byte ac = 0;
+            while(ac < 63) {
+              byte symbol1 = decoder.decodeNext(stream);
+              int runlength = symbol1 & 0x0F;
+              int size = symbol1 & 0xF0;
+              if(runlength == 0 && size == 0) {
+                /* EOB */
+                int missing = 63 - ac;
+                ac += missing;
+                total += missing;
+              } else {
+                byte amplitude;
+                try {
+                  amplitude = decoder.decodeNext(stream);
+                } catch(NullPointerException npe) {
+                  continue bigloop;
+                }
+                if(runlength == 15 && size == 0 && amplitude == 0) {
+                  ac += 16;
+                  total += 16;
+                } else {
+                  ac += runlength + 1;
+                  total += runlength + 1;
+                  decoded[total] = amplitude;
+                }
+              }
+            }
           }
         }
       }
     }
+    assert stream.available() == 0 : "Missing bits...";
     return decoded;
   }
 
-  private JPEGCoder loadScan(byte[] segment) throws IOException {
+  public JPEGCoder loadScan() throws IOException {
     /* TODO: Tidy */
-    int header = 0;
-    workingData = ArrayUtils.clone(segment);
-    /* Shave off the marker */
-    workingData = ArrayUtils.subarray(workingData, 0, 2);
-    header += 2;
+    /* The marker bytes */
+    int header = 2;
     int totalLen = (workingData[0] << 8) + workingData[1];
     header += 2;
     byte components = workingData[2];
@@ -345,8 +378,10 @@ public abstract class JPEGCoder extends ImgCoder {
     header += 3;
     data = ArrayUtils.addAll(data,
       ArrayUtils.subarray(workingData, 0, header));
-    workingData = ArrayUtils.subarray(workingData, 0, header);
+    /* Shave off the headers */
+    workingData = ArrayUtils.subarray(workingData, header, workingData.length);
     workingData = decode(workingData);
+    data = ArrayUtils.addAll(workingData);
     return this;
   }
 

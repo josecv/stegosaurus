@@ -43,6 +43,15 @@ public class BitInputStream extends InputStream {
 		return retval;
 	}
 
+  /**
+   * Skip any remaining bits in the current byte until a new one is reached.
+   */
+  public void skipToEndOfByte() {
+    while(available() % 8 != 0) {
+      read();
+    }
+  }
+
 	/**
 	 * Get the number of available bits that can be read without blocking, or 0
 	 * if there is nothing left to read.
