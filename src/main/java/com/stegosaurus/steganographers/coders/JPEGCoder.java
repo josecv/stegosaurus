@@ -392,11 +392,6 @@ public abstract class JPEGCoder extends ImgCoder {
       segment = nextSegment();
     }
     /* TODO: Wait, what if we _do_ encounter an RST marker? */
-    /* The following breaks the test, so it's disabled for now. Obviously,
-     * It's where we want to go eventually */
-    /*if(segment[1] == SOS_MARKER) {
-      loadScan(segment);
-    }*/
     workingData = segment;
     return this;
   }
