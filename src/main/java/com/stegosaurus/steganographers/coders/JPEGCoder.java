@@ -300,7 +300,7 @@ public abstract class JPEGCoder extends ImgCoder {
             int diff;
             /* For whatever reason, the way this works is that we get the raw
              * diff, here loaded into diffBytes, and if it starts with a 1,
-             * that becomes he diff. If it doesn't, we have that:
+             * that becomes the diff. If it doesn't, we have that:
              * diff = -(~rawdiff)
              * Which is utterly strange and cannot be done in the natural
              * fashion, but has to be done bit by bit. If we were to take
@@ -311,9 +311,9 @@ public abstract class JPEGCoder extends ImgCoder {
               for(int i = 0; i < len; i++) {
                 dcBytes[i] = (byte) ~dcBytes[i];
               }
-              diff = -(StegUtils.intFromBits(dcBytes, 32));
+              diff = -(StegUtils.intFromBits(dcBytes, dcBytes.length));
             } else {
-              diff = StegUtils.intFromBits(dcBytes, 32);
+              diff = StegUtils.intFromBits(dcBytes, dcBytes.length);
             }
             int dc = lastDc + diff;
             decoded[total] = dc;

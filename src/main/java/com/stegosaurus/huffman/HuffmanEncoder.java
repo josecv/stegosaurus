@@ -48,7 +48,6 @@ public class HuffmanEncoder {
       for (int i = len - 1; i >= 0; i--) {
         os.write((c >> i) & 1);
       }
-      System.out.println();
     }
     byte[] retval = os.data();
     os.close();
