@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import com.stegosaurus.huffman.trees.TreeNode;
 import com.stegosaurus.stegostreams.BitInputStream;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -19,6 +21,8 @@ public abstract class HuffmanDecoder {
    * The root of the huffman tree.
    */
   protected TreeNode root;
+
+  private Logger LOG = LoggerFactory.getLogger(HuffmanDecoder.class);
 
   /**
    * Start the decoder.
@@ -56,13 +60,17 @@ public abstract class HuffmanDecoder {
    */
   public byte decodeNext(BitInputStream in) {
     TreeNode n = root;
-    while (!n.isLeaf() && in.available() > 0) {
-      if (in.read() == 0) {
+    String logged = "";
+    while(n != null && !n.isLeaf() && in.available() > 0) {
+      int read = in.read();
+      logged += read;
+      if (read == 0) {
         n = n.left();
       } else {
         n = n.right();
       }
     }
+    LOG.debug("Decoding " + logged);
     return n.data();
   }
 
