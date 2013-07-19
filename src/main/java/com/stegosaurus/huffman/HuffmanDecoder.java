@@ -22,7 +22,7 @@ public abstract class HuffmanDecoder {
    */
   protected TreeNode root;
 
-  private Logger LOG = LoggerFactory.getLogger(HuffmanDecoder.class);
+  private Logger log = LoggerFactory.getLogger(HuffmanDecoder.class);
 
   /**
    * Start the decoder.
@@ -70,8 +70,10 @@ public abstract class HuffmanDecoder {
         n = n.right();
       }
     }
-    LOG.debug("Decoding " + logged);
-    return n.data();
+    log.info("Decoding " + logged);
+    byte data = n.data();
+    log.info("Decoded to " + data);
+    return data;
   }
 
   /**
@@ -97,5 +99,10 @@ public abstract class HuffmanDecoder {
     */
   public int hashCode() {
     return root.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "Decoder for tree: " + root.toString();
   }
 }

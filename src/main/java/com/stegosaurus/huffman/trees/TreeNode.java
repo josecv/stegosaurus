@@ -271,4 +271,9 @@ public class TreeNode {
     int r = right == null ? 0 : right.hashCode();
     return 1 + l + (r * 31);
   }
+
+  @Override
+  public String toString() {
+    return asMap().toString();
+  }
 }
