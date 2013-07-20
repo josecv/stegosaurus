@@ -91,7 +91,7 @@ public abstract class JPEGCoder extends ImgCoder {
   private byte[] buffer;
 
   /**
-   * How many components the image has. Usually three
+   * How many components the image has. Usually three.
    */
   private byte numberOfComponents;
 
