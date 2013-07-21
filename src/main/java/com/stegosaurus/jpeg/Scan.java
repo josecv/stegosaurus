@@ -185,9 +185,11 @@ public class Scan {
 
   /**
    * @param data the data to set
+   * @return this scan
    */
-  public void setData(byte[] data) {
-    this.data = data;
+  public Scan setData(byte[] data) {
+    this.data = data.clone();
+    return this;
   }
 
   /**
@@ -206,7 +208,7 @@ public class Scan {
    * @return this object
    */
   public Scan setSubsampling(byte[][] subsampling) {
-    this.subsampling = subsampling;
+    this.subsampling = subsampling.clone();
     return this;
   }
 
