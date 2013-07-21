@@ -74,7 +74,7 @@ public abstract class JPEGProcessor {
     if(bytes == null) {
       throw new IllegalArgumentException("Image data should not be null");
     }
-    init(bytes.clone());
+    init(bytes);
   }
 
   /**
@@ -106,7 +106,7 @@ public abstract class JPEGProcessor {
    * @param bytes the JPEG file data that this processor will be dealing with.
    */
   private void init(byte[] bytes) {
-    buffer = bytes;
+    buffer = bytes.clone();
     byte[] segment = nextSegment();
     if(segment[0] != 0xFF || segment[1] != 0xD8) {
       throw new WrongImageTypeException("File not structured like a JPEG file");
