@@ -60,4 +60,17 @@ public final class JPEGConstants {
    * Code for the end of image marker.
    */
   public static final byte EOI_MARKER = (byte) 0xD9;
+
+  /**
+   * Return whether the given byte is an RSTn marker. It would be indicated by
+   * being 0xDn, where n=0..7.
+   * 
+   * @param b the byte to test.
+   * @return true if it is an RSTn marker.
+   */
+  public static boolean isRSTMarker(byte b) {
+    byte lsb = (byte) (b & 0x0F);
+    byte msb = (byte) (b & 0xF0);
+    return 0 <= lsb && lsb <= 7 && msb == 0xD0;
+  }
 }

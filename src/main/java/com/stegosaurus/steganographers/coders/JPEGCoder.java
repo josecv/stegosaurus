@@ -228,10 +228,8 @@ public abstract class JPEGCoder extends ImgCoder {
    *            the location of the preceding marker.
    * 
    * @return where to find the next marker.
-   * @throws IOException
-   *             on file read error.
    */
-  protected int findMarker(int start) throws IOException {
+  protected int findMarker(int start) {
     int c = start;
     /* FUCK ELEGANCE!! */
     /* TODO: Add elegance */

@@ -18,10 +18,8 @@ public final class StegUtils {
    * Interpret the byte array given as a little endian int composed of size
    * bytes. So {0xA3, 0x98} becomes 0x98A3.
    * 
-   * @param bytes
-   *            the byte array in question
-   * @param size
-   *            the number of bytes composing the int
+   * @param bytes the byte array in question
+   * @param size the number of bytes composing the int
    * @return the int worked out from the byte array
    */
   public static int intFromBytes(byte[] bytes, int size) {
