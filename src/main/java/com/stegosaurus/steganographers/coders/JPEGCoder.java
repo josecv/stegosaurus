@@ -137,8 +137,6 @@ public abstract class JPEGCoder extends ImgCoder {
    */
   private int coeffCount;
 
-  private Logger log = LoggerFactory.getLogger(JPEGCoder.class);
-
   /**
    * Return whether the given byte is an RSTn marker. It would be indicated by
    * being 0xDn, where n=0..7.
@@ -278,7 +276,6 @@ public abstract class JPEGCoder extends ImgCoder {
 
   /* TODO: Huffman decoding capabilities to go into their own class */
   private byte[] decode(byte[] segment) throws IOException {
-    log.info("Starting huffman decoding");
     byte[] decoded = new byte[10000000];
     byte component = 0;
     int total = 0;
@@ -300,7 +297,6 @@ public abstract class JPEGCoder extends ImgCoder {
           /* Decode a DC coeff.
            * TODO: Pull out */
           if(component == 0) {
-            log.info("decoding dc coefficient");
             /* Get the length of the rawdiff */
             int len = decoder.decodeNext(stream) & 0xFF;
             /* And now for the DC itself */
@@ -333,7 +329,6 @@ public abstract class JPEGCoder extends ImgCoder {
             lastDc = dc;
             component = 1;
           } else {
-            log.info("starting runlength decoding of 63 AC coefficients");
             component = 0;
             byte ac = 0;
             while(ac < 63) {
@@ -366,7 +361,6 @@ public abstract class JPEGCoder extends ImgCoder {
         }
       }
     }
-    log.info("Huffman decoding finished");
     assert stream.available() == 0 : "Missing bits...";
     return decoded;
   }
@@ -424,7 +418,6 @@ public abstract class JPEGCoder extends ImgCoder {
           HuffmanDecoder decoder =
               new JPEGHuffmanDecoder(Arrays.copyOfRange(segment, 5,
                 segment.length));
-          log.info("Added new decoder for id " + id + " : " + decoder);
           decoders.put(id, decoder);
           break;
         default:

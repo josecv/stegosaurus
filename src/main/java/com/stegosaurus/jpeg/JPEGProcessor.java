@@ -45,7 +45,7 @@ public abstract class JPEGProcessor {
   /**
    * The index of the last returned segment.
    */
-  private int segmentIndex = 0;
+  private int segmentIndex = -1;
 
   /**
    * The input stream that will be providing the image.
@@ -120,7 +120,7 @@ public abstract class JPEGProcessor {
    * @return the next segment, which begins with a marker.
    */
   private byte[] nextSegment() {
-    if (segmentIndex == -1) {
+    if (segmentIndex == buffer.length) {
       return null;
     }
     int marker = findMarker(segmentIndex);
@@ -129,22 +129,31 @@ public abstract class JPEGProcessor {
     }
     byte[] retval = Arrays.copyOfRange(buffer, segmentIndex, marker);
     segmentIndex = marker;
-    if (segmentIndex == buffer.length) {
-      segmentIndex = -1;
-    }
     return retval;
   }
 
   /**
-   * Look at the buffer, starting at the location of the previous marker,
-   * until the next marker is found, and return the index where the marker
-   * starts.
-   * 
+   * Look at the buffer, starting at the location given, until the next marker
+   * is found, and return the index where said marker starts.
+   *
    * @param start the location of the preceding marker.
-   * 
+   *
    * @return where to find the next marker.
    */
   private int findMarker(int start) {
+    return findMarker(start, this.buffer);
+  }
+
+  /**
+   * Look at the buffer given, starting at the location given, until the
+   * next marker is found, and return the index where said marker starts.
+   * 
+   * @param start the location of the preceding marker.
+   * @param buffer the buffer to look at
+   * 
+   * @return where to find the next marker.
+   */
+  public static int findMarker(int start, byte[] buffer) {
     int c = start;
     /* Prevent an overflow */
     if (c + 2 == buffer.length) {

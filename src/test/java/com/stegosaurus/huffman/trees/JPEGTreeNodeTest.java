@@ -17,7 +17,7 @@ import com.stegosaurus.huffman.trees.TreeNode;
 public class JPEGTreeNodeTest {
 
 	/**
-	 * The Huffman table we'll be using to test. Very unusual table, but still,
+	 * The Huffman table we'll be using to test. Very odd table, but still,
 	 * taken from an actual file.
 	 */
 	private final static byte[] table = { 00, 01, 05, 01, 01, 01, 01, 01, 01,
