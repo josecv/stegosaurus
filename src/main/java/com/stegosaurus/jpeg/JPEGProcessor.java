@@ -41,7 +41,6 @@ public abstract class JPEGProcessor {
    */
   private byte[] processed;
 
-
   /**
    * The index of the last returned segment.
    */
@@ -115,7 +114,7 @@ public abstract class JPEGProcessor {
 
   /**
    * Get the next segment in this jpeg file. Notice that this does not stop
-   * at RST markers, since those do not denote segments, obviously.
+   * at RST markers, since those do not denote segments.
    *
    * @return the next segment, which begins with a marker.
    */
@@ -144,29 +143,6 @@ public abstract class JPEGProcessor {
     return findMarker(start, this.buffer);
   }
 
-  /**
-   * Look at the buffer given, starting at the location given, until the
-   * next marker is found, and return the index where said marker starts.
-   * 
-   * @param start the location of the preceding marker.
-   * @param buffer the buffer to look at
-   * 
-   * @return where to find the next marker.
-   */
-  public static int findMarker(int start, byte[] buffer) {
-    int c = start;
-    /* Prevent an overflow */
-    if (c + 2 == buffer.length) {
-      return buffer.length;
-    }
-    short i = 0, j = 0;
-    while ((i != 0xFF || j == 0xFF || j == 0) && (c + 2 < buffer.length)) {
-      i = (short) (buffer[c + 1] & 0xFF);
-      j = (short) (buffer[c + 2] & 0xFF);
-      c++;
-    }
-    return c;
-  }
 
   /**
    * Add the given byte array to the array of already processed data.
@@ -190,6 +166,9 @@ public abstract class JPEGProcessor {
     byte[][] subsampling = new byte[numberOfComponents][];
     for (int i = 0; i < numberOfComponents; i++) {
       subsampling[i] = new byte[2];
+      /* Subsampling information for every component is stored in a single
+       * byte, where the four most significant bits are the horizontal info,
+       * and the four least significant bits are the vertical info */
       subsampling[i][0] = (byte) (segment[11 + 3 * i] >> 4);
       subsampling[i][1] = (byte) (segment[11 + 3 * i] & 0x0F);
     }
@@ -226,6 +205,10 @@ public abstract class JPEGProcessor {
   private void loadScanData(Scan scan, byte[] segment) {
     byte scanComponents = segment[4];
     scan.setScanComponents(scanComponents);
+    /* To figure out where the acutal data starts, we have to take into
+     * account the 2 marker bytes, the 2 length bytes, the component count
+     * byte, and the three final bytes (a total of 8) as well as two bytes
+     * per component */
     int dataStart = 8 + (2 * scanComponents);
     byte[] data = ArrayUtils.subarray(segment, dataStart, segment.length);
     scan.setData(data);
@@ -271,7 +254,6 @@ public abstract class JPEGProcessor {
     return scan;
   }
 
-
   /**
    * Return the next scan in the image, already processed.
    * @return the processed scan
@@ -279,5 +261,52 @@ public abstract class JPEGProcessor {
   public Scan nextScan() {
     Scan scan = process(readScan());
     return addScan(scan);
+  }
+
+  /**
+   * Look at the buffer given, starting at the location given, until the
+   * next marker is found, and return the index where said marker starts.
+   * 
+   * @param start the location of the preceding marker.
+   * @param buffer the buffer to look at
+   * 
+   * @return where to find the next marker.
+   */
+  public static int findMarker(int start, byte[] buffer) {
+    int c = start;
+    /* Prevent an overflow */
+    if (c + 2 == buffer.length) {
+      return buffer.length;
+    }
+    /* We're only interested in actual markers, not padding and/or legitimate
+     * FF bytes, so we ensure that the byte in front of any FF is not
+     * a 00 or another FF */
+    short i = 0, j = 0;
+    while ((i != 0xFF || j == 0xFF || j == 0) && (c + 2 < buffer.length)) {
+      i = (short) (buffer[c + 1] & 0xFF);
+      j = (short) (buffer[c + 2] & 0xFF);
+      c++;
+    }
+    return c;
+  }
+
+  /**
+   * Given a piece of JPEG data, remove the 0x00 bytes that follow any 0xFF
+   * bytes.
+   * 
+   * @param segment the segment in question
+   * @return the segment, with 0x00 bytes removed.
+   */
+  public static byte[] unescape(byte[] segment) {
+    /* TODO This doesn't look terribly efficient */
+    ArrayList<Byte> s = new ArrayList<Byte>(Arrays.asList(ArrayUtils
+        .toObject(segment)));
+    int i;
+    for (i = s.size() - 1; i > 0; i--) {
+      if (s.get(i) == 0 && s.get(i - 1) == (byte) 0xFF) {
+        s.remove(i);
+      }
+    }
+    return ArrayUtils.toPrimitive(s.toArray(new Byte[s.size()]));
   }
 }
