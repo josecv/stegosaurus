@@ -1,7 +1,11 @@
 package com.stegosaurus.jpeg;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 
@@ -9,11 +13,13 @@ import com.stegosaurus.huffman.HuffmanDecoder;
  * An image scan within a JPEG file. This data structure contains not only the
  * scan data itself, but also any relevant Huffman tables and subsampling
  * information.
+ * In addition, it is possible to iterate over the scan. This is akin to
+ * spliting it up by reset markers and iterating over the discrete parts.
  * Note that it is not necessarily the case that the scan data contained by
  * this structure be in JPEG format. Since manipulation is allowed, arbitrary
  * data may be found within the scan.
  */
-public class Scan {
+public class Scan implements Iterable<byte[]> {
   /**
    * The offset within the JPEG file where this scan's SOS marker is placed.
    */
@@ -235,5 +241,78 @@ public class Scan {
    */
   public boolean isRSTEnabled() {
     return restartInterval != 0;
+  }
+
+  @Override
+  public Iterator<byte[]> iterator() {
+    return new ScanIterator(data);
+  }
+
+  /**
+   * Iterates over the parts of a scan, being split up by reset markers.
+   */
+  public static class ScanIterator implements Iterator<byte[]> {
+    /**
+     * The scan data itself.
+     */
+    private byte[] scan;
+
+    /**
+     * The start index of the last returned part.
+     */
+    private int lastIndex = 0;
+
+    /**
+     * Whether this iterator is "done", ie whether it has returned the entirety
+     * of the scan.
+     */
+    private boolean done = false;
+
+    /**
+     * Construct a new scan iterator to iterate over the scan data given.
+     */
+    public ScanIterator(byte[] scan) {
+      this.scan = scan.clone();
+    }
+
+    /**
+     * Return the next piece of this scan. Note that this includes its reset
+     * marker, if any.
+     * @return the next piece of the scan, up to but excluding the next reset
+     * marker.
+     * @throws NoSuchElementException if the scan iterator has run out of
+     * elements to return
+     */
+    @Override
+    public byte[] next() {
+      if(done) {
+        throw new NoSuchElementException();
+      }
+      int nextIndex = JPEGProcessor.findMarker(lastIndex, scan);
+      if(nextIndex == scan.length) {
+        done = true;
+      }
+      byte[] retval = ArrayUtils.subarray(scan, lastIndex, nextIndex);
+      lastIndex = nextIndex;
+      return retval;
+    }
+
+    /**
+     * Return whether this iterator can keep going.
+     */
+    @Override
+    public boolean hasNext() {
+      return !done;
+    }
+
+    /**
+     * Attempt to remove the last returned element from the iterator. This
+     * is not supported, and will always throw.
+     * @throws UnsupportedOperationException always.
+     */
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Cannot remove pieces of a scan");
+    }
   }
 }

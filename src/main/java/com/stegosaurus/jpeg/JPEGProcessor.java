@@ -266,6 +266,7 @@ public abstract class JPEGProcessor {
   /**
    * Look at the buffer given, starting at the location given, until the
    * next marker is found, and return the index where said marker starts.
+   * If no marker is to be found, return the length of the buffer.
    * 
    * @param start the location of the preceding marker.
    * @param buffer the buffer to look at
@@ -286,6 +287,9 @@ public abstract class JPEGProcessor {
       i = (short) (buffer[c + 1] & 0xFF);
       j = (short) (buffer[c + 2] & 0xFF);
       c++;
+    }
+    if((i != 0xFF || j == 0xFF || j == 0) && (c + 2 == buffer.length)) {
+      return buffer.length;
     }
     return c;
   }

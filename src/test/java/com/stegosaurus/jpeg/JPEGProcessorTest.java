@@ -84,6 +84,19 @@ public class JPEGProcessorTest {
   }
 
   /**
+   * Test the findMarker method when the given buffer contains no more
+   * markers.
+   */
+  @Test
+  public void testFindMarkerNoMarker() {
+    byte[] buffer = { 0x0A, 0x09, (byte) 0xFF, 0x00, 0x05, 0x17,
+      0x3A, 0x1D, 0x2E, 0x6B, 0x11 };
+    int result = JPEGProcessor.findMarker(-1, buffer);
+    assertEquals("Bad return value when there are no markers in the buffer",
+      buffer.length, result);
+  }
+
+  /**
    * Test the unescape method.
    */
   @Test
