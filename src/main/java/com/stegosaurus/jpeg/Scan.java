@@ -71,6 +71,11 @@ public class Scan implements Iterable<byte[]> {
   private Map<Integer, HuffmanDecoder> decoders = new TreeMap<>();
 
   /**
+   * A map going from a component's id to its huffman table information.
+   */
+  private Map<Integer, Integer> componentTables = new TreeMap<>();
+
+  /**
    * Default CTOR.
    */
   public Scan() { }
@@ -88,6 +93,7 @@ public class Scan implements Iterable<byte[]> {
     this.frameComponents = scan.frameComponents;
     this.subsampling = scan.subsampling.clone();
     this.decoders.putAll(scan.decoders);
+    this.componentTables.putAll(scan.componentTables);
   }
 
   /**
@@ -110,6 +116,26 @@ public class Scan implements Iterable<byte[]> {
    */
   public Scan putDecoder(int id, HuffmanDecoder decoder) {
     decoders.put(id, decoder);
+    return this;
+  }
+
+  /**
+   * Get huffman table info for the component with the id given.
+   * @param id the id of the component to fetch info for.
+   * @return the huffman table info for the component given.
+   */
+  public int getTableId(int componentId) {
+    return componentTables.get(componentId);
+  }
+
+  /**
+   * Associate decoder info with the component given.
+   * @param componentId the component to associate the huffman table info to
+   * @param tableId the huffman table info to associate
+   * @return this object.
+   */
+  public Scan putTableId(int componentId, int tableId) {
+    componentTables.put(componentId, tableId);
     return this;
   }
 

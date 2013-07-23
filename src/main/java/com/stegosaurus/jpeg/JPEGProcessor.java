@@ -205,6 +205,10 @@ public abstract class JPEGProcessor {
   private void loadScanData(Scan scan, byte[] segment) {
     byte scanComponents = segment[4];
     scan.setScanComponents(scanComponents);
+    /* We next want to load up relevant component information */
+    for(int i = 0; i < scanComponents; i++) {
+      scan.putTableId(segment[5 + (i * 2)], segment[6 + (i * 2)]);
+    }
     /* To figure out where the acutal data starts, we have to take into
      * account the 2 marker bytes, the 2 length bytes, the component count
      * byte, and the three final bytes (a total of 8) as well as two bytes
