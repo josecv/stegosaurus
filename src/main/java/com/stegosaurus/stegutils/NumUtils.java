@@ -2,6 +2,7 @@ package com.stegosaurus.stegutils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -12,6 +13,9 @@ import org.apache.commons.lang3.ArrayUtils;
  */
 public final class NumUtils {
 
+  /**
+   * Private CTOR.
+   */
   private NumUtils() {
   }
 
@@ -51,5 +55,29 @@ public final class NumUtils {
       retval += ((int) bits[i]) << (size - i - 1);
     }
     return retval;
+  }
+
+  /**
+   * Given an array of n ints return an equivalent array of n * 4 bytes.
+   * By default this uses big endian order.
+   * @param array the array of ints to transform
+   * @return the corresponding byte array.
+   */
+  public static byte[] byteArrayFromIntArray(int[] array) {
+    return byteArrayFromIntArray(array, ByteOrder.BIG_ENDIAN);
+  }
+
+  /**
+   * Given an array of n ints return an equivalent array of n * 4 bytes.
+   * @param array the array of ints to transform
+   * @param order the ordering to use (big or little endian)
+   * @return the corresponding byte array
+   */
+  public static byte[] byteArrayFromIntArray(int[] array, ByteOrder order) {
+    ByteBuffer byteBuffer = ByteBuffer.allocate(array.length * 4);
+    byteBuffer.order(order);
+    IntBuffer intBuffer = byteBuffer.asIntBuffer();
+    intBuffer.put(array);
+    return byteBuffer.array();
   }
 }

@@ -2,6 +2,8 @@ package com.stegosaurus.stegutils;
 
 import static org.junit.Assert.*;
 
+import java.nio.ByteOrder;
+
 import org.junit.Test;
 
 public class NumUtilsTest {
@@ -25,7 +27,7 @@ public class NumUtilsTest {
     byte[] arr = {1, 0, 0, 1};
     int expected = 0b1001;
     int result = NumUtils.intFromBitsBE(arr, 4);
-    assertEquals("Failure from testIntFromBits big endian", expected, result);
+    assertEquals("Failure from intFromBits big endian", expected, result);
   }
 
   /**
@@ -38,7 +40,18 @@ public class NumUtilsTest {
     /* Let's request 4 extra bits */
     int expected = 0b110110000;
     int result = NumUtils.intFromBitsBE(arr, 9);
-    assertEquals("Failure from testIntFromBits big endian, with padded result",
+    assertEquals("Failure from intFromBits big endian, with padded result",
       expected, result);
+  }
+
+  @Test
+  public void testByteArrayFromIntArray() {
+    int[] arr = {0xDEADBEEF, 0xCAFEBABE};
+    byte[] bigEndian = {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF,
+                        (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
+    assertArrayEquals("Faliure from byteArrayFromIntArray, big endian",
+      bigEndian, NumUtils.byteArrayFromIntArray(arr, ByteOrder.BIG_ENDIAN));
+    assertArrayEquals("byteArrayFromIntArray not defaulting to big endian",
+      bigEndian, NumUtils.byteArrayFromIntArray(arr));
   }
 }
