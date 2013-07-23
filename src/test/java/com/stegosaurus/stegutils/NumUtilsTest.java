@@ -7,6 +7,17 @@ import org.junit.Test;
 public class NumUtilsTest {
 
   /**
+   * Test the intFromBytesLE method.
+   */
+  @Test
+  public void testIntFromBytesLE() {
+    byte[] input = {(byte) 0xA3, (byte) 0x98};
+    int expected = 0x98A3;
+    int result = NumUtils.intFromBytesLE(input);
+    assertEquals("intFromBytes Little Endian failure", expected, result);
+  }
+
+  /**
    * Test the intFromBitsBE method.
    */
   @Test
@@ -14,8 +25,7 @@ public class NumUtilsTest {
     byte[] arr = {1, 0, 0, 1};
     int expected = 0b1001;
     int result = NumUtils.intFromBitsBE(arr, 4);
-    assertEquals("Expected " + expected + " got " + result,
-      expected, result);
+    assertEquals("Failure from testIntFromBits big endian", expected, result);
   }
 
   /**
@@ -28,7 +38,7 @@ public class NumUtilsTest {
     /* Let's request 4 extra bits */
     int expected = 0b110110000;
     int result = NumUtils.intFromBitsBE(arr, 9);
-    assertEquals("Expected " + expected + " got " + result,
+    assertEquals("Failure from testIntFromBits big endian, with padded result",
       expected, result);
   }
 }

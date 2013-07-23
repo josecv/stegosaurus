@@ -1,5 +1,10 @@
 package com.stegosaurus.stegutils;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * Provides utility methods for dealing with numerical systems. This includes
  * transforming bytes and/or bits into ints, whether in big or little endian
@@ -15,15 +20,16 @@ public final class NumUtils {
    * bytes. So {0xA3, 0x98} becomes 0x98A3.
    * 
    * @param bytes the byte array in question
-   * @param size the number of bytes composing the int
    * @return the int worked out from the byte array
    */
-  public static int intFromBytesLE(byte[] bytes, int size) {
-    int retval = 0;
-    for (int i = 0; i < size; i++) {
-      retval += ((int) bytes[i]) << (i * 8);
+  public static int intFromBytesLE(byte[] bytes) {
+    if(bytes.length > 4) {
+      throw new IllegalArgumentException("The byte array given is too long");
     }
-    return retval;
+    bytes = ArrayUtils.addAll(bytes, new byte[4 - bytes.length]);
+    ByteBuffer wrapped = ByteBuffer.wrap(bytes);
+    wrapped.order(ByteOrder.LITTLE_ENDIAN);
+    return wrapped.getInt();
   }
 
   /**
