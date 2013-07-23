@@ -1,7 +1,8 @@
 package com.stegosaurus.jpeg;
 
-import org.junit.Test;
 import static org.junit.Assert.assertArrayEquals;
+
+import org.junit.Test;
 
 /**
  * Tests the Scan class.
