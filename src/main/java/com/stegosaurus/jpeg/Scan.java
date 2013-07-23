@@ -59,7 +59,7 @@ public class Scan implements Iterable<byte[]> {
 
   /**
    * The numbers for the chroma subsampling. Being the ID - 1 (so as to be 0
-   * indexed) as a row, and then the H on 0, and the V on 1.
+   * indexed) as a row, and then the horizontal on 0, and the vertical on 1.
    * @TODO Better handling of this.
    */
   private byte[][] subsampling;
@@ -223,7 +223,7 @@ public class Scan implements Iterable<byte[]> {
 
   /**
    * Get the subsampling ratios. Being the ID - 1 (so as to be 0 indexed) as a
-   * row, and then the H on 0, and the V on 1.
+   * row, and then the horizontal on 0, and the vertical on 1.
    * @return the subsampling
    */
   public byte[][] getSubsampling() {
@@ -232,7 +232,7 @@ public class Scan implements Iterable<byte[]> {
 
   /**
    * Set the subsampling ratios. Being the ID - 1 (so as to be 0 indexed) as a
-   * row, and then the H on 0, and the V on 1.
+   * row, and then the horizontal on 0, and the vertical on 1.
    * @param subsampling the subsampling to set
    * @return this object
    */

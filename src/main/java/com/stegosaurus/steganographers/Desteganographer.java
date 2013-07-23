@@ -7,7 +7,7 @@ package com.stegosaurus.steganographers;
 import java.io.IOException;
 
 import com.stegosaurus.steganographers.coders.UnHider;
-import com.stegosaurus.stegutils.StegUtils;
+import com.stegosaurus.stegutils.NumUtils;
 
 
 /**
@@ -31,7 +31,7 @@ public class Desteganographer {
    */
   public byte[] unHider() throws IOException {
     byte[] unhidden = unhider.unHide(4);
-    int size = StegUtils.intFromBytes(unhidden, 4);
+    int size = NumUtils.intFromBytesLE(unhidden, 4);
     byte[] retval = unhider.unHide(size);
     /* We don't want the starting four bytes in the message, so trim them
      * by not returning unhider.close */

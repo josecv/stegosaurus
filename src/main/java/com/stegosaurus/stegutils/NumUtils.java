@@ -1,17 +1,13 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.stegosaurus.stegutils;
 
 /**
- * Provides utility methods used throughout.
- * 
- * @author joe
+ * Provides utility methods for dealing with numerical systems. This includes
+ * transforming bytes and/or bits into ints, whether in big or little endian
+ * ordering, and other similar operations.
  */
-public final class StegUtils {
+public final class NumUtils {
 
-  private StegUtils() {
+  private NumUtils() {
   }
 
   /**
@@ -22,7 +18,7 @@ public final class StegUtils {
    * @param size the number of bytes composing the int
    * @return the int worked out from the byte array
    */
-  public static int intFromBytes(byte[] bytes, int size) {
+  public static int intFromBytesLE(byte[] bytes, int size) {
     int retval = 0;
     for (int i = 0; i < size; i++) {
       retval += ((int) bytes[i]) << (i * 8);
@@ -42,7 +38,7 @@ public final class StegUtils {
    * @see IntFromBytes for a little endian equivalent which deals with entire
    *      bytes.
    */
-  public static int intFromBits(byte[] bits, int size) {
+  public static int intFromBitsBE(byte[] bits, int size) {
     int retval = 0;
     int len = bits.length < size ? bits.length : size;
     for (int i = 0; i < len; i++) {
