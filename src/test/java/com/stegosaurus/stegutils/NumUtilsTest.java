@@ -44,14 +44,30 @@ public class NumUtilsTest {
       expected, result);
   }
 
+  /**
+   * Test the byteArrayFromIntArray method with the default big endian
+   * ordering
+   */
   @Test
   public void testByteArrayFromIntArray() {
     int[] arr = {0xDEADBEEF, 0xCAFEBABE};
-    byte[] bigEndian = {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF,
+    byte[] expected = {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF,
                         (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
     assertArrayEquals("Faliure from byteArrayFromIntArray, big endian",
-      bigEndian, NumUtils.byteArrayFromIntArray(arr, ByteOrder.BIG_ENDIAN));
+      expected, NumUtils.byteArrayFromIntArray(arr, ByteOrder.BIG_ENDIAN));
     assertArrayEquals("byteArrayFromIntArray not defaulting to big endian",
-      bigEndian, NumUtils.byteArrayFromIntArray(arr));
+      expected, NumUtils.byteArrayFromIntArray(arr));
+  }
+
+  /**
+   * Test the byteArrayFromIntArray method with little endian ordering
+   */
+  @Test
+  public void testByteArrayFromIntArrayLE() {
+    int[] arr = {0xDEADBEEF, 0xCAFEBABE};
+    byte[] expected = {(byte) 0xEF, (byte) 0xBE, (byte) 0xAD, (byte) 0xDE,
+                       (byte) 0xBE, (byte) 0xBA, (byte) 0xFE, (byte) 0xCA};
+    assertArrayEquals("Failure from byteArrayFromIntArray, little endian",
+      expected, NumUtils.byteArrayFromIntArray(arr, ByteOrder.LITTLE_ENDIAN));
   }
 }
