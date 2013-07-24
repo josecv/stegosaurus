@@ -9,28 +9,27 @@ import org.junit.Test;
 public class NumUtilsTest {
 
   /**
-   * Test the intFromBitsBE method.
+   * Test the intFromBits method, in its default big endian ordering.
    */
   @Test
-  public void testIntFromBitsBE() {
-    byte[] arr = {1, 0, 0, 1};
-    int expected = 0b1001;
-    int result = NumUtils.intFromBitsBE(arr, 4);
+  public void testIntFromBits() {
+    byte[] arr = {0, 1, 0, 1};
+    int expected = 0b0101;
+    int result = NumUtils.intFromBits(arr, ByteOrder.BIG_ENDIAN);
     assertEquals("Failure from intFromBits big endian", expected, result);
+    result = NumUtils.intFromBits(arr);
+    assertEquals("intFromBits not defaulting to big endian", expected, result);
   }
 
   /**
-   * Test the intFromBitsBE method when the size requested is larger than
-   * the array itself, ie some padding is required.
+   * Test the intFromBits method in its little endian variant.
    */
   @Test
-  public void testIntFromBitsPaddedBE() {
-    byte[] arr = {1, 1, 0, 1, 1};
-    /* Let's request 4 extra bits */
-    int expected = 0b110110000;
-    int result = NumUtils.intFromBitsBE(arr, 9);
-    assertEquals("Failure from intFromBits big endian, with padded result",
-      expected, result);
+  public void testIntFromBitsLE() {
+    byte[] arr = {0, 1, 0, 1};
+    int expected = 0b1010;
+    int result = NumUtils.intFromBits(arr, ByteOrder.LITTLE_ENDIAN);
+    assertEquals("Failure from intFromBits little endian", expected, result);
   }
 
   /**

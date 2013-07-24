@@ -92,11 +92,19 @@ public final class NumUtils {
    * @see IntFromBytes for a little endian equivalent which deals with entire
    *      bytes.
    */
-  public static int intFromBitsBE(byte[] bits, int size) {
+  public static int intFromBits(byte[] bits) {
+    return intFromBits(bits, ByteOrder.BIG_ENDIAN);
+  }
+
+  public static int intFromBits(byte[] bits, ByteOrder order) {
     int retval = 0;
-    int len = bits.length < size ? bits.length : size;
+    int len = bits.length;
     for (int i = 0; i < len; i++) {
-      retval += ((int) bits[i]) << (size - i - 1);
+      if(order == ByteOrder.BIG_ENDIAN) {
+        retval += bits[i] << (len - i - 1);
+      } else {
+        retval += bits[i] << i;
+      }
     }
     return retval;
   }
