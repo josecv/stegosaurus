@@ -36,7 +36,7 @@ public final class Stegosaurus {
         out.write(hidden);
       }
       Desteganographer destego = new Desteganographer(new BMPUnHider(new FileInputStream(t)));
-      for (byte b : destego.unHider()) {
+      for (byte b : destego.unHide()) {
         System.out.print((char) (b));
       }
       System.out.println();
