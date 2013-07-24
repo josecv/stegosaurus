@@ -124,4 +124,28 @@ public final class NumUtils {
     intBuffer.put(array);
     return byteBuffer.array();
   }
+
+  /**
+   * Given an array of n * 4 bytes, return an equivalent array of n ints. 
+   * Big endian ordering is used.
+   * @param array the array of bytes to transform
+   * @return the corresponding int array
+   */
+  public static int[] intArrayFromByteArray(byte[] array) {
+    return intArrayFromByteArray(array, ByteOrder.BIG_ENDIAN);
+  }
+
+  /**
+   * Given an array of n * 4 bytes, return an equivalent array of n ints. 
+   * @param array the array of bytes to transform
+   * @param order the byte order to use
+   * @return the corresponding int array
+   */
+  public static int[] intArrayFromByteArray(byte[] array, ByteOrder order) {
+    ByteBuffer byteBuffer = ByteBuffer.wrap(array).order(order);
+    IntBuffer intBuffer = byteBuffer.asIntBuffer();
+    int[] retval = new int[intBuffer.remaining()];
+    intBuffer.get(retval);
+    return retval;
+  }
 }

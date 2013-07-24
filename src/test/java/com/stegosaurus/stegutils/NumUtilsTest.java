@@ -121,4 +121,25 @@ public class NumUtilsTest {
     assertArrayEquals("Failure from byteArrayFromIntArray, little endian",
       expected, NumUtils.byteArrayFromIntArray(arr, ByteOrder.LITTLE_ENDIAN));
   }
+
+  /**
+   * Test the intArrayFromByteArray method in both big and little endian
+   * ordering.
+   */
+  @Test
+  public void testIntArrayFromByteArray() {
+    byte[] input = {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF,
+                    (byte) 0xCA, (byte) 0xFE, (byte) 0xBA, (byte) 0xBE};
+    int[] bigEndian = { 0xDEADBEEF, 0xCAFEBABE };
+    int[] result = NumUtils.intArrayFromByteArray(input, ByteOrder.BIG_ENDIAN);
+    assertArrayEquals("Failure from intArrayFromByteArray big endian",
+      bigEndian, result);
+    result = NumUtils.intArrayFromByteArray(input);
+    assertArrayEquals("intArrayFromByteArray not defaulting to big endian",
+      bigEndian, result);
+    int[] littleEndian = { 0xEFBEADDE, 0xBEBAFECA };
+    result = NumUtils.intArrayFromByteArray(input, ByteOrder.LITTLE_ENDIAN);
+    assertArrayEquals("Failure from intArrayFromByteArray little endian",
+      littleEndian, result);
+  }
 }
