@@ -18,13 +18,28 @@ import com.stegosaurus.stegutils.MessageHandler;
  */
 public class BMPStegoTest {
   /**
+   * Perform a test of bmp steganography with a colour image. The image in use
+   * is lena-colour.bmp
+   */
+  @Test
+  public void colourTest() {
+    testWith(this.getClass().getResourceAsStream("lena-colour.bmp"));
+  }
+
+  /**
    * Perform a test of bmp steganography with a black and white image. The
    * image in use is lena-bw.bmp
    */
   @Test
   public void blackWhiteTest() {
+    testWith(this.getClass().getResourceAsStream("lena-bw.bmp"));
+  }
+
+  /**
+   * Run a test of bmp steganography with the image given.
+   */
+  private void testWith(InputStream pic) {
     String msg = "Batman vs Superman";
-    InputStream pic = this.getClass().getResourceAsStream("lena-bw.bmp");
     try {
       Steganographer stego = new Steganographer(new BMPHider(pic));
       MessageHandler h = new MessageHandler(msg);
