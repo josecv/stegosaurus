@@ -20,6 +20,7 @@ import com.stegosaurus.stegosaurus.WrongImageTypeException;
  * information.
  * TODO: Optimize the way processed data is represented internally.
  * TODO: Array operations are super silly in here, and likely not efficient
+ * TODO A smarter way to denote that we're done (ie no nulls!)
  */
 public abstract class JPEGProcessor {
   /**
@@ -107,9 +108,10 @@ public abstract class JPEGProcessor {
   private void init(byte[] bytes) {
     buffer = bytes.clone();
     byte[] segment = nextSegment();
-    if(segment[0] != 0xFF || segment[1] != JPEGConstants.SOI_MARKER) {
+    if(segment[0] != (byte) 0xFF || segment[1] != JPEGConstants.SOI_MARKER) {
       throw new WrongImageTypeException("File not structured like a JPEG file");
     }
+    addToProcessed(segment);
   }
 
   /**
@@ -175,6 +177,7 @@ public abstract class JPEGProcessor {
       subsampling[i][0] = (byte) (segment[11 + 3 * i] >> 4);
       subsampling[i][1] = (byte) (segment[11 + 3 * i] & 0x0F);
     }
+    scan.setSubsampling(subsampling);
   }
 
   /**
@@ -217,6 +220,9 @@ public abstract class JPEGProcessor {
      * byte, and the three final bytes (a total of 8) as well as two bytes
      * per component */
     int dataStart = 8 + (2 * scanComponents);
+    /* We need to add the stuff before the actual scan (ie the marker and
+     * component info) */
+    addToProcessed(ArrayUtils.subarray(segment, 0, dataStart));
     byte[] data = ArrayUtils.subarray(segment, dataStart, segment.length);
     scan.setData(data);
   }
@@ -233,6 +239,7 @@ public abstract class JPEGProcessor {
     }
     byte[] segment = nextSegment();
     while(segment != null && segment[1] != JPEGConstants.SOS_MARKER) {
+      addToProcessed(segment);
       switch(segment[1]) {
         case JPEGConstants.SOF0_MARKER:
           startOfFrame(scan, segment);
@@ -244,9 +251,9 @@ public abstract class JPEGProcessor {
           defineRestartInterval(scan, segment);
           break;
         case JPEGConstants.EOI_MARKER:
-          break;
+          return null;
       }
-      addToProcessed(segment);
+      segment = nextSegment();
     }
     loadScanData(scan, segment);
     return scan;
@@ -270,8 +277,12 @@ public abstract class JPEGProcessor {
    * @return the processed scan
    */
   public Scan nextScan() {
-    Scan scan = process(readScan());
-    return addScan(scan);
+    Scan scan = readScan();
+    /* All done */
+    if(scan == null) {
+      return scan;
+    }
+    return addScan(process(scan));
   }
 
   /**

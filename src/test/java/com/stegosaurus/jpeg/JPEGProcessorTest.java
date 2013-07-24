@@ -132,22 +132,24 @@ public class JPEGProcessorTest {
   }
 
   /**
-   * Test the process image method.
+   * A basic sanity test for the processImage method. Ensures that the data
+   * processed is the same data that was sent and that if no processing is
+   * applied, it is returned exactly as it was given.
    */
   @Test
-  public void testProcessImage() {
+  public void testProcessImageBasic() {
     String file = "lena-colour.jpeg";
     InputStream in = this.getClass().getResourceAsStream(file);
     JPEGProcessor proc = new DummyProcessor(in);
     try {
       proc.init();
+      in.close();
       proc.processImage();
       byte[] processed = proc.getProcessed();
       InputStream expectedStream = this.getClass().getResourceAsStream(file);
       byte[] expected = IOUtils.toByteArray(expectedStream);
-      in.close();
       expectedStream.close();
-      assertArrayEquals("processImage failure", processed, expected);
+      assertArrayEquals("processImage failure", expected, processed);
     } catch (IOException ioe) {
       fail("Unexpected exception!");
     }
