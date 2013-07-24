@@ -9,17 +9,6 @@ import org.junit.Test;
 public class NumUtilsTest {
 
   /**
-   * Test the intFromBytesLE method.
-   */
-  @Test
-  public void testIntFromBytesLE() {
-    byte[] input = {(byte) 0xA3, (byte) 0x98};
-    int expected = 0x98A3;
-    int result = NumUtils.intFromBytesLE(input);
-    assertEquals("intFromBytes Little Endian failure", expected, result);
-  }
-
-  /**
    * Test the intFromBitsBE method.
    */
   @Test
@@ -42,6 +31,44 @@ public class NumUtilsTest {
     int result = NumUtils.intFromBitsBE(arr, 9);
     assertEquals("Failure from intFromBits big endian, with padded result",
       expected, result);
+  }
+
+  /**
+   * Test the intFromBytes method with the default big endian ordering.
+   */
+  @Test
+  public void testIntFromBytes() {
+    byte[] input = {(byte) 0xA3, (byte) 0x98};
+    int expected = 0xA398;
+    int result = NumUtils.intFromBytes(input);
+    assertEquals("intFromBytes big endian failure", expected, result);
+  }
+
+  /**
+   * Test the intFromBytes method when a full four byte long array is given.
+   */
+  @Test
+  public void testIntFromBytesFourBytes() {
+    byte[] input = {(byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF};
+    int expected = 0xDEADBEEF;
+    int result = NumUtils.intFromBytes(input);
+    assertEquals("intFromBytes full array big endian failure", expected,
+      result);
+    expected = 0xEFBEADDE;
+    result = NumUtils.intFromBytes(input, ByteOrder.LITTLE_ENDIAN);
+    assertEquals("intFromBytes full array little endian failure", expected,
+      result);
+  }
+
+  /**
+   * Test the intFromBytes method with little endian ordering.
+   */
+  @Test
+  public void testIntFromBytesLE() {
+    byte[] input = {(byte) 0xA3, (byte) 0x98};
+    int expected = 0x98A3;
+    int result = NumUtils.intFromBytes(input, ByteOrder.LITTLE_ENDIAN);
+    assertEquals("intFromBytes Little Endian failure", expected, result);
   }
 
   /**

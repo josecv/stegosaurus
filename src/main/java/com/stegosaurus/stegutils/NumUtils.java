@@ -20,19 +20,33 @@ public final class NumUtils {
   }
 
   /**
-   * Interpret the byte array given as a little endian int composed of size
-   * bytes. So {0xA3, 0x98} becomes 0x98A3.
+   * Interpret the byte array given as an int. Use big endian ordering by
+   * default, so {0xA3, 0x98} becomes 0xA398.
    * 
    * @param bytes the byte array in question
    * @return the int worked out from the byte array
    */
-  public static int intFromBytesLE(byte[] bytes) {
+  public static int intFromBytes(byte[] bytes) {
+    return intFromBytes(bytes, ByteOrder.BIG_ENDIAN);
+  }
+
+  public static int intFromBytes(byte[] bytes, ByteOrder order) {
     if(bytes.length > 4) {
       throw new IllegalArgumentException("The byte array given is too long");
     }
-    bytes = ArrayUtils.addAll(bytes, new byte[4 - bytes.length]);
+    /* We have to be sure to pad the thing properly, or the buffer will scream
+     * at us. What we do is pad it with 0s that will have no importance
+     * whatsoever (ie they are "to the left" of the resulting number). In
+     * little endian order, then, these go after the important data, while in
+     * big endian order they go before.
+     */
+    if(order == ByteOrder.LITTLE_ENDIAN) {
+      bytes = ArrayUtils.addAll(bytes, new byte[4 - bytes.length]);
+    } else {
+      bytes = ArrayUtils.addAll(new byte[4 - bytes.length], bytes);
+    }
     ByteBuffer wrapped = ByteBuffer.wrap(bytes);
-    wrapped.order(ByteOrder.LITTLE_ENDIAN);
+    wrapped.order(order);
     return wrapped.getInt();
   }
 

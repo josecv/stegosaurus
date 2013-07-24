@@ -2,6 +2,7 @@ package com.stegosaurus.steganographers.coders;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import com.stegosaurus.stegutils.NumUtils;
@@ -63,14 +64,17 @@ public abstract class BMPCoder extends ImgCoder {
     header = readHeader();
     bytesRead = 0;
     /* Where the actual data begins */
-    int offset = NumUtils.intFromBytesLE(Arrays.copyOfRange(header, 10, 14));
+    int offset = NumUtils.intFromBytes(Arrays.copyOfRange(header, 10, 14),
+      ByteOrder.LITTLE_ENDIAN);
     /* The size of the dib header */
     int dibSize = offset - 14;
     dib = new byte[dibSize];
     instream.read(dib);
     /* How many bytes are in each pixel? */
-    pixelSize = NumUtils.intFromBytesLE(Arrays.copyOfRange(dib, 14, 16)) / 8;
-    width = NumUtils.intFromBytesLE(Arrays.copyOfRange(dib, 4, 8));
+    pixelSize = NumUtils.intFromBytes(Arrays.copyOfRange(dib, 14, 16),
+      ByteOrder.LITTLE_ENDIAN) / 8;
+    width = NumUtils.intFromBytes(Arrays.copyOfRange(dib, 4, 8),
+      ByteOrder.LITTLE_ENDIAN);
     dataSize = instream.available();
     imgdata = new byte[dataSize];
   }
