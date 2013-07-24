@@ -30,6 +30,12 @@ public final class NumUtils {
     return intFromBytes(bytes, ByteOrder.BIG_ENDIAN);
   }
 
+  /**
+   * Interpret the byte array given as an int, with the ordering given.
+   * @param bytes the byte array in question
+   * @param order the ordering to use, ie either BIG_ENDIAN or LITTLE_ENDIAN
+   * @return the int worked out from the byte array
+   */
   public static int intFromBytes(byte[] bytes, ByteOrder order) {
     if(bytes.length > 4) {
       throw new IllegalArgumentException("The byte array given is too long");
@@ -48,6 +54,30 @@ public final class NumUtils {
     ByteBuffer wrapped = ByteBuffer.wrap(bytes);
     wrapped.order(order);
     return wrapped.getInt();
+  }
+
+  /**
+   * Interpret the byte array given as an int, in big endian ordering, taking
+   * only into account the bytes between the start index and the end index.
+   * @param bytes the byte array in question
+   * @param start the start index, inclusive
+   * @param end the end index, exclusive
+   */
+  public static int intFromBytes(byte[] bytes, int start, int end) {
+    return intFromBytes(bytes, ByteOrder.BIG_ENDIAN, start, end);
+  }
+
+  /**
+   * Interpret the byte array given as an int, in the ordering given, taking
+   * only into account the bytes between the start index and the end index.
+   * @param bytes the byte array in question
+   * @param order the ordering to use
+   * @param start the start index, inclusive
+   * @param end the end index, exclusive
+   */
+  public static int intFromBytes(byte[] bytes, ByteOrder order, int start,
+                                 int end) {
+    return intFromBytes(ArrayUtils.subarray(bytes, start, end), order);
   }
 
   /**

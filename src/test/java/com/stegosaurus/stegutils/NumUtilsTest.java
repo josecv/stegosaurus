@@ -45,6 +45,30 @@ public class NumUtilsTest {
   }
 
   /**
+   * Test the intFromBytes method when only a subset of the input array is to
+   * be taken into account.
+   */
+  @Test
+  public void testIntFromBytesSubarray() {
+    byte[] input = {0x05, 0x17, 0x2A, 0x22, 0x42};
+    int start = 0;
+    int end = 2;
+    int expected = 0x0517;
+    int result = NumUtils.intFromBytes(input, ByteOrder.BIG_ENDIAN, start,
+      end);
+    assertEquals("intFromBytes subarray big endian failure", expected, result);
+    result = NumUtils.intFromBytes(input, start, end);
+    assertEquals("intFromBytes subarray not defaulting to big endian",
+      expected, result);
+    start = 1;
+    end = 4;
+    expected = 0x222A17;
+    result = NumUtils.intFromBytes(input, ByteOrder.LITTLE_ENDIAN, start, end);
+    assertEquals("intFromBytes subarray little endian failure", expected,
+      result);
+  }
+
+  /**
    * Test the intFromBytes method when a full four byte long array is given.
    */
   @Test
