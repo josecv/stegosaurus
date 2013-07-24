@@ -5,7 +5,6 @@
 package com.stegosaurus.steganographers;
 
 import java.io.IOException;
-import java.nio.ByteOrder;
 
 import com.stegosaurus.steganographers.coders.UnHider;
 import com.stegosaurus.stegutils.NumUtils;
@@ -13,13 +12,18 @@ import com.stegosaurus.stegutils.NumUtils;
 
 /**
  * Mediates with an UnHider to unhide a payload from a carrier.
- *
- * @author joe
  */
 public class Desteganographer {
 
+  /**
+   * The unhider to be managed by this desteganographer.
+   */
   private UnHider unhider;
 
+  /**
+   * Construct a new desteganographer to mediate with the unhider given.
+   * @param u the unhider to manage.
+   */
   public Desteganographer(UnHider u) {
     this.unhider = u;
   }
@@ -32,7 +36,7 @@ public class Desteganographer {
    */
   public byte[] unHider() throws IOException {
     byte[] unhidden = unhider.unHide(4);
-    int size = NumUtils.intFromBytes(unhidden, ByteOrder.LITTLE_ENDIAN);
+    int size = NumUtils.intFromBytes(unhidden);
     byte[] retval = unhider.unHide(size);
     /* We don't want the starting four bytes in the message, so trim them
      * by not returning unhider.close */

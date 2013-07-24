@@ -1,12 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.stegosaurus.stegutils;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Worries about the logic of dealing with the user's messages.
- * @author joe
  */
 public class MessageHandler {
   /**
@@ -23,19 +20,13 @@ public class MessageHandler {
   }
     
   /**
-   * Get the message handled by this object as a byte array, where each byte
-   * is a char inside the message string.
+   * Get the message handled by this object as a byte array, preceded by big
+   * endian length information (4 bytes).
    * @return the array of bytes representing the message.
    */
   public byte[] asByteArray() {
-    int l = msg.length();
-    byte[] retval = new byte[l + 4];
-    for (int i = 0; i < 4; i++) {
-      retval[i] = (byte) ((l & (0xFF << (8 * i))) >> (8 * i));
-    }
-    for (int i = 0; i < msg.length(); i++) {
-      retval[i + 4] = (byte) msg.charAt(i);
-    }
-    return retval;
+    int[] l = { msg.length() };
+    return ArrayUtils.addAll(NumUtils.byteArrayFromIntArray(l),
+                             msg.getBytes());
   }
 }
