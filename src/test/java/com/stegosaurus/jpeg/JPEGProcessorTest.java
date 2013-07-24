@@ -1,8 +1,14 @@
 package com.stegosaurus.jpeg;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;
 
 /**
@@ -15,7 +21,7 @@ public class JPEGProcessorTest {
    * Monstruous table of data. Subset of a JPEG file, with casts wherever the
    * compiler complained about overflow.
    */
-  private static byte[] data = {
+  private static final byte[] DATA = {
     (byte) 0xFF, (byte) 0xD8, (byte) 0xFF,
     (byte) 0xDB, 0x00, 0x43, 0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05,
     0x08, 0x07, 0x07, 0x07, 0x09, 0x09, 0x08, 0x0A, 0x0C, 0x14, 0x0D,
@@ -69,17 +75,37 @@ public class JPEGProcessorTest {
     (byte) 0xA3, (byte) 0x81, (byte) 0xCF, (byte) 0xFF, (byte) 0xD6
   };
 
-
   /**
    * Test the findMarker method.
    */
   @Test
   public void testFindMarker() {
-    int[] expected = {0, 2, 71, data.length - 2};
+    int[] expected = {0, 2, 71, DATA.length - 2};
     for(int i = 0; i < expected.length; i++) {
       int start = (i > 0 ? expected[i - 1] : -1);
-      int result = JPEGProcessor.findMarker(start, data);
+      int result = JPEGProcessor.findMarker(start, DATA);
       assertEquals("Bad return value for find marker.", expected[i], result);
+    }
+  }
+
+  /**
+   * Test the nextSegment method.
+   */
+  @Test
+  public void testNextSegment() {
+    byte[][] segments = {
+      ArrayUtils.subarray(DATA, 0, 2),
+      ArrayUtils.subarray(DATA, 2, 71),
+      ArrayUtils.subarray(DATA, 71, DATA.length - 2),
+      ArrayUtils.subarray(DATA, DATA.length - 2, DATA.length)
+    };
+    int start = 0;
+    for(int i = 0; i < segments.length; i++) {
+      byte[] result = JPEGProcessor.nextSegment(start, DATA);
+      String msg = String.format("Failure for segment #%d (starts at %d)",
+        i, start);
+      start += segments[i].length;
+      assertArrayEquals(msg, segments[i], result);
     }
   }
 
@@ -103,5 +129,28 @@ public class JPEGProcessorTest {
   public void testUnescape() {
     byte[] retval = JPEGProcessor.unescape(SCAN);
     assertArrayEquals("Unescape Failure", retval, SCAN_UNESCAPED);
+  }
+
+  /**
+   * Test the process image method.
+   */
+  @Test
+  public void testProcessImage() {
+    String file = "lena-colour.jpeg";
+    InputStream in = this.getClass().getResourceAsStream(file);
+    JPEGProcessor proc = new DummyProcessor(in);
+    try {
+      proc.init();
+      proc.processImage();
+      byte[] processed = proc.getProcessed();
+      InputStream expectedStream = this.getClass().getResourceAsStream(file);
+      byte[] expected = IOUtils.toByteArray(expectedStream);
+      in.close();
+      expectedStream.close();
+      assertArrayEquals("processImage failure", processed, expected);
+    } catch (IOException ioe) {
+      fail("Unexpected exception!");
+    }
+    
   }
 }

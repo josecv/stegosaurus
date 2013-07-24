@@ -44,7 +44,7 @@ public abstract class JPEGProcessor {
   /**
    * The index of the last returned segment.
    */
-  private int segmentIndex = -1;
+  private int segmentIndex = 0;
 
   /**
    * The input stream that will be providing the image.
@@ -107,40 +107,43 @@ public abstract class JPEGProcessor {
   private void init(byte[] bytes) {
     buffer = bytes.clone();
     byte[] segment = nextSegment();
-    if(segment[0] != 0xFF || segment[1] != 0xD8) {
+    if(segment[0] != 0xFF || segment[1] != JPEGConstants.SOI_MARKER) {
       throw new WrongImageTypeException("File not structured like a JPEG file");
     }
   }
 
   /**
-   * Get the next segment in this jpeg file. Notice that this does not stop
-   * at RST markers, since those do not denote segments.
+   * Get the next segment in this jpeg file, and set the new segmentIndex.
+   * Notice that this does not stop at RST markers, since those do not
+   * denote segments.
    *
    * @return the next segment, which begins with a marker.
    */
   private byte[] nextSegment() {
-    if (segmentIndex == buffer.length) {
-      return null;
-    }
-    int marker = findMarker(segmentIndex);
-    while(JPEGConstants.isRSTMarker(buffer[marker + 1])) {
-      marker = findMarker(marker);
-    }
-    byte[] retval = Arrays.copyOfRange(buffer, segmentIndex, marker);
-    segmentIndex = marker;
+    byte[] retval = nextSegment(segmentIndex, buffer);
+    segmentIndex += retval.length;
     return retval;
   }
 
   /**
-   * Look at the buffer, starting at the location given, until the next marker
-   * is found, and return the index where said marker starts.
-   *
-   * @param start the location of the preceding marker.
-   *
-   * @return where to find the next marker.
+   * Get the next segment in the buffer given.
+   * Notice that this does not stop at RST markers, since those do not
+   * denote segments.
+   * @param start the index to start looking at
+   * @param buffer the buffer
+   * @return the next segment, which begins with a marker.
    */
-  private int findMarker(int start) {
-    return findMarker(start, this.buffer);
+  public static byte[] nextSegment(int start, byte[] buffer) {
+    if (start == buffer.length) {
+      return null;
+    }
+    int marker = findMarker(start, buffer);
+    while(marker < buffer.length &&
+          JPEGConstants.isRSTMarker(buffer[marker + 1])) {
+      marker = findMarker(marker, buffer);
+    }
+    byte[] retval = Arrays.copyOfRange(buffer, start, marker);
+    return retval;
   }
 
 
@@ -240,7 +243,10 @@ public abstract class JPEGProcessor {
         case JPEGConstants.DRI_MARKER:
           defineRestartInterval(scan, segment);
           break;
+        case JPEGConstants.EOI_MARKER:
+          break;
       }
+      addToProcessed(segment);
     }
     loadScanData(scan, segment);
     return scan;
@@ -259,12 +265,47 @@ public abstract class JPEGProcessor {
   }
 
   /**
-   * Return the next scan in the image, already processed.
+   * Return the next scan in the image, already processed. It is also added
+   * to the list of scans.
    * @return the processed scan
    */
   public Scan nextScan() {
     Scan scan = process(readScan());
     return addScan(scan);
+  }
+
+  /**
+   * Get the nth processed scan.
+   * @param n the scan to get
+   * @return the nth scan
+   */
+  public Scan getScan(int n) {
+    return scans.get(n);
+  }
+
+  /**
+   * Return all the scans that have been processed.
+   * @return the list of scans.
+   */
+  public List<Scan> getScans() {
+    return new ArrayList<Scan>(scans);
+  }
+
+  /**
+   * Process the remainder of the image.
+   * @return all the scans in the image, after processing.
+   */
+  public List<Scan> processImage() {
+    while(nextScan() != null) { }
+    return getScans();
+  }
+
+  /**
+   * Get the already processed bytes.
+   * @return the processed bytes
+   */
+  public byte[] getProcessed() {
+    return processed;
   }
 
   /**
