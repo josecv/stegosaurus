@@ -67,4 +67,21 @@ public class ScanTest {
       i++;
     }
   }
+
+  /**
+   * Tests iteration over the scan when there are no restart markers within
+   * it.
+   */
+  @Test
+  public void testIterationNoRSTs() {
+    Scan scan = new Scan();
+    /* We reuse DATA_SPLIT[0] just so we don't have to come up with any more
+     * test data.
+     */
+    scan.setData(DATA_SPLIT[0]);
+    for(byte[] data : scan) {
+      assertArrayEquals("Iteration data is not as expected", DATA_SPLIT[0],
+        data);
+    }
+  }
 }

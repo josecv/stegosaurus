@@ -317,6 +317,18 @@ public class Scan implements Iterable<byte[]> {
   }
 
   /**
+   * Get the total number of coefficients within this scan.
+   * @return the total number of coefficients in this scan.
+   */
+  public int getCoefficientCount() {
+    int retval = 64 * getMCUx() * getMCUy();
+    for(int i = 0; i < subsampling.length; i++) {
+      retval *= subsampling[i][0] * subsampling[i][1];
+    }
+    return retval;
+  }
+
+  /**
    * Return an iterator over this scan's RST marker separated sections.
    */
   @Override

@@ -97,6 +97,20 @@ public class JPEGDecompressor extends JPEGProcessor {
   }
 
   /**
+   * Get the number of MCUs that should be processed every time we iterate
+   * over scan data. If restarts are enabled, this is equivalent to the
+   * restart interval. Otherwise, this is the total number of MCUs in the
+   * scan.
+   * @return the number of MCUs.
+   */
+  private int getNumberOfMCUsPerIteration(Scan scan) {
+    if(scan.getRestartInterval() > 0) {
+      return scan.getRestartInterval();
+    }
+    return scan.getMCUx() * scan.getMCUy();
+  }
+
+  /**
    * Decompress the data given and place the corresponding bytes in the output
    * list provided.
    * @param scan the scan we're working with.
@@ -109,9 +123,10 @@ public class JPEGDecompressor extends JPEGProcessor {
     if(input[0] == (byte) 0xFF && JPEGConstants.isRSTMarker(input[1])) {
       input = ArrayUtils.subarray(input, 2, input.length);
     }
-    int[] lastDCs = new int[scan.getScanComponents()];
     BitInputStream in = new BitInputStream(input);
-    while(in.available() > 0) {
+    int[] lastDCs = new int[scan.getScanComponents()];
+    int mcus = getNumberOfMCUsPerIteration(scan);
+    for(int mcu = 0; mcu < mcus; mcu++) {
       for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
         for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
           for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
@@ -135,15 +150,8 @@ public class JPEGDecompressor extends JPEGProcessor {
    */
   @Override
   protected Scan process(Scan scan) {
-    /* TODO The following comment is a lie. */
-    /* JPEG does a ton of different stuff to its data, so it's hard to
-     * estimate how many bytes we're going to get in the end. At the same time,
-     * because we're using an ArrayList, it's desirable to at least
-     * ballpark it. For now, we're assuming that the data is three times as
-     * large as its compressed counterpart. An unlikely assertion, but a decent
-     * starting point.
-     */
-    List<Integer> data = new ArrayList<Integer>(scan.getData().length * 3);
+    /* Every coefficient is going to become an int in here, so there we are */
+    List<Integer> data = new ArrayList<Integer>(scan.getCoefficientCount());
     try {
       for(byte[] piece : scan) {
         decompress(scan, piece, data);
