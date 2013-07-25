@@ -267,6 +267,56 @@ public class Scan implements Iterable<byte[]> {
   }
 
   /**
+   * Get the maximum sampling frequency of any component in the direction
+   * given.
+   * @param direction the direction, being 0 for horizontal, 1 for vertical
+   * @return the maximium sampling frequency
+   */
+  private byte getSamplingMax(int direction) {
+    byte max = subsampling[0][direction];
+    for(int i = 0; i < frameComponents; i++) {
+      if(max < subsampling[i][direction]) {
+        max = subsampling[i][direction];
+      }
+    }
+    return max;
+  }
+
+  /**
+   * Get the maximum horizontal sampling frequency out of those of the components
+   * known to this scan.
+   * @return the maximium horizontal sampling frequency
+   */
+  public byte getHSamplingMax() {
+    return getSamplingMax(0);
+  }
+
+  /**
+   * Get the maximum vertical sampling frequency out of those of the components
+   * known to this scan.
+   * @return the maximum vertical sampling frequency.
+   */
+  public byte getVSamplingMax() {
+    return getSamplingMax(1);
+  }
+
+  /**
+   * Return the number of MCUs that this scan contains, horizontally.
+   * @return the number of MCUs in the x direction.
+   */
+  public int getMCUx() {
+    return (width + 8 * getHSamplingMax() - 1) / (8 * getHSamplingMax());
+  }
+
+  /**
+   * Return the number of MCUs that this scan contains, vertically.
+   * @return the number of MCUs in the y direction.
+   */
+  public int getMCUy() {
+    return (height + 8 * getVSamplingMax() - 1) / (8 * getVSamplingMax());
+  }
+
+  /**
    * Return an iterator over this scan's RST marker separated sections.
    */
   @Override

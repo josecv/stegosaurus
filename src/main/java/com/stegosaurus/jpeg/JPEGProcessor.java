@@ -326,10 +326,10 @@ public abstract class JPEGProcessor {
    * Look at the buffer given, starting at the location given, until the
    * next marker is found, and return the index where said marker starts.
    * If no marker is to be found, return the length of the buffer.
-   * 
+   *
    * @param start the location of the preceding marker.
    * @param buffer the buffer to look at
-   * 
+   *
    * @return where to find the next marker.
    */
   public static int findMarker(int start, byte[] buffer) {
@@ -356,7 +356,7 @@ public abstract class JPEGProcessor {
   /**
    * Given a piece of JPEG data, remove the 0x00 bytes that follow any 0xFF
    * bytes.
-   * 
+   *
    * @param segment the segment in question
    * @return the segment, with 0x00 bytes removed.
    */

@@ -135,6 +135,7 @@ public class JPEGDecompressor extends JPEGProcessor {
    */
   @Override
   protected Scan process(Scan scan) {
+    /* TODO The following comment is a lie. */
     /* JPEG does a ton of different stuff to its data, so it's hard to
      * estimate how many bytes we're going to get in the end. At the same time,
      * because we're using an ArrayList, it's desirable to at least
@@ -148,8 +149,12 @@ public class JPEGDecompressor extends JPEGProcessor {
         decompress(scan, piece, data);
       }
     } catch(IOException ioe) {
-      /* XXX */
-      throw new RuntimeException(ioe);
+      /* BitInputStreams are not declared as throwing on read, so we shouldn't
+       * end here. In the event that we do, in fact, wind up getting an
+       * exception (from some future modification), it would be from invalid
+       * user input, so we can throw it back out: it's not really our fault.
+       */
+      throw new IllegalArgumentException("Scan data caused exception", ioe);
     }
     /* XXX This statement kinda sucks. */
     scan.setData(NumUtils.
