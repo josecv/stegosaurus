@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.stegosaurus.stegostreams.BitOutputStream;
-import com.stegosaurus.stegostreams.SequentialBitOutputStream;
-import com.stegosaurus.huffman.HuffmanCode;
 
 /**
  * Performs encoding of arbitrary bytes into bit streams according to a specific
@@ -40,7 +38,7 @@ public class HuffmanEncoder {
    *             on read error.
    */
   public byte[] encode(byte[] input) throws IOException {
-    BitOutputStream os = new SequentialBitOutputStream();
+    BitOutputStream os = new BitOutputStream();
     for (byte b : input) {
       HuffmanCode hc = code.get(b);
       int c = hc.code;

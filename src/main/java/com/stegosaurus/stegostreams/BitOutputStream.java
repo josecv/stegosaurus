@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Converts bit-by-bit input to a byte array. It is assumed that the data is
- * being given in little endian.
- * 
- * @author joe
+ * Converts bit-by-bit input to a byte array.
+ * Operates in Big Endian (ie sequentially)
  */
 public class BitOutputStream extends OutputStream {
   /**
@@ -29,18 +27,17 @@ public class BitOutputStream extends OutputStream {
   /**
    * Write a new bit to the stream.
    * 
-   * @param b
-   *            the bit to write
+   * @param b the bit to write
    */
   @Override
   public void write(int b) {
-    if (i / 8 == data.size()) {
-      data.add((byte) (0));
-    }
-    byte current = data.get(i / 8);
-    current |= ((byte) (b)) << (i % 8);
-    data.set(i / 8, current);
-    i++;
+		if (i / 8 == data.size()) {
+			data.add((byte) 0);
+		}
+		byte current = data.get(i / 8);
+		current |= (byte) (b << 7 - (i % 8));
+		data.set(i / 8, current);
+		i++;
   }
 
   /**

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.stegostreams.BitInputStream;
-import com.stegosaurus.stegostreams.SequentialBitInputStream;
 import com.stegosaurus.stegutils.NumUtils;
 
 public class JPEGDecompressor extends JPEGProcessor {
@@ -111,16 +110,18 @@ public class JPEGDecompressor extends JPEGProcessor {
       input = ArrayUtils.subarray(input, 2, input.length);
     }
     int[] lastDCs = new int[scan.getScanComponents()];
-    BitInputStream in = new SequentialBitInputStream(input);
-    for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
-      for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
-        for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
-          int dcTable = (scan.getTableId(cmp) & 0xF0) >> 4;
-          int acTable = (scan.getTableId(cmp) & 0x0F) | 0x10;
-          int dc = decodeDC(scan.getDecoder(dcTable), in, lastDCs[cmp]);
-          lastDCs[cmp] = dc;
-          output.add(dc);
-          decodeACs(scan.getDecoder(acTable), in, output);
+    BitInputStream in = new BitInputStream(input);
+    while(in.available() > 0) {
+      for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
+        for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
+          for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
+            int dcTable = (scan.getTableId(cmp) & 0xF0) >> 4;
+            int acTable = (scan.getTableId(cmp) & 0x0F) | 0x10;
+            int dc = decodeDC(scan.getDecoder(dcTable), in, lastDCs[cmp]);
+            lastDCs[cmp] = dc;
+            output.add(dc);
+            decodeACs(scan.getDecoder(acTable), in, output);
+          }
         }
       }
     }
@@ -150,8 +151,10 @@ public class JPEGDecompressor extends JPEGProcessor {
       /* XXX */
       throw new RuntimeException(ioe);
     }
-    /* TODO DO SOMETHING EPIC RIGHT ABOUT HERE! */
-    //scan.setData(ArrayUtils.toPrimitive(data.toArray(new Byte[data.size()])));
+    /* XXX This statement kinda sucks. */
+    scan.setData(NumUtils.
+      byteArrayFromIntArray(ArrayUtils.
+        toPrimitive(data.toArray(new Integer[data.size()]))));
     return scan;
   }
 }

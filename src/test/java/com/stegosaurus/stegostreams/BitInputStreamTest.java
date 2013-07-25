@@ -1,17 +1,18 @@
 package com.stegosaurus.stegostreams;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.util.Arrays;
 
 import org.junit.Test;
-import com.stegosaurus.stegostreams.SequentialBitInputStream;
 
 /**
  * Tests the sequential bit inputstream class.
  */
-public class SequentialBitInputStreamTest {
+public class BitInputStreamTest {
 
   /**
    * Test the read method.
@@ -19,7 +20,7 @@ public class SequentialBitInputStreamTest {
   @Test
   public void testRead() {
     byte[] arg = { 0b01011101 };
-    SequentialBitInputStream st = new SequentialBitInputStream(arg);
+    BitInputStream st = new BitInputStream(arg);
     byte[] expected = { 0, 1, 0, 1, 1, 1, 0, 1 };
     byte[] retval = new byte[8];
     try {
@@ -40,7 +41,7 @@ public class SequentialBitInputStreamTest {
   @Test
   public void testSkipToEndOfByte() {
     byte[] arg = { 0b01001111, 0b00001101 };
-    BitInputStream st = new SequentialBitInputStream(arg);
+    BitInputStream st = new BitInputStream(arg);
     for(int i = 0; i < 4; i++) {
       st.read();
     }
