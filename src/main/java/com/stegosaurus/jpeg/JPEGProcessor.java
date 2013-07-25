@@ -12,6 +12,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.huffman.JPEGHuffmanDecoder;
 import com.stegosaurus.stegosaurus.WrongImageTypeException;
+import com.stegosaurus.stegutils.NumUtils;
 
 /**
  * Any class that operates on JPEG image data as read directly from the file
@@ -144,8 +145,7 @@ public abstract class JPEGProcessor {
           JPEGConstants.isRSTMarker(buffer[marker + 1])) {
       marker = findMarker(marker, buffer);
     }
-    byte[] retval = Arrays.copyOfRange(buffer, start, marker);
-    return retval;
+    return Arrays.copyOfRange(buffer, start, marker);
   }
 
 
@@ -165,8 +165,8 @@ public abstract class JPEGProcessor {
    */
   private void startOfFrame(Scan scan, byte[] segment) {
     byte numberOfComponents = segment[9];
-    scan.setWidth((segment[5] >> 8) + segment[6])
-        .setHeight((segment[7] >> 8) + segment[8])
+    scan.setWidth(NumUtils.intFromBytes(segment, 5, 7))
+        .setHeight(NumUtils.intFromBytes(segment, 7, 9))
         .setFrameComponents(numberOfComponents);
     byte[][] subsampling = new byte[numberOfComponents][];
     for (int i = 0; i < numberOfComponents; i++) {
@@ -200,7 +200,7 @@ public abstract class JPEGProcessor {
    * @param segment the segment to read from
    */
   private void defineRestartInterval(Scan scan, byte[] segment) {
-    scan.setRestartInterval((segment[4] >> 8) + segment[5]);
+    scan.setRestartInterval(NumUtils.intFromBytes(segment, 4, 6));
   }
 
   /**
@@ -307,7 +307,10 @@ public abstract class JPEGProcessor {
    * @return all the scans in the image, after processing.
    */
   public List<Scan> processImage() {
-    while(nextScan() != null) { }
+    Scan scan = nextScan();
+    while(scan != null) {
+      scan = nextScan();
+    }
     return getScans();
   }
 
