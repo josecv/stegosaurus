@@ -12,11 +12,11 @@ public class BitInputStream extends InputStream {
 	/**
 	 * The byte array.
 	 */
-	protected byte[] in;
+	private byte[] in;
 	/**
 	 * The next bit to read.
 	 */
-	protected int index;
+	private int index;
 
 	/**
 	 * Initialize the input stream with the input given.

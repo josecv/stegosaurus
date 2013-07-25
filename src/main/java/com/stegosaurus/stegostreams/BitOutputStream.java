@@ -12,12 +12,12 @@ public class BitOutputStream extends OutputStream {
   /**
    * The byte array.
    */
-  protected List<Byte> data;
+  private List<Byte> data;
 
   /**
    * How many bits have been written.
    */
-  protected int i;
+  private int i;
 
   public BitOutputStream() {
     super();
