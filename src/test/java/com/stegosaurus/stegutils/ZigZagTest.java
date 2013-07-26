@@ -36,20 +36,20 @@ public class ZigZagTest {
   };
 
   /**
-   * Test the toZigZagOrder method.
+   * Test the sequentialToZigZag method.
    */
   @Test
-  public void testToZigZagOrder() {
-    int[] result = ZigZag.toZigZagOrder(INPUT);
+  public void testSequentialToZigZag() {
+    int[] result = ZigZag.sequentialToZigZag(INPUT);
     assertArrayEquals("To zig zag order failure.", ZIG_ZAGGED, result);
   }
 
   /**
-   * Test the ToSequentialOrder mehtod.
+   * Test the zigZagToSequential mehtod.
    */
   @Test
-  public void testToSequentialOrder() {
-    int[] result = ZigZag.toSequentialOrder(ZIG_ZAGGED);
+  public void testZigZagToSequential() {
+    int[] result = ZigZag.zigZagToSequential(ZIG_ZAGGED);
     assertArrayEquals("To sequential order failure.", INPUT, result);
   }
 }

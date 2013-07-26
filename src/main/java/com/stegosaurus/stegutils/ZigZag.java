@@ -14,7 +14,7 @@ public final class ZigZag {
    * ordered equivalent. The indices are those in the matrix, and their
    * corresponding values are the indices in the zig-zag ordered equivalent.
    */
-  private static final int[] sequentialToZigZag = {
+  private static final int[] SEQUENTIAL_TO_ZIG_ZAG = {
      0,  1,  5,  6, 14, 15, 27, 28,
      2,  4,  7, 13, 16, 26, 29, 42,
      3,  8, 12, 17, 25, 30, 41, 43,
@@ -30,7 +30,7 @@ public final class ZigZag {
    * ordered equivalent. The indices are those in the zig-zag run, and their
    * corresponding values are the indices in the sequential matrix equivalent.
    */
-  private static final int[] zigZagToSequential = {
+  private static final int[] ZIG_ZAG_TO_SEQUENTIAL = {
      0,  1,  8, 16,  9,  2,  3, 10,
     17, 24, 32, 25, 18, 11,  4,  5,
     12, 19, 26, 33, 40, 48, 41, 34,
@@ -74,8 +74,8 @@ public final class ZigZag {
    * @param sequentialOrder the matrix to re-order.
    * @return the zig zag ordered values.
    */
-  public static int[] toZigZagOrder(int[] sequentialOrder) {
-    return reorder(sequentialOrder, sequentialToZigZag);
+  public static int[] sequentialToZigZag(int[] sequentialOrder) {
+    return reorder(sequentialOrder, SEQUENTIAL_TO_ZIG_ZAG);
   }
 
   /**
@@ -83,7 +83,7 @@ public final class ZigZag {
    * matrix and return it.
    * @return the sequentially ordered values.
    */
-  public static int[] toSequentialOrder(int[] zigZagOrder) {
-    return reorder(zigZagOrder, zigZagToSequential);
+  public static int[] zigZagToSequential(int[] zigZagOrder) {
+    return reorder(zigZagOrder, ZIG_ZAG_TO_SEQUENTIAL);
   }
 }
