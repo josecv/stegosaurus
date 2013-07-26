@@ -1,6 +1,8 @@
 package com.stegosaurus.jpeg;
 
+import gnu.trove.list.TByteList;
 import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.io.IOException;
@@ -101,35 +103,24 @@ public class JPEGDecompressor extends JPEGProcessor {
   }
 
   /**
-   * Get the number of MCUs that should be processed every time we iterate
-   * over scan data. If restarts are enabled, this is equivalent to the
-   * restart interval. Otherwise, this is the total number of MCUs in the
-   * scan.
-   * @return the number of MCUs.
-   */
-  private int getNumberOfMCUsPerIteration(Scan scan) {
-    if(scan.getRestartInterval() > 0) {
-      return scan.getRestartInterval();
-    }
-    return scan.getMCUx() * scan.getMCUy();
-  }
-
-  /**
    * Decompress the data given and place the corresponding bytes in the output
    * list provided.
    * @param scan the scan we're working with.
    * @param input the data to decompress.
    * @param output the list into which the data will be placed.
    */
-  private void decompress(Scan scan, byte[] input, TIntList output)
+  private void decompress(Scan scan, byte[] input, TByteList output)
       throws IOException {
-    /* TODO Waste of good time. There must be a better way */
     if(input[0] == (byte) 0xFF && JPEGConstants.isRSTMarker(input[1])) {
+      output.add(input, 0, 2);
+      /* TODO Waste of good time. There must be a better way */
       input = ArrayUtils.subarray(input, 2, input.length);
     }
+    /* TODO Figure out a better length to put in here */
+    TIntList accumulated = new TIntArrayList(input.length);
     BitInputStream in = new BitInputStream(input);
     int[] lastDCs = new int[scan.getScanComponents()];
-    int mcus = getNumberOfMCUsPerIteration(scan);
+    int mcus = scan.getNumberOfMCUsPerIteration();
     for(int mcu = 0; mcu < mcus; mcu++) {
       for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
         for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
@@ -141,11 +132,13 @@ public class JPEGDecompressor extends JPEGProcessor {
             int[] coeffs = new int[64];
             coeffs[0] = dc;
             decodeACs(scan.getDecoder(acTable), in, coeffs);
-            output.addAll(ZigZag.zigZagToSequential(coeffs));
+            accumulated.addAll(ZigZag.zigZagToSequential(coeffs));
           }
         }
       }
     }
+    byte[] asBytes = NumUtils.byteArrayFromIntArray(accumulated.toArray());
+    output.addAll(escape(asBytes));
     in.close();
   }
 
@@ -157,7 +150,7 @@ public class JPEGDecompressor extends JPEGProcessor {
   @Override
   protected Scan process(Scan scan) {
     /* Every coefficient is going to become an int in here */
-    TIntList data = new TIntArrayList(scan.getCoefficientCount());
+    TByteList data = new TByteArrayList(scan.getCoefficientCount() * 4);
     try {
       for(byte[] piece : scan) {
         decompress(scan, piece, data);
@@ -170,7 +163,7 @@ public class JPEGDecompressor extends JPEGProcessor {
        */
       throw new IllegalArgumentException("Scan data caused exception", ioe);
     }
-    scan.setData(NumUtils.byteArrayFromIntArray(data.toArray()));
+    scan.setData(data.toArray());
     return scan;
   }
 }

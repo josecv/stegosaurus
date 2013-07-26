@@ -321,11 +321,29 @@ public class Scan implements Iterable<byte[]> {
    * @return the total number of coefficients in this scan.
    */
   public int getCoefficientCount() {
-    int retval = 64 * getMCUx() * getMCUy();
-    for(int i = 0; i < subsampling.length; i++) {
-      retval *= subsampling[i][0] * subsampling[i][1];
+    int retval = 0;
+    for(int m = 0; m < (getMCUx() * getMCUy()); m++) {
+      for(int i = 0; i < subsampling.length; i++) {
+        for(int s = 0; s < subsampling[i][0] * subsampling[i][1]; s++) {
+          retval += 64;
+        }
+      }
     }
     return retval;
+  }
+
+  /**
+   * Get the number of MCUs that should be processed every time we iterate
+   * over scan data. If restarts are enabled, this is equivalent to the
+   * restart interval. Otherwise, this is the total number of MCUs in the
+   * scan.
+   * @return the number of MCUs.
+   */
+  public int getNumberOfMCUsPerIteration() {
+    if(getRestartInterval() > 0) {
+      return getRestartInterval();
+    }
+    return getMCUx() * getMCUy();
   }
 
   /**
