@@ -43,7 +43,7 @@ public class JPEGProcessorTest {
    * included, not the marker and descriptors.
    */
   private static final byte[] SCAN = {
-    (byte) 0xF6, 0x18, (byte) 0xD8, 0x37, (byte) 0xDD, 0x7E,
+    (byte) 0xFF, 0x00, (byte) 0xF6, 0x18, (byte) 0xD8, 0x37, (byte) 0xDD, 0x7E,
     (byte) 0x9D, (byte) 0xF3, (byte) 0x9C, (byte) 0xD5, (byte) 0xA0,
     (byte) 0xE0, 0x1E, (byte) 0xFF, 0x00, 0x77, 0x66, 0x2A, 0x23,
     (byte) 0xD2, 0x40, 0x39, 0x20, (byte) 0xE4, 0x76, 0x15,
@@ -54,14 +54,14 @@ public class JPEGProcessorTest {
     (byte) 0xF3, 0x1E, (byte) 0xA9, (byte) 0xE3, 0x5D, 0x5F, 0x53,
     (byte) 0x9A, 0x56, (byte) 0xBA, (byte) 0xBF, (byte) 0xBC, 0x76,
     0x76, (byte) 0xC9, 0x06, 0x63, (byte) 0xB4, 0x75, (byte) 0xE8,
-    (byte) 0xA3, (byte) 0x81, (byte) 0xCF, (byte) 0xFF, (byte) 0xD6
+    (byte) 0xA3, (byte) 0x81, (byte) 0xCF, (byte) 0xFF, 0x00
   };
 
   /**
    * The same scan data from SCAN, with 0xFF00 instances replaced by 0xFF.
    */
   private static final byte[] SCAN_UNESCAPED = {
-    (byte) 0xF6, 0x18, (byte) 0xD8, 0x37, (byte) 0xDD, 0x7E,
+    (byte) 0xFF, (byte) 0xF6, 0x18, (byte) 0xD8, 0x37, (byte) 0xDD, 0x7E,
     (byte) 0x9D, (byte) 0xF3, (byte) 0x9C, (byte) 0xD5, (byte) 0xA0,
     (byte) 0xE0, 0x1E, (byte) 0xFF, 0x77, 0x66, 0x2A, 0x23,
     (byte) 0xD2, 0x40, 0x39, 0x20, (byte) 0xE4, 0x76, 0x15,
@@ -72,7 +72,7 @@ public class JPEGProcessorTest {
     (byte) 0xF3, 0x1E, (byte) 0xA9, (byte) 0xE3, 0x5D, 0x5F, 0x53,
     (byte) 0x9A, 0x56, (byte) 0xBA, (byte) 0xBF, (byte) 0xBC, 0x76,
     0x76, (byte) 0xC9, 0x06, 0x63, (byte) 0xB4, 0x75, (byte) 0xE8,
-    (byte) 0xA3, (byte) 0x81, (byte) 0xCF, (byte) 0xFF, (byte) 0xD6
+    (byte) 0xA3, (byte) 0x81, (byte) 0xCF, (byte) 0xFF
   };
 
   /**
@@ -127,8 +127,31 @@ public class JPEGProcessorTest {
    */
   @Test
   public void testUnescape() {
-    byte[] retval = JPEGProcessor.unescape(SCAN);
-    assertArrayEquals("Unescape Failure", retval, SCAN_UNESCAPED);
+    byte[] result = JPEGProcessor.unescape(SCAN);
+    assertArrayEquals("Unescape Failure", SCAN_UNESCAPED, result);
+  }
+
+  /**
+   * Test the escape method.
+   */
+  @Test
+  public void testEscape() {
+    byte[] result = JPEGProcessor.escape(SCAN_UNESCAPED);
+    assertArrayEquals("Escape failure", SCAN, result);
+  }
+
+  /**
+   * Test that the escape and unescape methods do not change the data given.
+   */
+  @Test
+  public void testImmutability() {
+    byte[] original = SCAN.clone();
+    JPEGProcessor.unescape(SCAN);
+    assertArrayEquals("Unescape changed the array given", original, SCAN);
+    original = SCAN_UNESCAPED.clone();
+    JPEGProcessor.escape(SCAN_UNESCAPED);
+    assertArrayEquals("Escape changed the array given", original,
+      SCAN_UNESCAPED);
   }
 
   /**

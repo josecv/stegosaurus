@@ -361,14 +361,32 @@ public abstract class JPEGProcessor {
   }
 
   /**
+   * Given a piece of JPEG data, add 0x00 bytes in front of any 0xFF bytes.
+   * For this to work without corrupting any markers, the data given should
+   * be guaranteed to be marker-free, obviously. The data given is not
+   * mutated, but copied.
+   * @param segment the data to work with.
+   * @return the segment, with 0x00 bytes in front of 0xFF bytes
+   */
+  public static byte[] escape(byte[] segment) {
+    TByteList list = new TByteArrayList(segment);
+    for(int i = list.size() - 1; i >= 0; i--) {
+      if(list.get(i) == (byte) 0xFF) {
+        list.insert(i + 1, (byte) 0);
+      }
+    }
+    return list.toArray();
+  }
+
+  /**
    * Given a piece of JPEG data, remove the 0x00 bytes that follow any 0xFF
-   * bytes.
+   * bytes. The segment given is not mutated at all.
    *
    * @param segment the segment in question
    * @return the segment, with 0x00 bytes removed.
    */
   public static byte[] unescape(byte[] segment) {
-    TByteList s = TByteArrayList.wrap(segment);
+    TByteList s = new TByteArrayList(segment);
     int i;
     for (i = s.size() - 1; i > 0; i--) {
       if (s.get(i) == 0 && s.get(i - 1) == (byte) 0xFF) {
