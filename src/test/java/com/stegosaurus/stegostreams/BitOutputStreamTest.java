@@ -12,9 +12,9 @@ public class BitOutputStreamTest {
 
   @Test
   /**
-   * Test the write methods by writing some ints.
+   * Test the write methods by writing some bits.
    */
-  public void testWriteInt() {
+  public void testWrite() {
     BitOutputStream s = new BitOutputStream();
     s.write(0);
     s.write(0);
