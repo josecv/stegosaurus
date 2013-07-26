@@ -1,9 +1,11 @@
 package com.stegosaurus.jpeg;
 
+import gnu.trove.list.TByteList;
+import gnu.trove.list.array.TByteArrayList;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -19,16 +21,12 @@ import com.stegosaurus.stegutils.NumUtils;
  * is a JPEG processor. This ABC is charged with operations common to all
  * processors such as the reading of Huffman tables or of subsampling
  * information.
- * TODO: Optimize the way processed data is represented internally.
- * TODO: Array operations are super silly in here, and likely not efficient
+ * TODO Array operations are super silly in here, and likely not efficient
  * TODO A smarter way to denote that we're done (ie no nulls!)
  */
 public abstract class JPEGProcessor {
   /**
-   * Ranges indicating where image scan data may be found within our currently
-   * processed data.
-   * The ranges are indices in the array of processed bytes, with an inclusive
-   * start and an exclusive end.
+   * The scans that have been processed by this object.
    */
   private List<Scan> scans = new ArrayList<>();
 
@@ -41,7 +39,7 @@ public abstract class JPEGProcessor {
   /**
    * JPEG image data that has already been processed.
    */
-  private byte[] processed;
+  private TByteList processed;
 
   /**
    * The index of the last returned segment.
@@ -108,6 +106,11 @@ public abstract class JPEGProcessor {
    */
   private void init(byte[] bytes) {
     buffer = bytes.clone();
+    /* There is, of course, no guarantee that the total amount of processed
+     * bytes won't exceed the size of the input, but it's as good a start
+     * as any.
+     */
+    processed = new TByteArrayList(buffer.length);
     byte[] segment = nextSegment();
     if(segment[0] != (byte) 0xFF || segment[1] != JPEGConstants.SOI_MARKER) {
       throw new WrongImageTypeException("File not structured like a JPEG file");
@@ -141,11 +144,15 @@ public abstract class JPEGProcessor {
       return null;
     }
     int marker = findMarker(start, buffer);
+    /* If we ran into an RST marker instead of one that actually denotes
+     * a segment, we skip it. We keep going until we find something
+     * we're happy with
+     */
     while(marker < buffer.length &&
           JPEGConstants.isRSTMarker(buffer[marker + 1])) {
       marker = findMarker(marker, buffer);
     }
-    return Arrays.copyOfRange(buffer, start, marker);
+    return ArrayUtils.subarray(buffer, start, marker);
   }
 
 
@@ -155,7 +162,7 @@ public abstract class JPEGProcessor {
    * @param add the bytes to add
    */
   private void addToProcessed(byte[] add) {
-    processed = ArrayUtils.addAll(processed, add);
+    processed.addAll(add);
   }
 
   /**
@@ -187,10 +194,10 @@ public abstract class JPEGProcessor {
    * @param segment the segment to read from
    */
   private void defineHuffmanTable(Scan scan, byte[] segment) {
-    /* TODO: There may be more than one huffman table here. */
+    /* TODO There may be more than one huffman table here. */
     int id = segment[4];
-    HuffmanDecoder decoder = new JPEGHuffmanDecoder(Arrays.copyOfRange(segment,
-          5, segment.length));
+    HuffmanDecoder decoder = new JPEGHuffmanDecoder(
+      ArrayUtils.subarray(segment, 5, segment.length));
     scan.putDecoder(id, decoder);
   }
 
@@ -319,7 +326,7 @@ public abstract class JPEGProcessor {
    * @return the processed bytes
    */
   public byte[] getProcessed() {
-    return processed;
+    return processed.toArray();
   }
 
   /**
@@ -361,15 +368,13 @@ public abstract class JPEGProcessor {
    * @return the segment, with 0x00 bytes removed.
    */
   public static byte[] unescape(byte[] segment) {
-    /* TODO This doesn't look terribly efficient */
-    ArrayList<Byte> s = new ArrayList<Byte>(Arrays.asList(ArrayUtils
-        .toObject(segment)));
+    TByteList s = TByteArrayList.wrap(segment);
     int i;
     for (i = s.size() - 1; i > 0; i--) {
       if (s.get(i) == 0 && s.get(i - 1) == (byte) 0xFF) {
-        s.remove(i);
+        s.removeAt(i);
       }
     }
-    return ArrayUtils.toPrimitive(s.toArray(new Byte[s.size()]));
+    return s.toArray();
   }
 }
