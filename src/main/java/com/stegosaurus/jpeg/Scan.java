@@ -125,6 +125,8 @@ public class Scan implements Iterable<byte[]> {
    * @return the huffman table info for the component given.
    */
   public int getTableId(int componentId) {
+    assert componentTables.containsKey(componentId) :
+      "Invalid comp. id " + componentId;
     return componentTables.get(componentId);
   }
 

@@ -125,8 +125,9 @@ public class JPEGCompressor extends JPEGProcessor {
             /* TODO This looks to be incredibly slow */
             int[] dataUnit = ArrayUtils.subarray(vals, index, index + 64);
             dataUnit = ZigZag.sequentialToZigZag(dataUnit);
-            int dcTable = (scan.getTableId(cmp) & 0xF0) >> 4;
-            int acTable = (scan.getTableId(cmp) & 0x0F) | 0x10;
+            int tableId = scan.getTableId(cmp + 1);
+            int dcTable = (tableId & 0xF0) >> 4;
+            int acTable = (tableId & 0x0F) | 0x10;
             int dc = dataUnit[0];
             encodeDC(dc, lastDCs[cmp],
                      new HuffmanEncoder(scan.getDecoder(dcTable)), os);

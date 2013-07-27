@@ -38,7 +38,7 @@ public class JPEGDecompressor extends JPEGProcessor {
    * @param additional the bits read from the stream.
    * @param magnitude the number of bits read from the stream.
    */
-  private static int extend(int additional, byte magnitude) {
+  private static int extend(int additional, int magnitude) {
     int vt = 1 << (magnitude - 1);
     if(additional < vt) {
       return additional + (-1 << magnitude) + 1;
@@ -55,7 +55,7 @@ public class JPEGDecompressor extends JPEGProcessor {
    */
   private int decodeDC(HuffmanDecoder decoder, BitInputStream in, int lastDC)
       throws IOException {
-    byte magnitude = decoder.decodeNext(in);
+    int magnitude = decoder.decodeNext(in);
     byte[] additional = new byte[magnitude];
     in.read(additional);
     int diff = extend(NumUtils.intFromBits(additional), magnitude);
@@ -65,6 +65,8 @@ public class JPEGDecompressor extends JPEGProcessor {
   /**
    * Decode 63 AC components and place them in the output array given,
    * starting at index 1, to account for a DC component being present.
+   * It is assumed that the output array has been initialized to 0 prior
+   * to the operation.
    * @param decoder the huffman decoder to use for the components
    * @param in the input stream where the data is to be found
    * @param out the byte array where the data is to be stored
@@ -75,29 +77,20 @@ public class JPEGDecompressor extends JPEGProcessor {
     final int total = 64;
     while(i < total) {
       byte symbol1 = decoder.decodeNext(in);
-      byte magnitude = (byte) (symbol1 & (byte) 0xF0);
-      byte zeroRun = (byte) (symbol1 * 0x0F);
-      if(magnitude == 0) {
-        if(zeroRun == 0x0F) {
-          /* We've encountered a run of 16 zeroes. Emplace them, and increment
-           * our counter */
-          for(int j = 0; j < 16; j++, i++) {
-            out[i] = 0;
-          }
-        } else if (zeroRun == 0) {
-          /* We've encountered the end of block. Push i to 63 and write any
-           * remaining 0s */
-          for(; i < total; i++) {
-            out[i] = 0;
-          }
-        }
-      } else {
-        /* First emplace the preceding run of zeroes */
-        for(int j = 0; j < zeroRun; j++, i++) {
-          out[i] = 0;
-        }
+      int magnitude = (symbol1 & 0x0F);
+      int zeroRun = (symbol1 & 0xF0) >> 4;
+      if(magnitude != 0) {
+        i += zeroRun;
         byte[] extra = new byte[magnitude];
+        in.read(extra);
         out[i] = extend(NumUtils.intFromBits(extra), magnitude);
+        i++;
+      } else {
+        if(zeroRun == 0x0F) {
+          i += 16;
+        } else if (zeroRun == 0) {
+          i = total;
+        }
       }
     }
   }
@@ -133,8 +126,9 @@ public class JPEGDecompressor extends JPEGProcessor {
              * The next four bits contain the table id for the ac values, so
              * we fetch the table with that id and with class 1.
              */
-            int dcTable = (scan.getTableId(cmp) & 0xF0) >> 4;
-            int acTable = (scan.getTableId(cmp) & 0x0F) | 0x10;
+            int tableId = scan.getTableId(cmp + 1);
+            int dcTable = (tableId & 0xF0) >> 4;
+            int acTable = (tableId & 0x0F) | 0x10;
             int dc = decodeDC(scan.getDecoder(dcTable), in, lastDCs[cmp]);
             lastDCs[cmp] = dc;
             int[] coeffs = new int[64];
