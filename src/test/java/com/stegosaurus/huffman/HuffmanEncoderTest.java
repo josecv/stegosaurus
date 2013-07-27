@@ -2,8 +2,6 @@ package com.stegosaurus.huffman;
 
 import static org.junit.Assert.*;
 
-import java.util.Arrays;
-
 import org.junit.Test;
 
 import com.stegosaurus.huffman.HuffmanEncoder;
@@ -23,17 +21,10 @@ public class HuffmanEncoderTest {
 		byte[] retval = new byte[0];
 		try {
 			retval = encoder.encode(data);
-			assertTrue("Wrong value returned", Arrays.equals(retval, expected));
+			assertArrayEquals("Wrong value returned", expected, retval);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Unexpected exception: " + e.getMessage());
-		} catch (AssertionError ae) {
-			System.out.print("[");
-			for (byte b: retval) {
-				System.out.print(b + ", ");
-			}
-			System.out.println("]");
-			fail(ae.getMessage());
 		}
 	}
 

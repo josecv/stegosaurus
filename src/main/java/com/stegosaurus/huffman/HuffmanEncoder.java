@@ -8,9 +8,6 @@ import com.stegosaurus.stegostreams.BitOutputStream;
 /**
  * Performs encoding of arbitrary bytes into bit streams according to a specific
  * code.
- * 
- * @author joe
- * 
  */
 public class HuffmanEncoder {
   /**
@@ -29,24 +26,39 @@ public class HuffmanEncoder {
   }
 
   /**
+   * Encode the given bytes, placing them in the output stream given as
+   * we go.
+   * @param input the bytes to encode
+   * @param output the output stream where they should be placed
+   */
+  public void encode(byte[] input, BitOutputStream os) {
+    for (byte b : input) {
+      HuffmanCode hc = code.get(b);
+      os.writeInt(hc.code, hc.length);
+    }
+  }
+
+  /**
+   * Encode a single byte, and place the resulting code into the output
+   * stream given.
+   * @param input the byte to encode
+   * @param output the output stream to place it in.
+   */
+  public void encode(byte input, BitOutputStream os) {
+    byte[] in = { input };
+    encode(in, os);
+  }
+
+  /**
    * Encode the given bytes.
    * 
-   * @param input
-   *            the bytes to encode
+   * @param input the bytes to encode
    * @return the encoded bytes.
-   * @throws IOException
-   *             on read error.
+   * @throws IOException on read error.
    */
   public byte[] encode(byte[] input) throws IOException {
     BitOutputStream os = new BitOutputStream();
-    for (byte b : input) {
-      HuffmanCode hc = code.get(b);
-      int c = hc.code;
-      int len = hc.length;
-      for (int i = len - 1; i >= 0; i--) {
-        os.write((c >> i) & 1);
-      }
-    }
+    encode(input, os);
     byte[] retval = os.data();
     os.close();
     return retval;
