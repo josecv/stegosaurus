@@ -116,15 +116,23 @@ public class JPEGDecompressor extends JPEGProcessor {
       /* TODO Waste of good time. There must be a better way */
       input = ArrayUtils.subarray(input, 2, input.length);
     }
+    input = unescape(input);
     /* TODO Figure out a better length to put in here */
     TIntList accumulated = new TIntArrayList(input.length);
     BitInputStream in = new BitInputStream(input);
     int[] lastDCs = new int[scan.getScanComponents()];
     int mcus = scan.getNumberOfMCUsPerIteration();
+    /* We'll iterate over each data unit */
     for(int mcu = 0; mcu < mcus; mcu++) {
       for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
         for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
           for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
+            /* The way this table stuff works is that the first four bits of
+             * the table data contain the table id for the dc values. We
+             * then fetch the huffman table with that id and with class 0.
+             * The next four bits contain the table id for the ac values, so
+             * we fetch the table with that id and with class 1.
+             */
             int dcTable = (scan.getTableId(cmp) & 0xF0) >> 4;
             int acTable = (scan.getTableId(cmp) & 0x0F) | 0x10;
             int dc = decodeDC(scan.getDecoder(dcTable), in, lastDCs[cmp]);
@@ -150,10 +158,10 @@ public class JPEGDecompressor extends JPEGProcessor {
   @Override
   protected Scan process(Scan scan) {
     /* Every coefficient is going to become an int in here */
-    TByteList data = new TByteArrayList(scan.getCoefficientCount() * 4);
+    TByteList output = new TByteArrayList(scan.getCoefficientCount() * 4);
     try {
       for(byte[] piece : scan) {
-        decompress(scan, piece, data);
+        decompress(scan, piece, output);
       }
     } catch(IOException ioe) {
       /* BitInputStreams are not declared as throwing on read, so we shouldn't
@@ -163,7 +171,7 @@ public class JPEGDecompressor extends JPEGProcessor {
        */
       throw new IllegalArgumentException("Scan data caused exception", ioe);
     }
-    scan.setData(data.toArray());
+    scan.setData(output.toArray());
     return scan;
   }
 }
