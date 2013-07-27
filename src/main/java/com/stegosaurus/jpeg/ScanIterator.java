@@ -50,7 +50,7 @@ public class ScanIterator implements Iterator<byte[]> {
    */
   @Override
   public boolean hasNext() {
-    return lastIndex == data.length;
+    return lastIndex != data.length;
   }
 
   /**

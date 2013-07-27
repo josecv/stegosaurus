@@ -1,6 +1,8 @@
 package com.stegosaurus.jpeg;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -66,6 +68,8 @@ public class ScanTest {
         data);
       i++;
     }
+    assertEquals("Not iterating the number of times expected.",
+      DATA_SPLIT.length, i);
   }
 
   /**
@@ -79,9 +83,12 @@ public class ScanTest {
      * test data.
      */
     scan.setData(DATA_SPLIT[0]);
+    boolean iterated = false;
     for(byte[] data : scan) {
-      assertArrayEquals("Iteration data is not as expected", DATA_SPLIT[0],
+      assertArrayEquals("Iteration data is not as expected.", DATA_SPLIT[0],
         data);
+      iterated = true;
     }
+    assertTrue("Not iterating at all.", iterated);
   }
 }
