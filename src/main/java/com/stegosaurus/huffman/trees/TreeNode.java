@@ -1,7 +1,7 @@
 package com.stegosaurus.huffman.trees;
 
-import java.util.Map;
-import java.util.TreeMap;
+import gnu.trove.map.TByteObjectMap;
+import gnu.trove.map.hash.TByteObjectHashMap;
 
 import com.stegosaurus.huffman.HuffmanCode;
 
@@ -179,8 +179,8 @@ public class TreeNode {
    * @return a Map mapping from the encoded values to the corresponding
    *         HuffmanCodes.
    */
-  public Map<Byte, HuffmanCode> asMap() {
-    Map<Byte, HuffmanCode> retval = new TreeMap<Byte, HuffmanCode>();
+  public TByteObjectMap<HuffmanCode> asMap() {
+    TByteObjectMap<HuffmanCode> retval = new TByteObjectHashMap<>();
     if (left != null) {
       retval.putAll(left.asMap(0, 1));
     }
@@ -202,8 +202,8 @@ public class TreeNode {
    * @return a Map going from the encoded values to the corresponding
    *         HuffmanCodes.
    */
-  private Map<Byte, HuffmanCode> asMap(int prefix, int len) {
-    Map<Byte, HuffmanCode> retval = new TreeMap<Byte, HuffmanCode>();
+  private TByteObjectMap<HuffmanCode> asMap(int prefix, int len) {
+    TByteObjectMap<HuffmanCode> retval = new TByteObjectHashMap<>();
     if (isLeaf()) {
       HuffmanCode code = new HuffmanCode(data, prefix, len);
       retval.put(data, code);

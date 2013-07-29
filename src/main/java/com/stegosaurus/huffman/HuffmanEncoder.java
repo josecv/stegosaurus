@@ -1,7 +1,8 @@
 package com.stegosaurus.huffman;
 
+import gnu.trove.map.TByteObjectMap;
+
 import java.io.IOException;
-import java.util.Map;
 
 import com.stegosaurus.stegostreams.BitOutputStream;
 
@@ -13,7 +14,7 @@ public class HuffmanEncoder {
   /**
    * The inner representation of the code we're using.
    */
-  protected Map<Byte, HuffmanCode> code;
+  protected TByteObjectMap<HuffmanCode> code;
 
   /**
    * Initialize an encoder to match the decoder given.
