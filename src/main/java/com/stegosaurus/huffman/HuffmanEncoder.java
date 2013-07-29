@@ -50,11 +50,23 @@ public class HuffmanEncoder {
   }
 
   /**
+   * Encode a single byte.
+   * @param input the byte to encode
+   * @return the encoded byte
+   * @throws IOException
+   */
+  public byte[] encode(byte input) throws IOException {
+    byte[] in = { input };
+    return encode(in);
+  }
+
+  /**
    * Encode the given bytes.
    * 
    * @param input the bytes to encode
    * @return the encoded bytes.
    * @throws IOException on read error.
+   * TODO This shouldn't really throw...
    */
   public byte[] encode(byte[] input) throws IOException {
     BitOutputStream os = new BitOutputStream();
