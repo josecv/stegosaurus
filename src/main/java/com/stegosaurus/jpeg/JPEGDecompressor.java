@@ -1,17 +1,12 @@
 package com.stegosaurus.jpeg;
 
-import gnu.trove.list.TByteList;
-import gnu.trove.list.TIntList;
-import gnu.trove.list.array.TByteArrayList;
-import gnu.trove.list.array.TIntArrayList;
-
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegostreams.JPEGByteArrayOutputStream;
 import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
@@ -102,16 +97,10 @@ public class JPEGDecompressor extends JPEGProcessor {
    * @param input the data to decompress.
    * @param output the list into which the data will be placed.
    */
-  private void decompress(Scan scan, byte[] input, TByteList output)
+  private void decompress(Scan scan, byte[] input, ByteArrayOutputStream output)
       throws IOException {
-    if(input[0] == (byte) 0xFF && JPEGConstants.isRSTMarker(input[1])) {
-      output.add(input, 0, 2);
-      /* TODO Waste of good time. There must be a better way */
-      input = ArrayUtils.subarray(input, 2, input.length);
-    }
+    /* TODO Handle the RST Markers that might be here!! */
     input = unescape(input);
-    /* TODO Figure out a better length to put in here */
-    TIntList accumulated = new TIntArrayList(input.length);
     BitInputStream in = new BitInputStream(input);
     int[] lastDCs = new int[scan.getScanComponents()];
     int mcus = scan.getNumberOfMCUsPerIteration();
@@ -134,13 +123,12 @@ public class JPEGDecompressor extends JPEGProcessor {
             int[] coeffs = new int[64];
             coeffs[0] = dc;
             decodeACs(scan.getDecoder(acTable), in, coeffs);
-            accumulated.addAll(ZigZag.zigZagToSequential(coeffs));
+            coeffs = ZigZag.zigZagToSequential(coeffs);
+            output.write(NumUtils.byteArrayFromIntArray(coeffs));
           }
         }
       }
     }
-    byte[] asBytes = NumUtils.byteArrayFromIntArray(accumulated.toArray());
-    output.addAll(escape(asBytes));
     in.close();
   }
 
@@ -151,8 +139,7 @@ public class JPEGDecompressor extends JPEGProcessor {
    */
   @Override
   protected Scan process(Scan scan) {
-    /* Every coefficient is going to become an int in here */
-    TByteList output = new TByteArrayList(scan.getCoefficientCount() * 4);
+    ByteArrayOutputStream output = new JPEGByteArrayOutputStream();
     try {
       for(byte[] piece : scan) {
         decompress(scan, piece, output);
@@ -165,7 +152,7 @@ public class JPEGDecompressor extends JPEGProcessor {
        */
       throw new IllegalArgumentException("Scan data caused exception", ioe);
     }
-    scan.setData(output.toArray());
+    scan.setData(output.toByteArray());
     return scan;
   }
 }

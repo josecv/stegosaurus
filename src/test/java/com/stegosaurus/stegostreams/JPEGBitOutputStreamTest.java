@@ -12,7 +12,7 @@ import org.junit.Test;
  */
 public class JPEGBitOutputStreamTest {
   /**
-   * Test the write method.
+   * Test the write and writeInt methods.
    */
   @Test
   public void testWrite() {

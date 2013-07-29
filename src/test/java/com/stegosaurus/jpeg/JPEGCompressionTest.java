@@ -5,8 +5,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeNoException;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -34,6 +36,9 @@ public class JPEGCompressionTest {
       JPEGProcessor compressor = new JPEGCompressor(decompressed);
       compressor.processImage();
       byte[] result = compressor.getProcessed();
+      OutputStream os = new FileOutputStream("horror.jpeg");
+      os.write(result);
+      os.close();
       InputStream expectedStream = this.getClass()
         .getResourceAsStream(file);
       byte[] expected = IOUtils.toByteArray(expectedStream);

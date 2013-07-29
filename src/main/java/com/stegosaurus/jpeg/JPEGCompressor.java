@@ -1,14 +1,12 @@
 package com.stegosaurus.jpeg;
 
-import gnu.trove.list.TByteList;
-import gnu.trove.list.array.TByteArrayList;
-
 import java.io.InputStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.stegosaurus.huffman.HuffmanEncoder;
 import com.stegosaurus.stegostreams.BitOutputStream;
+import com.stegosaurus.stegostreams.JPEGBitOutputStream;
 import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
@@ -64,9 +62,7 @@ public class JPEGCompressor extends JPEGProcessor {
                         BitOutputStream os) {
     int diff = dc - lastDC;
     int[] encoded = encodeValue(diff);
-    byte[] toEncode = NumUtils
-      .byteArrayFromIntArray(ArrayUtils.subarray(encoded, 0, 1));
-    encoder.encode(toEncode, os);
+    encoder.encode((byte) encoded[0], os);
     os.writeInt(encoded[1], encoded[0]);
   }
 
@@ -107,14 +103,10 @@ public class JPEGCompressor extends JPEGProcessor {
    * @param output where the data should be placed.
    * TODO Optimize, refactor
    */
-  private void compress(Scan scan, byte[] data, TByteList output) {
+  private void compress(Scan scan, byte[] data, BitOutputStream os) {
     int index = 0;
-    if(data[0] == (byte) 0xFF && JPEGConstants.isRSTMarker(data[1])) {
-      output.add(data, 0, 2);
-      index = 2;
-    }
+    /* TODO Handle the RST Markers that might be here!! */
     data = unescape(data);
-    BitOutputStream os = new BitOutputStream();
     int[] vals = NumUtils.intArrayFromByteArray(data);
     int[] lastDCs = new int[scan.getScanComponents()];
     /* TODO A solution for the repetition between this and the decompressor */
@@ -139,7 +131,6 @@ public class JPEGCompressor extends JPEGProcessor {
       }
     }
     os.writeToEndOfByte(1);
-    output.addAll(escape(os.data()));
   }
 
   /**
@@ -148,11 +139,11 @@ public class JPEGCompressor extends JPEGProcessor {
    */
   @Override
   public Scan process(Scan scan) {
-    TByteList output = new TByteArrayList(scan.getData().length);
+    BitOutputStream os = new JPEGBitOutputStream();
     for(byte[] piece : scan) {
-      compress(scan, piece, output);
+      compress(scan, piece, os);
     }
-    scan.setData(output.toArray());
+    scan.setData(os.data());
     return scan;
   }
 }
