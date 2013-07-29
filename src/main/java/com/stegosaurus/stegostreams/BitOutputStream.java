@@ -18,8 +18,11 @@ public class BitOutputStream extends OutputStream {
   /**
    * How many bits have been written.
    */
-  private int i;
+  private int count;
 
+  /**
+   * Construct a new BitOutputStream.
+   */
   public BitOutputStream() {
     super();
     data = new TByteArrayList();
@@ -27,7 +30,6 @@ public class BitOutputStream extends OutputStream {
 
   /**
    * Write a new bit to the stream.
-   * 
    * @param b the bit to write
    */
   @Override
@@ -35,13 +37,13 @@ public class BitOutputStream extends OutputStream {
     if(b != 0 && b != 1) {
       throw new IllegalArgumentException("Argument " + b + " not a bit");
     }
-    if (i / 8 == data.size()) {
+    if (count / 8 == data.size()) {
       data.add((byte) 0);
     }
-    byte current = data.get(i / 8);
-    current |= (byte) (b << 7 - (i % 8));
-    data.set(i / 8, current);
-    i++;
+    byte current = data.get(count / 8);
+    current |= (byte) (b << 7 - (count % 8));
+    data.set(count / 8, current);
+    count++;
   }
 
   /**
@@ -62,7 +64,7 @@ public class BitOutputStream extends OutputStream {
    * @param b the int to write
    */
   public void writeToEndOfByte(int b) {
-    while((i % 8) != 0) {
+    while((count % 8) != 0) {
       write(b);
     }
   }
@@ -74,5 +76,22 @@ public class BitOutputStream extends OutputStream {
    */
   public byte[] data() {
     return data.toArray();
+  }
+
+  /**
+   * Get the number of bits that have been written.
+   * @return the count.
+   */
+  protected int getCount() {
+    return count;
+  }
+
+  /**
+   * Get the list containing the written data. The list itself is returned,
+   * not a copy.
+   * @return the list with the data.
+   */
+  protected TByteList getData() {
+    return data;
   }
 }
