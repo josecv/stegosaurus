@@ -127,6 +127,7 @@ public class JPEGCompressor extends JPEGProcessor {
             lastDCs[cmp] = dc;
             encodeACs(dataUnit, new HuffmanEncoder(scan.getDecoder(acTable)),
                       os);
+            index += 64;
           }
         }
       }
