@@ -84,29 +84,112 @@ public final class NumUtils {
    * Interpret the bit array given as a big endian int composed of size bits.
    * So, {1, 0, 0, 1}, of size 4, becomes the int 0b1001 or 5.
    * 
-   * @param bits
-   *            the bit array.
-   * @param size
-   *            the number of bits making up the int.
+   * @param bits the bit array.
    * @return the int worked out from the bit array.
-   * @see IntFromBytes for a little endian equivalent which deals with entire
-   *      bytes.
    */
   public static int intFromBits(byte[] bits) {
     return intFromBits(bits, ByteOrder.BIG_ENDIAN);
   }
 
+  /**
+   * Given a bit array, interpret it as an int, using the byte order given.
+   * 
+   * @param bits the bit array
+   * @param order the order to use, either little or big endian
+   * @return the int worked out from the bit array.
+   */
   public static int intFromBits(byte[] bits, ByteOrder order) {
+    return intFromBits(bits, order, 0, bits.length);
+  }
+
+  /**
+   * Given a bit array, interpret the subset of it given as an int, using
+   * big endian ordering.
+   * 
+   * @param bits the bit array
+   * @param start the index to start looking at
+   * @param len how many bits to use.
+   * @return the int worked out from the bit array.
+   */
+  public static int intFromBits(byte[] bits, int start, int len) {
+    return intFromBits(bits, ByteOrder.BIG_ENDIAN, start, len);
+  }
+
+  /**
+   * Given a bit array, interpret the subset of it given as an int, using
+   * the byte order given.
+   * 
+   * @param bits the bit array
+   * @param order the order to use, either little or big endian.
+   * @param start the index to start looking at
+   * @param len how many bits to use.
+   * @return the int worked out from the bit array.
+   */
+  public static int intFromBits(byte[] bits, ByteOrder order, int start,
+                                int len) {
     int retval = 0;
-    int len = bits.length;
     for (int i = 0; i < len; i++) {
+      int index = i + start;
       if(order == ByteOrder.BIG_ENDIAN) {
-        retval += bits[i] << (len - i - 1);
+        retval += bits[index] << (len - i - 1);
       } else {
-        retval += bits[i] << i;
+        retval += bits[index] << i;
       }
     }
     return retval;
+  }
+
+  /**
+   * Given some bits, create a byte array out of them, using the byte order
+   * given. Every byte is assumed to be 8 bits long.
+   * @param bits the bits to use.
+   * @param order the byte order to use.
+   * @param start the offset to start fetching bits from.
+   * @param len the number of bits to fetch.
+   */
+  public static byte[] byteArrayFromBits(byte[] bits, ByteOrder order,
+    int start, int len) {
+    int size = len % 8 == 0 ? (len / 8) : (len / 8) + 1;
+    byte[] retval= new byte[size];
+    int i;
+    for(i = 0; i < (len / 8); i++) {
+      int index = start + (i * 8);
+      retval[i] = (byte) intFromBits(bits, order, index, 8);
+    }
+    if(len % 8 != 0) {
+      retval[i] = (byte) intFromBits(bits, order, start + i * 8, len % 8);
+    }
+    return retval;
+  }
+
+  /**
+   * Given some bits, create a byte array out of them, using Big Endian
+   * ordering.
+   * @param bits the bits to use.
+   * @param start the offset to start fetching bits from.
+   * @param len the number of bits to fetch.
+   */
+  public static byte[] byteArrayFromBits(byte[] bits, int start, int len) {
+    return byteArrayFromBits(bits, ByteOrder.BIG_ENDIAN, start, len);
+  }
+
+  /**
+   * Given some bits, create a byte array out of them, using the byte order
+   * given.
+   * @param bits the bits to use.
+   * @param order the byte order to use.
+   */
+  public static byte[] byteArrayFromBits(byte[] bits, ByteOrder order) {
+    return byteArrayFromBits(bits, order, 0, bits.length);
+  }
+
+  /**
+   * Given some bits, create a byte array out of them, using big endian
+   * ordering.
+   * @param bits the bits to use.
+   */
+  public static byte[] byteArrayFromBits(byte[] bits) {
+    return byteArrayFromBits(bits, 0, bits.length);
   }
 
   /**
