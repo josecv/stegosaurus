@@ -18,7 +18,7 @@ import com.stegosaurus.steganographers.coders.Coder;
 public interface Hider extends Coder {
     /**
      * Hide count bits from the datastream in the carrier. 
-     * @param datastrem the stream containing the payload.
+     * @param datastream the stream containing the payload.
      * @param count the number of bits from the payload to hide.
      */
     void hide(BitInputStream datastream, int count) throws IOException;

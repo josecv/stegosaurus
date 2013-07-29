@@ -19,8 +19,7 @@ public class HuffmanEncoder {
   /**
    * Initialize an encoder to match the decoder given.
    * 
-   * @param decoder
-   *            a decoder which can decode what this encoder encodes.
+   * @param decoder a decoder which can decode what this encoder encodes.
    */
   public HuffmanEncoder(HuffmanDecoder decoder) {
     code = decoder.root.asMap();
@@ -30,7 +29,7 @@ public class HuffmanEncoder {
    * Encode the given bytes, placing them in the output stream given as
    * we go.
    * @param input the bytes to encode
-   * @param output the output stream where they should be placed
+   * @param os the output stream where they should be placed
    */
   public void encode(byte[] input, BitOutputStream os) {
     for (byte b : input) {
@@ -43,7 +42,7 @@ public class HuffmanEncoder {
    * Encode a single byte, and place the resulting code into the output
    * stream given.
    * @param input the byte to encode
-   * @param output the output stream to place it in.
+   * @param os the output stream to place it in.
    */
   public void encode(byte input, BitOutputStream os) {
     byte[] in = { input };

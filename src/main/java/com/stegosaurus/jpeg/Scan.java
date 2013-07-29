@@ -121,7 +121,7 @@ public class Scan implements Iterable<byte[]> {
 
   /**
    * Get huffman table info for the component with the id given.
-   * @param id the id of the component to fetch info for.
+   * @param componentId the id of the component to fetch info for.
    * @return the huffman table info for the component given.
    */
   public int getTableId(int componentId) {

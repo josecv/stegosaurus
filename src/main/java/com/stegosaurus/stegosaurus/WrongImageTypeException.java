@@ -46,7 +46,7 @@ public class WrongImageTypeException extends RuntimeException {
    * Full CTOR.
    * @param msg message
    * @param cause cause
-   * @param suppress whether to enable supression for this exception
+   * @param supress whether to enable supression for this exception
    * @param stackTrace whether to enable a writable stack trace
    */
   public WrongImageTypeException(String msg, Throwable cause,
