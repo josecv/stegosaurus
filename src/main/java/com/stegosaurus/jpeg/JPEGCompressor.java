@@ -88,6 +88,7 @@ public class JPEGCompressor extends JPEGProcessor {
         }
         int[] encode = encodeValue(value);
         encoder.encode((byte) ((zeroRun << 4) | (byte) encode[0]), os);
+        zeroRun = 0;
         os.writeInt(encode[1], encode[0]);
       }
     }
