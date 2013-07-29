@@ -19,6 +19,10 @@ public class NumUtilsTest {
     assertEquals("Failure from intFromBits big endian", expected, result);
     result = NumUtils.intFromBits(arr);
     assertEquals("intFromBits not defaulting to big endian", expected, result);
+    expected = 0b101;
+    result = NumUtils.intFromBits(arr, ByteOrder.BIG_ENDIAN, 1, 3);
+    assertEquals("Failure from intFromBits with subarray, big endian",
+      expected, result);
   }
 
   /**
@@ -30,6 +34,10 @@ public class NumUtilsTest {
     int expected = 0b1010;
     int result = NumUtils.intFromBits(arr, ByteOrder.LITTLE_ENDIAN);
     assertEquals("Failure from intFromBits little endian", expected, result);
+    expected = 0b10;
+    result = NumUtils.intFromBits(arr, ByteOrder.LITTLE_ENDIAN, 0, 2);
+    assertEquals("Failure from intFromBits with subarray, little endian",
+      expected, result);
   }
 
   /**
@@ -140,5 +148,42 @@ public class NumUtilsTest {
     result = NumUtils.intArrayFromByteArray(input, ByteOrder.LITTLE_ENDIAN);
     assertArrayEquals("Failure from intArrayFromByteArray little endian",
       littleEndian, result);
+  }
+
+  /**
+   * Test the byteArrayFromBits method in both its big and little endian
+   * versions.
+   */
+  @Test
+  public void testByteArrayFromBits() {
+    byte[] input = { 0, 1, 0, 1,   1, 1, 0, 1,
+                     0, 0, 1, 0,   1, 1, 0, 1 };
+    byte[] expectedBE = { 0b01011101, 0b00101101 };
+    byte[] expectedLE = { (byte) 0b10111010, (byte) 0b10110100 };
+    byte[] result = NumUtils.byteArrayFromBits(input, ByteOrder.BIG_ENDIAN);
+    assertArrayEquals("Failure from byteArrayFromBits big endian", expectedBE,
+      result);
+    result = NumUtils.byteArrayFromBits(input, ByteOrder.LITTLE_ENDIAN);
+    assertArrayEquals("Failure from byteArrayFromBits little endian",
+      expectedLE, result);
+  }
+
+  /**
+   * Test the byteArrayFromBits method in both its big and little endian
+   * versions, when the input is a subset of the array given.
+   */
+  @Test
+  public void testByteArrayFromBitsSubarray() {
+    byte[] input = { 0, 1, 0, 1,   1, 1, 0, 1,
+                     0, 0, 1, 0,   1, 1, 0, 1 };
+    byte[] expectedBE = { 0b01011101, 0b00101 };
+    byte[] result = NumUtils.byteArrayFromBits(input, ByteOrder.BIG_ENDIAN,
+      0, 13);
+    assertArrayEquals("byteArrayFromBits big endian with subarray failed",
+      expectedBE, result);
+    byte[] expectedLE = { 0b011 };
+    result = NumUtils.byteArrayFromBits(input, ByteOrder.LITTLE_ENDIAN, 4, 3);
+    assertArrayEquals("byteArrayFromBits little endian with subarray failed",
+      expectedLE, result);
   }
 }
