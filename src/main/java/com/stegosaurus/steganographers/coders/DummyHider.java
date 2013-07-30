@@ -13,7 +13,10 @@ import com.stegosaurus.stegostreams.BitOutputStream;
  */
 public class DummyHider implements Hider {
 
-  byte[] buf;
+  /**
+   * The buffer that hidden data is placed in.
+   */
+  private byte[] buf;
 
   /**
    * Closes this dummy hider, returning the data that was passed in.

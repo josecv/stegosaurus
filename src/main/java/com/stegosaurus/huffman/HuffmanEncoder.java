@@ -14,7 +14,7 @@ public class HuffmanEncoder {
   /**
    * The inner representation of the code we're using.
    */
-  protected TByteObjectMap<HuffmanCode> code;
+  private TByteObjectMap<HuffmanCode> code;
 
   /**
    * Initialize an encoder to match the decoder given.
