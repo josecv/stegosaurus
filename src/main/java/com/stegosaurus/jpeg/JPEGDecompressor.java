@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegostreams.JPEGBitInputStream;
 import com.stegosaurus.stegostreams.JPEGByteArrayOutputStream;
 import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
@@ -105,8 +106,7 @@ public class JPEGDecompressor extends JPEGProcessor {
   private void decompress(Scan scan, byte[] input, ByteArrayOutputStream output)
       throws IOException {
     /* TODO Handle the RST Markers that might be here!! */
-    input = unescape(input);
-    BitInputStream in = new BitInputStream(input);
+    BitInputStream in = new JPEGBitInputStream(input);
     int[] lastDCs = new int[scan.getScanComponents()];
     int mcus = scan.getNumberOfMCUsPerIteration();
     /* We'll iterate over each data unit */

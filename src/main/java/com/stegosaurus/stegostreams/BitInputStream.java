@@ -6,13 +6,15 @@ import java.io.InputStream;
  * Produces, bit by bit, the byte array given. Operates in Big Endian, which
  * is to say the most significant bit of the 0th byte is returned, followed
  * by the second to most significant bit of the 0th byte, and so on.
+ * TODO Some bounds checking!
  */
 public class BitInputStream extends InputStream {
 
   /**
    * The byte array.
    */
-  private byte[] in;
+  private byte[] data;
+
   /**
    * The next bit to read.
    */
@@ -24,7 +26,7 @@ public class BitInputStream extends InputStream {
    * @param in the array of bytes whose bits we will return one by one.
    */
   public BitInputStream(byte[] in) {
-    this.in = in.clone();
+    this.data = in.clone();
     index = 0;
   }
 
@@ -35,7 +37,7 @@ public class BitInputStream extends InputStream {
    */
   @Override
   public int read() {
-    int retval = (in[index/8] >> (7 - (index % 8))) & 1;
+    int retval = (data[index/8] >> (7 - (index % 8))) & 1;
     index++;
     return retval;
   }
@@ -44,9 +46,21 @@ public class BitInputStream extends InputStream {
    * Skip any remaining bits in the current byte until a new one is reached.
    */
   public void skipToEndOfByte() {
-    while(available() % 8 != 0) {
-      read();
+    skip(index % 8);
+  }
+
+  /**
+   * Skip n bytes from this stream, if possible.
+   * @param n the number of bytes to skip over.
+   * @return the actual number of bytes skipped.
+   */
+  @Override
+  public long skip(long n) {
+    if(n < 0) {
+      return 0;
     }
+    index += n;
+    return n;
   }
 
   /**
@@ -57,6 +71,23 @@ public class BitInputStream extends InputStream {
    */
   @Override
   public int available() {
-    return (in.length * 8) - index;
+    return (data.length * 8) - index;
+  }
+
+  /**
+   * Get the index of the next bit to read.
+   * @return the index
+   */
+  protected int getIndex() {
+    return index;
+  }
+
+  /**
+   * Get the byte array that we're returning bits from.
+   * Note that it is not copied, but returned as-is.
+   * @return the array
+   */
+  protected byte[] getData() {
+    return data;
   }
 }
