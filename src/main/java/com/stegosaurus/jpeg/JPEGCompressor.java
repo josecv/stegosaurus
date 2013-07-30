@@ -10,6 +10,11 @@ import com.stegosaurus.stegostreams.JPEGBitOutputStream;
 import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
+/**
+ * Re-compresses JPEG images, going from the products of a JPEGDecompressor
+ * to their final state.
+ * @see JPEGDecompressor
+ */
 public class JPEGCompressor extends JPEGProcessor {
   /**
    * Construct a new JPEG Compressor to compress the inputstream given.

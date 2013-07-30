@@ -10,6 +10,11 @@ import com.stegosaurus.stegostreams.JPEGByteArrayOutputStream;
 import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
+/**
+ * Decompresses JPEG images, essentially leaving them in the state they
+ * would be in immediately after quantization.
+ * @see JPEGCompressor
+ */
 public class JPEGDecompressor extends JPEGProcessor {
   /**
    * Simply invokes the corresponding parent constructor.

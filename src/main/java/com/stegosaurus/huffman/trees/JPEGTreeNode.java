@@ -1,5 +1,8 @@
 package com.stegosaurus.huffman.trees;
 
+/**
+ * A Huffman tree node that specifically deals with decoding JPEG files.
+ */
 public class JPEGTreeNode extends TreeNode {
   /**
    * Construct an empty Huffman tree.
