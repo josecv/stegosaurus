@@ -7,8 +7,6 @@ import com.stegosaurus.steganographers.Desteganographer;
 import com.stegosaurus.steganographers.Steganographer;
 import com.stegosaurus.steganographers.coders.BMPHider;
 import com.stegosaurus.steganographers.coders.BMPUnHider;
-import com.stegosaurus.stegostreams.BitInputStream;
-import com.stegosaurus.stegutils.MessageHandler;
 
 
 /**
@@ -30,8 +28,7 @@ public final class Stegosaurus {
     String m = args[1];
     try {
       Steganographer stego = new Steganographer(new BMPHider(new FileInputStream(t)));
-      MessageHandler h = new MessageHandler(m);
-      byte[] hidden = stego.hide(new BitInputStream(h.asByteArray()));
+      byte[] hidden = stego.hide(m);
       try (FileOutputStream out = new FileOutputStream(t)) {
         out.write(hidden);
       }

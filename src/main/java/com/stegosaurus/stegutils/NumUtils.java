@@ -217,6 +217,27 @@ public final class NumUtils {
   }
 
   /**
+   * Given an int, return an equivalent array of 4 bytes.
+   * @param n the int to transform
+   * @param order the ordering to use
+   * @return the corresponding byte array
+   */
+  public static byte[] byteArrayFromInt(int n, ByteOrder order) {
+    int[] arr = { n };
+    return byteArrayFromIntArray(arr, order);
+  }
+
+  /**
+   * Given an int, return an equivalent array of 4 bytes, using big endian
+   * ordering.
+   * @param n the int to transform
+   * @return the corresponding byte array
+   */
+  public static byte[] byteArrayFromInt(int n) {
+    return byteArrayFromInt(n, ByteOrder.BIG_ENDIAN);
+  }
+
+  /**
    * Given an array of n * 4 bytes, return an equivalent array of n ints. 
    * Big endian ordering is used.
    * @param array the array of bytes to transform

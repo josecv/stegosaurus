@@ -130,6 +130,23 @@ public class NumUtilsTest {
   }
 
   /**
+   * Test the byteArrayFromInt method with both little and big endian
+   * orderings.
+   */
+  @Test
+  public void testByteArrayFromInt() {
+    int n = 0xDEADBEEF;
+    byte[] expectedBE = { (byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF };
+    byte[] result = NumUtils.byteArrayFromInt(n);
+    assertArrayEquals("Failure from byteArrayFromInt, big endian",
+      expectedBE, result);
+    byte[] expectedLE = { (byte) 0xEF, (byte) 0xBE, (byte) 0xAD, (byte) 0xDE };
+    result = NumUtils.byteArrayFromInt(n, ByteOrder.LITTLE_ENDIAN);
+    assertArrayEquals("Failure from byteArrayFromInt, little endian",
+      expectedLE, result);
+  }
+
+  /**
    * Test the intArrayFromByteArray method in both big and little endian
    * ordering.
    */
