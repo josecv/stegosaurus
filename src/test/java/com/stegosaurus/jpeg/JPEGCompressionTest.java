@@ -24,7 +24,23 @@ public class JPEGCompressionTest {
    */
   @Test
   public void testCompression() {
-    String file = "lena-colour.jpeg";
+    runTestCompression("lena-colour.jpeg");
+  }
+
+  /**
+   * Like testCompresion, but make use of an exif image with a thumbnail
+   * instead of a traditional JFIF.
+   */
+  @Test
+  public void testCompressionThumbnail() {
+    runTestCompression("wanderer-exif.jpeg");
+  }
+
+  /**
+   * Run actual compression tests, using the file given.
+   * @param file the name of the file to use
+   */
+  private void runTestCompression(String file) {
     InputStream pic = this.getClass().getResourceAsStream(file);
     JPEGProcessor decompressor = new JPEGDecompressor(pic);
     try {
@@ -47,8 +63,6 @@ public class JPEGCompressionTest {
         expected, result);
     } catch (IOException ioe) {
       assumeNoException(ioe);
-    } catch (AssertionError ae) {
-      fail(ae.getMessage());
     }
   }
 }

@@ -127,7 +127,9 @@ public abstract class JPEGProcessor {
    */
   private byte[] nextSegment() {
     byte[] retval = nextSegment(segmentIndex, buffer);
-    segmentIndex += retval.length;
+    if(retval != null) {
+      segmentIndex += retval.length;
+    }
     return retval;
   }
 
@@ -257,10 +259,11 @@ public abstract class JPEGProcessor {
         case JPEGConstants.DRI_MARKER:
           defineRestartInterval(scan, segment);
           break;
-        case JPEGConstants.EOI_MARKER:
-          return null;
       }
       segment = nextSegment();
+    }
+    if(segment == null) {
+      return null;
     }
     loadScanData(scan, segment);
     return scan;

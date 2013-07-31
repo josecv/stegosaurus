@@ -3,6 +3,7 @@ package com.stegosaurus.jpeg;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -161,7 +162,23 @@ public class JPEGProcessorTest {
    */
   @Test
   public void testProcessImageBasic() {
-    String file = "lena-colour.jpeg";
+    runTestProcessImage("lena-colour.jpeg");
+  }
+
+  /**
+   * Test the processImage method when a thumbnail is present (which means
+   * multiple EOI markers).
+   */
+  @Test
+  public void testProcessImageThumbnail() {
+    runTestProcessImage("wanderer-exif.jpeg");
+  }
+
+  /**
+   * Actually do the heavy lifting of testing the process image method.
+   * @param file the name of the file to use in the test.
+   */
+  private void runTestProcessImage(String file) {
     InputStream in = this.getClass().getResourceAsStream(file);
     JPEGProcessor proc = new DummyProcessor(in);
     try {
@@ -174,8 +191,8 @@ public class JPEGProcessorTest {
       expectedStream.close();
       assertArrayEquals("processImage failure", expected, processed);
     } catch (IOException ioe) {
-      fail("Unexpected exception!");
+      assumeNoException(ioe);
     }
-    
+
   }
 }
