@@ -1,13 +1,13 @@
 package com.stegosaurus.jpeg;
 
-import java.io.ByteArrayOutputStream;
+import gnu.trove.list.TIntList;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.stegostreams.JPEGBitInputStream;
-import com.stegosaurus.stegostreams.JPEGByteArrayOutputStream;
 import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
@@ -16,13 +16,13 @@ import com.stegosaurus.stegutils.ZigZag;
  * would be in immediately after quantization.
  * @see JPEGCompressor
  */
-public class JPEGDecompressor extends JPEGProcessor {
+public class JPEGDecompressor extends JPEGProcessor<DecompressedScan> {
   /**
    * Simply invokes the corresponding parent constructor.
    * @param image an inputstream containing the JPEG image to decompress.
    */
   public JPEGDecompressor(InputStream image) {
-    super(image);
+    super(image, new DecompressedScanFactory());
   }
 
   /**
@@ -30,7 +30,7 @@ public class JPEGDecompressor extends JPEGProcessor {
    * @param data the data for the JPEG image.
    */
   public JPEGDecompressor(byte[] data) {
-    super(data);
+    super(data, new DecompressedScanFactory());
   }
 
   /**
@@ -103,9 +103,10 @@ public class JPEGDecompressor extends JPEGProcessor {
    * @param input the data to decompress.
    * @param output the list into which the data will be placed.
    */
-  private void decompress(Scan scan, byte[] input, ByteArrayOutputStream output)
+  private void decompress(DecompressedScan scan, byte[] input)
       throws IOException {
     /* TODO Handle the RST Markers that might be here!! */
+    TIntList output = scan.growCoefficients();
     BitInputStream in = new JPEGBitInputStream(input);
     int[] lastDCs = new int[scan.getScanComponents()];
     int mcus = scan.getNumberOfMCUsPerIteration();
@@ -129,7 +130,7 @@ public class JPEGDecompressor extends JPEGProcessor {
             coeffs[0] = dc;
             decodeACs(scan.getDecoder(acTable), in, coeffs);
             coeffs = ZigZag.zigZagToSequential(coeffs);
-            output.write(NumUtils.byteArrayFromIntArray(coeffs));
+            output.addAll(coeffs);
           }
         }
       }
@@ -143,11 +144,11 @@ public class JPEGDecompressor extends JPEGProcessor {
    * @return the decompressed scan
    */
   @Override
-  protected Scan process(Scan scan) {
-    ByteArrayOutputStream output = new JPEGByteArrayOutputStream();
+  protected DecompressedScan process(DecompressedScan scan) {
+    scan.dropCoefficients();
     try {
       for(byte[] piece : scan) {
-        decompress(scan, piece, output);
+        decompress(scan, piece);
       }
     } catch(IOException ioe) {
       /* BitInputStreams are not declared as throwing on read, so we shouldn't
@@ -157,7 +158,6 @@ public class JPEGDecompressor extends JPEGProcessor {
        */
       throw new IllegalArgumentException("Scan data caused exception", ioe);
     }
-    scan.setData(output.toByteArray());
     return scan;
   }
 }

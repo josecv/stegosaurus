@@ -165,7 +165,7 @@ public class JPEGProcessorTest {
     byte[] data = { (byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF };
     String file = "lena-colour.jpeg";
     InputStream in = getClass().getResourceAsStream(file);
-    JPEGProcessor proc = new DummyProcessor(in);
+    JPEGProcessor<Scan> proc = new DummyProcessor(in);
     try {
       proc.init();
       proc.processImage();
@@ -189,7 +189,7 @@ public class JPEGProcessorTest {
   public void testRefreshSameLength() {
     String file = "lena-colour.jpeg";
     InputStream in = getClass().getResourceAsStream(file);
-    JPEGProcessor proc = new DummyProcessor(in);
+    JPEGProcessor<Scan> proc = new DummyProcessor(in);
     try {
       proc.init();
       proc.processImage();
@@ -235,7 +235,7 @@ public class JPEGProcessorTest {
    */
   private void runTestProcessImage(String file) {
     InputStream in = this.getClass().getResourceAsStream(file);
-    JPEGProcessor proc = new DummyProcessor(in);
+    JPEGProcessor<Scan> proc = new DummyProcessor(in);
     try {
       proc.init();
       in.close();

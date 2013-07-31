@@ -1,13 +1,10 @@
 package com.stegosaurus.jpeg;
 
-import java.io.InputStream;
-
-import org.apache.commons.lang3.ArrayUtils;
+import gnu.trove.list.TIntList;
 
 import com.stegosaurus.huffman.HuffmanEncoder;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegostreams.JPEGBitOutputStream;
-import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
 /**
@@ -15,22 +12,12 @@ import com.stegosaurus.stegutils.ZigZag;
  * to their final state.
  * @see JPEGDecompressor
  */
-public class JPEGCompressor extends JPEGProcessor {
-  /**
-   * Construct a new JPEG Compressor to compress the inputstream given.
-   * @param in the input stream to work with
-   */
-  public JPEGCompressor(InputStream in) {
-    super(in);
-  }
+public class JPEGCompressor {
 
   /**
-   * Construct a new JPEG Compressor to work with the bytes given.
-   * @param bytes the image to work with.
+   * CTOR.
    */
-  public JPEGCompressor(byte[] bytes) {
-    super(bytes);
-  }
+  public JPEGCompressor() { }
 
   /**
    * Encode the value given as a magnitude plus additional raw bits.
@@ -109,11 +96,10 @@ public class JPEGCompressor extends JPEGProcessor {
    * @param output where the data should be placed.
    * TODO Optimize, refactor
    */
-  private void compress(Scan scan, byte[] data, BitOutputStream os) {
+  private void compress(DecompressedScan scan, TIntList data,
+      BitOutputStream os) {
     int index = 0;
     /* TODO Handle the RST Markers that might be here!! */
-    data = unescape(data);
-    int[] vals = NumUtils.intArrayFromByteArray(data);
     int[] lastDCs = new int[scan.getScanComponents()];
     /* TODO A solution for the repetition between this and the decompressor */
     for(int mcu = 0; mcu < scan.getNumberOfMCUsPerIteration(); mcu++) {
@@ -121,7 +107,7 @@ public class JPEGCompressor extends JPEGProcessor {
         for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
           for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
             /* TODO This looks to be incredibly slow */
-            int[] dataUnit = ArrayUtils.subarray(vals, index, index + 64);
+            int[] dataUnit = data.toArray(index, 64);
             dataUnit = ZigZag.sequentialToZigZag(dataUnit);
             int tableId = scan.getTableId(cmp + 1);
             int dcTable = (tableId & 0xF0) >> 4;
@@ -144,11 +130,10 @@ public class JPEGCompressor extends JPEGProcessor {
    * Compress the image scan given.
    * @param scan the scan to compress
    */
-  @Override
-  public Scan process(Scan scan) {
+  public DecompressedScan process(DecompressedScan scan) {
     BitOutputStream os = new JPEGBitOutputStream();
-    for(byte[] piece : scan) {
-      compress(scan, piece, os);
+    for(TIntList buffer : scan.getCoefficientBuffers()) {
+      compress(scan, buffer, os);
     }
     scan.setData(os.data());
     return scan;

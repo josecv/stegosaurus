@@ -5,13 +5,13 @@ import java.io.InputStream;
 /**
  * A dummy JPEG Processor that simply returns the same scans it is given.
  */
-public class DummyProcessor extends JPEGProcessor {
+public class DummyProcessor extends JPEGProcessor<Scan> {
   /**
    * Initialize the dummy processor to process the image given.
    * @param in the inputstream for the image to process.
    */
   public DummyProcessor(InputStream in) {
-    super(in);
+    super(in, new DefaultScanFactory());
   }
 
   /**
@@ -19,7 +19,7 @@ public class DummyProcessor extends JPEGProcessor {
    * @param bytes the bytes for the image to process.
    */
   public DummyProcessor(byte[] bytes) {
-    super(bytes);
+    super(bytes, new DefaultScanFactory());
   }
 
   /**

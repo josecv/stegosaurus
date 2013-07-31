@@ -25,11 +25,11 @@ import com.stegosaurus.stegutils.NumUtils;
  * TODO Array operations are super silly in here, and likely not efficient
  * TODO A smarter way to denote that we're done (ie no nulls!)
  */
-public abstract class JPEGProcessor {
+public abstract class JPEGProcessor<E extends Scan> {
   /**
    * The scans that have been processed by this object.
    */
-  private List<Scan> scans = new ArrayList<>();
+  private List<E> scans = new ArrayList<>();
 
   /**
    * The entirety of the JPEG file in a single buffer, allowing us to look
@@ -52,15 +52,19 @@ public abstract class JPEGProcessor {
    */
   private InputStream image;
 
+  private ScanFactory<E> scanFactory;
+
   /**
    * Construct a new JPEGProcessor to work with the image given. Note that
    * this does not fully initialize the processor. The init() method should be
    * invoked before it is ready to use.
    *
    * @param image the image to work with.
+   * @param factory the scan factory to make use of.
    */
-  public JPEGProcessor(InputStream image) {
+  protected JPEGProcessor(InputStream image, ScanFactory<E> factory) {
     this.image = image;
+    this.scanFactory = factory;
   }
 
   /**
@@ -69,8 +73,10 @@ public abstract class JPEGProcessor {
    * exception).
    *
    * @param bytes the image to work with, as a byte array.
+   * @param factory the ScanFactory to make use of.
    */
-  public JPEGProcessor(byte[] bytes) {
+  protected JPEGProcessor(byte[] bytes, ScanFactory<E> factory) {
+    this.scanFactory = factory;
     if(bytes == null) {
       throw new IllegalArgumentException("Image data should not be null");
     }
@@ -98,7 +104,7 @@ public abstract class JPEGProcessor {
    * @param scan the scan to process
    * @return the processed scan.
    */
-  protected abstract Scan process(Scan scan);
+  protected abstract E process(E scan);
 
   /**
    * Initialize the processor for use with the given image data.
@@ -173,7 +179,7 @@ public abstract class JPEGProcessor {
    * @param scan the scan to populate
    * @param segment the SOF0 segment to fetch info from.
    */
-  private void startOfFrame(Scan scan, byte[] segment) {
+  private void startOfFrame(E scan, byte[] segment) {
     byte numberOfComponents = segment[9];
     scan.setWidth(NumUtils.intFromBytes(segment, 5, 7))
         .setHeight(NumUtils.intFromBytes(segment, 7, 9))
@@ -196,8 +202,8 @@ public abstract class JPEGProcessor {
    * @param scan the scan to populate
    * @param segment the segment to read from
    */
-  private void defineHuffmanTable(Scan scan, byte[] segment) {
-    /* TODO There may be more than one huffman table here. */
+  private void defineHuffmanTable(E scan, byte[] segment) {
+    /* TODO There may be more than one huffman table here!! */
     int id = segment[4];
     HuffmanDecoder decoder = new JPEGHuffmanDecoder(
       ArrayUtils.subarray(segment, 5, segment.length));
@@ -209,7 +215,7 @@ public abstract class JPEGProcessor {
    * @param scan the scan to populate
    * @param segment the segment to read from
    */
-  private void defineRestartInterval(Scan scan, byte[] segment) {
+  private void defineRestartInterval(E scan, byte[] segment) {
     scan.setRestartInterval(NumUtils.intFromBytes(segment, 4, 6));
   }
 
@@ -218,7 +224,7 @@ public abstract class JPEGProcessor {
    * @param scan the scan to populate
    * @param segment the scan data to read from
    */
-  private void loadScanData(Scan scan, byte[] segment) {
+  private void loadScanData(E scan, byte[] segment) {
     byte scanComponents = segment[4];
     scan.setScanComponents(scanComponents);
     /* We next want to load up relevant component information */
@@ -234,7 +240,8 @@ public abstract class JPEGProcessor {
      * component info) */
     addToProcessed(ArrayUtils.subarray(segment, 0, dataStart));
     byte[] data = ArrayUtils.subarray(segment, dataStart, segment.length);
-    scan.setRange(Range.between(dataStart, dataStart + segment.length));
+    scan.setRange(Range.between(processed.size(),
+      processed.size() + (segment.length - dataStart)));
     scan.setData(data);
   }
 
@@ -243,10 +250,10 @@ public abstract class JPEGProcessor {
    * any processing to it.
    * @return the image scan.
    */
-  private Scan readScan() {
-    Scan scan = new Scan();
+  private E readScan() {
+    E scan = scanFactory.build();
     if(scans.size() > 0) {
-      scan = new Scan(scans.get(scans.size() - 1));
+      scan = scanFactory.build(scans.get(scans.size() - 1));
     }
     byte[] segment = nextSegment();
     while(segment != null && segment[1] != JPEGConstants.SOS_MARKER) {
@@ -277,7 +284,7 @@ public abstract class JPEGProcessor {
    * @param scan the image scan to add.
    * @return the same scan.
    */
-  private Scan addScan(Scan scan) {
+  private E addScan(E scan) {
     addToProcessed(scan.getData());
     scans.add(scan);
     return scan;
@@ -288,8 +295,8 @@ public abstract class JPEGProcessor {
    * to the list of scans.
    * @return the processed scan
    */
-  public Scan nextScan() {
-    Scan scan = readScan();
+  public E nextScan() {
+    E scan = readScan();
     /* All done */
     if(scan == null) {
       return scan;
@@ -302,7 +309,7 @@ public abstract class JPEGProcessor {
    * @param n the scan to get
    * @return the nth scan
    */
-  public Scan getScan(int n) {
+  public E getScan(int n) {
     return scans.get(n);
   }
 
@@ -310,16 +317,16 @@ public abstract class JPEGProcessor {
    * Return all the scans that have been processed.
    * @return the list of scans.
    */
-  public List<Scan> getScans() {
-    return new ArrayList<Scan>(scans);
+  public List<E> getScans() {
+    return new ArrayList<E>(scans);
   }
 
   /**
    * Process the remainder of the image.
    * @return all the scans in the image, after processing.
    */
-  public List<Scan> processImage() {
-    Scan scan = nextScan();
+  public List<E> processImage() {
+    E scan = nextScan();
     while(scan != null) {
       scan = nextScan();
     }
@@ -341,7 +348,7 @@ public abstract class JPEGProcessor {
    */
   public void refresh() {
     /* TODO Some kind of... something to know if we need to do the copying. */
-    for(Scan s : scans) {
+    for(E s : scans) {
       byte[] data = s.getData();
       /* The range is still the old one, so we'll use it to figure this out */
       Range<Integer> range = s.getRange();

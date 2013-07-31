@@ -348,8 +348,17 @@ public class Scan implements Iterable<byte[]> {
    * @return the total number of coefficients in this scan.
    */
   public int getCoefficientCount() {
+    return getCoefficientCount(getMCUx() * getMCUy());
+  }
+
+  /**
+   * Get the number of coefficients to be found in the number of MCUs given.
+   * @param mcus the number of mcus to count
+   * @return the number of coefficients.
+   */
+  public int getCoefficientCount(int mcus) {
     int retval = 0;
-    for(int m = 0; m < (getMCUx() * getMCUy()); m++) {
+    for(int m = 0; m < mcus; m++) {
       for(int i = 0; i < subsampling.length; i++) {
         for(int s = 0; s < subsampling[i][0] * subsampling[i][1]; s++) {
           retval += 64;
@@ -357,6 +366,14 @@ public class Scan implements Iterable<byte[]> {
       }
     }
     return retval;
+  }
+
+  /**
+   * Get the number of coefficients in one iteration of this scan.
+   * @return the number of coefficients per iteration.
+   */
+  public int getCoefficientCountPerIteration() {
+    return getCoefficientCount(getNumberOfMCUsPerIteration());
   }
 
   /**
