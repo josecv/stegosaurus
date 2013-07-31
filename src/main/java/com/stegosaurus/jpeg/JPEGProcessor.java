@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Range;
 
 import com.stegosaurus.huffman.HuffmanDecoder;
 import com.stegosaurus.huffman.JPEGHuffmanDecoder;
@@ -233,6 +234,7 @@ public abstract class JPEGProcessor {
      * component info) */
     addToProcessed(ArrayUtils.subarray(segment, 0, dataStart));
     byte[] data = ArrayUtils.subarray(segment, dataStart, segment.length);
+    scan.setRange(Range.between(dataStart, dataStart + segment.length));
     scan.setData(data);
   }
 
@@ -330,6 +332,44 @@ public abstract class JPEGProcessor {
    */
   public byte[] getProcessed() {
     return processed.toArray();
+  }
+
+  /**
+   * Ensure that the scan data in the already processed bytes is the most
+   * recent data available. In other words, check the scans' data to make
+   * sure this object knows about it.
+   */
+  public void refresh() {
+    /* TODO Some kind of... something to know if we need to do the copying. */
+    for(Scan s : scans) {
+      byte[] data = s.getData();
+      /* The range is still the old one, so we'll use it to figure this out */
+      Range<Integer> range = s.getRange();
+      int max = range.getMaximum();
+      int min = range.getMinimum();
+      if(data.length == max - min) {
+        /* We don't need to grow or shrink our array, just move the new stuff
+         * in.
+         */
+        processed.set(min, data);
+      } else {
+        /* We do need to change our array's size.
+         * The new size is the size of the old list, minus its scan data,
+         * plus the new size of the scan data.
+         */
+        /* TODO Bunch of copying out here. This could be _very_ slow */
+        int len = (processed.size() - (max - min)) + data.length;
+        byte[] newData = new byte[len];
+        processed.toArray(newData, 0, 0, min);
+        System.arraycopy(data, 0, newData, min, data.length);
+        int remaining = processed.size() - max;
+        int offset = min + data.length;
+        processed.toArray(newData, max, offset, remaining);
+        processed = new TByteArrayList(newData);
+        int newMax = min + data.length;
+        s.setRange(Range.between(min, newMax));
+      }
+    }
   }
 
   /**

@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.Range;
+
 import com.stegosaurus.huffman.HuffmanDecoder;
 
 /**
@@ -76,6 +78,11 @@ public class Scan implements Iterable<byte[]> {
   private Map<Integer, Integer> componentTables = new TreeMap<>();
 
   /**
+   * The indices where the scan might be found in the image.
+   */
+  private Range<Integer> range;
+
+  /**
    * Default CTOR.
    */
   public Scan() { }
@@ -94,6 +101,8 @@ public class Scan implements Iterable<byte[]> {
     this.subsampling = scan.subsampling.clone();
     this.decoders.putAll(scan.decoders);
     this.componentTables.putAll(scan.componentTables);
+    this.range = Range.between(scan.range.getMinimum(),
+      scan.range.getMaximum());
   }
 
   /**
@@ -241,6 +250,22 @@ public class Scan implements Iterable<byte[]> {
   public Scan setSubsampling(byte[][] subsampling) {
     this.subsampling = subsampling.clone();
     return this;
+  }
+
+  /**
+   * Get the range occupied by this scan.
+   * @return the range
+   */
+  public Range<Integer> getRange() {
+    return range;
+  }
+
+  /**
+   * Set the range occupied by this scan.
+   * @param range the range to set
+   */
+  public void setRange(Range<Integer> range) {
+    this.range = range;
   }
 
   /**

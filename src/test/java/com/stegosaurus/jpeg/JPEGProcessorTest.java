@@ -7,9 +7,11 @@ import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
 /**
@@ -156,6 +158,59 @@ public class JPEGProcessorTest {
   }
 
   /**
+   * Test the refresh method when the scan's length is changed.
+   */
+  @Test
+  public void testRefreshDifferentLength() {
+    byte[] data = { (byte) 0xDE, (byte) 0xAD, (byte) 0xBE, (byte) 0xEF };
+    String file = "lena-colour.jpeg";
+    InputStream in = getClass().getResourceAsStream(file);
+    JPEGProcessor proc = new DummyProcessor(in);
+    try {
+      proc.init();
+      proc.processImage();
+      Scan scan = proc.getScan(0);
+      scan.setData(data);
+      proc.refresh();
+      Range<Integer> range = scan.getRange();
+      byte[] result = ArrayUtils.subarray(proc.getProcessed(),
+        range.getMinimum(), range.getMaximum());
+      assertArrayEquals("Refresh not working", data, result);
+      in.close();
+    } catch(IOException ioe) {
+      assumeNoException(ioe);
+    }
+  }
+
+  /**
+   * Test the refresh method when the scan's length is maintained.
+   */
+  @Test
+  public void testRefreshSameLength() {
+    String file = "lena-colour.jpeg";
+    InputStream in = getClass().getResourceAsStream(file);
+    JPEGProcessor proc = new DummyProcessor(in);
+    try {
+      proc.init();
+      proc.processImage();
+      Scan scan = proc.getScan(0);
+      byte[] data = scan.getData();
+      for(int i = 0; i < data.length; i++) {
+        data[i] = 0;
+      }
+      scan.setData(data);
+      proc.refresh();
+      Range<Integer> range = scan.getRange();
+      byte[] result = ArrayUtils.subarray(proc.getProcessed(),
+        range.getMinimum(), range.getMaximum());
+      assertArrayEquals("Refresh not working", data, result);
+      in.close();
+    } catch(IOException ioe) {
+      assumeNoException(ioe);
+    }
+  }
+
+  /**
    * A basic sanity test for the processImage method. Ensures that the data
    * processed is the same data that was sent and that if no processing is
    * applied, it is returned exactly as it was given.
@@ -193,6 +248,5 @@ public class JPEGProcessorTest {
     } catch (IOException ioe) {
       assumeNoException(ioe);
     }
-
   }
 }
