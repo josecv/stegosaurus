@@ -83,6 +83,11 @@ public class BitInputStream extends InputStream {
   }
 
   /**
+   * Close the input stream; has no effect.
+   */
+  public void close() { }
+
+  /**
    * Get the byte array that we're returning bits from.
    * Note that it is not copied, but returned as-is.
    * @return the array

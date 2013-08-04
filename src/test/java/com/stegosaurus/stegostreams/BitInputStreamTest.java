@@ -2,9 +2,6 @@ package com.stegosaurus.stegostreams;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assume.assumeNoException;
-
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -25,14 +22,10 @@ public class BitInputStreamTest {
                         0, 0, 1, 1,  1, 1, 1, 1
                       };
     byte[] retval = new byte[expected.length];
-    try {
-      for (int i = 0; i < retval.length; i++) {
-        retval[i] = (byte) st.read();
-      }
-      st.close();
-    } catch (IOException ioe) {
-      assumeNoException(ioe);
+    for (int i = 0; i < retval.length; i++) {
+      retval[i] = (byte) st.read();
     }
+    st.close();
     assertArrayEquals("Wrong return value from read", expected, retval);
   }
 
@@ -47,13 +40,9 @@ public class BitInputStreamTest {
       st.read();
     }
     st.skipToEndOfByte();
-    try {
-      st.close();
-      for(int i = 0; i < 4; i++) {
-        assertEquals("Failed to skip all the way to next byte", st.read(), 0);
-      }
-    } catch(IOException ioe) {
-      assumeNoException(ioe);
+    st.close();
+    for(int i = 0; i < 4; i++) {
+      assertEquals("Failed to skip all the way to next byte", st.read(), 0);
     }
   }
 
@@ -68,19 +57,15 @@ public class BitInputStreamTest {
                                      1, 0, 0, 0};
     byte[] result = new byte[expected.length];
     BitInputStream stream = new BitInputStream(arg);
-    try {
-      int i;
-      for(i = 0; i < 12; i ++) {
-        result[i] = (byte) stream.read();
-      }
-      assertEquals("Incorrect number of bytes skipped", 8, stream.skip(8));
-      for(; i < expected.length; i++) {
-        result[i] = (byte) stream.read();
-      }
-      assertArrayEquals("Wrong result after skipping bytes", expected, result);
-      stream.close();
-    } catch(IOException ioe) {
-      assumeNoException(ioe);
+    int i;
+    for(i = 0; i < 12; i ++) {
+      result[i] = (byte) stream.read();
     }
+    assertEquals("Incorrect number of bytes skipped", 8, stream.skip(8));
+    for(; i < expected.length; i++) {
+      result[i] = (byte) stream.read();
+    }
+    assertArrayEquals("Wrong result after skipping bytes", expected, result);
+    stream.close();
   }
 }
