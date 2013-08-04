@@ -203,4 +203,18 @@ public class NumUtilsTest {
     assertArrayEquals("byteArrayFromBits little endian with subarray failed",
       expectedLE, result);
   }
+
+  /**
+   * Test the placeInLSB method.
+   */
+  @Test
+  public void testPlaceInLSB() {
+    int[] covers = { 0xFF, 0xE3, 0x92, 0x2C };
+    int[] bits = { 0, 1, 1, 0 };
+    int[] expected = { 0xFE, 0xE3, 0x93, 0x2C };
+    for(int i = 0; i < covers.length; i++) {
+      int result = NumUtils.placeInLSB(covers[i], bits[i]);
+      assertEquals("Place in LSB failure", expected[i], result);
+    }
+  }
 }

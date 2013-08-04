@@ -260,4 +260,17 @@ public final class NumUtils {
     intBuffer.get(retval);
     return retval;
   }
+
+  /**
+   * Place the bit given in the LSB of the cover int given.
+   * @param cover the cover that will receive the int given.
+   * @param bit the bit to place.
+   * @todo does this really belong in this class?
+   */
+  public static int placeInLSB(int cover, int bit) {
+    if(bit != 1 && bit != 0) {
+      throw new IllegalArgumentException(bit + " not a bit, should be 0 or 1");
+    }
+    return (cover & (~1)) | bit;
+  }
 }
