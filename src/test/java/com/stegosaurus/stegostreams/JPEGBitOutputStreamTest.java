@@ -1,9 +1,6 @@
 package com.stegosaurus.stegostreams;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assume.assumeNoException;
-
-import java.io.IOException;
 
 import org.junit.Test;
 
@@ -37,10 +34,6 @@ public class JPEGBitOutputStreamTest {
     byte[] expected = { 0b01010101, (byte) 0xFF, 0, (byte) 0xFF, 0 };
     byte[] result = os.data();
     assertArrayEquals("Write failure", expected, result);
-    try {
-      os.close();
-    } catch(IOException ioe) {
-      assumeNoException(ioe);
-    }
+    os.close();
   }
 }

@@ -11,8 +11,9 @@ import gnu.trove.set.hash.TIntHashSet;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.SecureRandom;
-import java.util.List;
+import java.util.Random;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.stegosaurus.jpeg.DecompressedScan;
 import com.stegosaurus.jpeg.JPEGCompressor;
@@ -22,16 +23,8 @@ import com.stegosaurus.stegutils.NumUtils;
 
 /**
  * Hides stuff in a JPEG image using the OutGuess algorithm.
- * Outguess is described in Niels Provos' paper "Defending Against
- * Statistical Steganalysis", which can be found at:
- * http://static.usenix.org/events/sec01/full_papers/provos/provos_html/
  */
-public class OutGuessHider {
-  /**
-   * The pseudo random number generator in use.
-   */
-  private SecureRandom prng;
-
+public class OutGuessHider extends OutGuess {
   /**
    * The set of modified coefficients. This includes both coefficients used
    * for the actual embedding of image data, and coefficients used for error
@@ -63,27 +56,8 @@ public class OutGuessHider {
    * Construct a new OutGuessHider instance.
    * @param prng the pseudo random number generator to use.
    */
-  public OutGuessHider(SecureRandom prng) {
-    this.prng = prng;
-  }
-
-  /**
-   * Given a list of decompressed scans, get the one best suited for
-   * steganography. Mostly, this means the one with the most data.
-   * @param scans the list of scans.
-   * @return the data from the best scan, or null if the list is empty.
-   */
-  private DecompressedScan getBestScan(List<DecompressedScan> scans) {
-    int size = 0;
-    DecompressedScan retval = null;
-    for(DecompressedScan scan : scans) {
-      TIntList current = scan.getCoefficientBuffers().get(0);
-      if(current.size() > size) {
-        size = current.size();
-        retval = scan;
-      }
-    }
-    return retval;
+  public OutGuessHider(Random prng) {
+    super(prng);
   }
 
   /**
@@ -95,11 +69,8 @@ public class OutGuessHider {
    */
   private int hideStatus(int[] cover, int length) {
     byte[] len = NumUtils.byteArrayFromInt(length);
-    byte[] seed = prng.generateSeed(2);
-    /* For the initial interval. */
-    final int x = 32;
-    /* TODO Here's hoping the length fits in 16 bits! */
-    System.arraycopy(seed, 0, len, 2, 2);
+    byte[] seed = generateSeed(2);
+    len = ArrayUtils.addAll(len, seed);
     BitInputStream in = new BitInputStream(len);
     int index = 0;
     while(in.available() > 0) {
@@ -111,7 +82,7 @@ public class OutGuessHider {
       index += getRandom(x);
     }
     in.close();
-    prng.setSeed(seed);
+    reseedPRNG(seed);
     return index;
   }
 
@@ -136,7 +107,7 @@ public class OutGuessHider {
    */
   private boolean exchDCT(int[] cover, int index, int coeff) {
     int adj = coeff ^ 1;
-    for(int j = index - 1; j >= 0; j++) {
+    for(int j = index - 1; j >= 0; j--) {
       if(cover[j] == coeff && !modified.contains(j)) {
         cover[j] = adj;
         modified.add(j);
@@ -177,15 +148,6 @@ public class OutGuessHider {
   }
 
   /**
-   * Get a new pseudo-random number in the interval [1:interval].
-   * @param interval the upper bound on the number returned.
-   * @return the pseudo random number.
-   */
-  private int getRandom(int interval) {
-    return prng.nextInt(interval - 1) + 1;
-  }
-
-  /**
    * Calculate the frequency of every DCT component in the cover image given.
    * @param cover the image to calculate frequencies for.
    * @return the DCT frequency table.
@@ -211,17 +173,6 @@ public class OutGuessHider {
   }
 
   /**
-   * Get the upper bound on the interval for random numbers.
-   * @param cover the cover image in use.
-   * @param index the last visited index in the cover image.
-   * @param remainingMessage the number of message bits still to encode.
-   */
-  private int getInterval(int[] cover, int index, int remainingMessage) {
-    int coverBits = (cover.length - index) / 8;
-    return (2 * coverBits) / remainingMessage;
-  }
-
-  /**
    * Given a cover image, hide the message given in it, starting at the index
    * given.
    * @param cover the cover image
@@ -233,14 +184,14 @@ public class OutGuessHider {
     while(stream.available() > 0) {
       int i = 0;
       /* We'll change the interval every 8 bits */
-      int interval = getInterval(cover, index, stream.available());
+      index += getRandom(getInterval(cover, index, stream.available()));
       while(i < 8) {
         if(cover[index] == 0 || cover[index] == 1) {
           index++;
           continue;
         }
         hideAtIndex(cover, stream.read(), index);
-        index += getRandom(interval);
+        index++;
         i++;
       }
     }
@@ -296,7 +247,6 @@ public class OutGuessHider {
   public byte[] hide(InputStream cover, byte[] message) throws IOException {
     JPEGDecompressor jpeg = new JPEGDecompressor(cover);
     jpeg.init();
-    cover.close();
     DecompressedScan scan = getBestScan(jpeg.processImage());
     /* TODO Don't just get the 0th buffer, for fucks sake */
     TIntList data = scan.getCoefficientBuffers().get(0);
@@ -317,7 +267,7 @@ public class OutGuessHider {
    */
   public void hide(TIntList cover, byte[] message) {
     int[] data = cover.toArray();
-    hide(cover, message);
+    hide(data, message);
     cover.set(0, data);
   }
 

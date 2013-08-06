@@ -94,4 +94,9 @@ public class BitOutputStream extends OutputStream {
   protected TByteList getData() {
     return data;
   }
+
+  /**
+   * Close the bit output stream; has no effect.
+   */
+  public void close() { }
 }

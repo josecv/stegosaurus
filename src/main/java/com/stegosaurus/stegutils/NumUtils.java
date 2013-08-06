@@ -273,4 +273,13 @@ public final class NumUtils {
     }
     return (cover & (~1)) | bit;
   }
+
+  /**
+   * Get the LSB of the number given.
+   * @param cover the cover to get the LSB from.
+   * @return the LSB, as an int
+   */
+  public static int getLSB(int cover) {
+    return cover & 1;
+  }
 }

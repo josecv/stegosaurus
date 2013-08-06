@@ -217,4 +217,17 @@ public class NumUtilsTest {
       assertEquals("Place in LSB failure", expected[i], result);
     }
   }
+
+  /**
+   * Test the getLSB method.
+   */
+  @Test
+  public void testGetLSB() {
+    int[] input = { 0xDE, 0xAD, 0xBE, 0xEF };
+    int[] expected = { 0, 1, 0, 1 };
+    for(int i = 0; i < input.length; i++) {
+      int result = NumUtils.getLSB(input[i]);
+      assertEquals("GetLSB failure", expected[i], result);
+    }
+  }
 }
