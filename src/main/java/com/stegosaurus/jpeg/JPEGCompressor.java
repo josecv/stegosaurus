@@ -1,6 +1,8 @@
 package com.stegosaurus.jpeg;
 
 import gnu.trove.list.TIntList;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import com.stegosaurus.huffman.HuffmanEncoder;
 import com.stegosaurus.stegostreams.BitOutputStream;
@@ -18,6 +20,11 @@ public class JPEGCompressor {
    * CTOR.
    */
   public JPEGCompressor() { }
+
+  /**
+   * The huffman encoders for the scan currently being worked on.
+   */
+  private TIntObjectMap<HuffmanEncoder> encoders;
 
   /**
    * Encode the value given as a magnitude plus additional raw bits.
@@ -90,6 +97,21 @@ public class JPEGCompressor {
   }
 
   /**
+   * Get the encoder with the id given for the scan given. If we have
+   * it on hand, it is immediately returned; otherwise, it will be constructed
+   * from a corresponding decoder and returned.
+   * @param id the encoder's huffman table id
+   * @param scan the scan in question
+   * @return the huffman encoder.
+   */
+  private HuffmanEncoder getEncoder(int id, Scan scan) {
+    if(!encoders.containsKey(id)) {
+      encoders.put(id, new HuffmanEncoder(scan.getDecoder(id)));
+    }
+    return encoders.get(id);
+  }
+
+  /**
    * Compress the data given and place it in the list given.
    * @param scan the scan we're working with.
    * @param data the data to compress
@@ -113,11 +135,9 @@ public class JPEGCompressor {
             int dcTable = (tableId & 0xF0) >> 4;
             int acTable = (tableId & 0x0F) | 0x10;
             int dc = dataUnit[0];
-            encodeDC(dc, lastDCs[cmp],
-                     new HuffmanEncoder(scan.getDecoder(dcTable)), os);
+            encodeDC(dc, lastDCs[cmp], getEncoder(dcTable, scan), os);
             lastDCs[cmp] = dc;
-            encodeACs(dataUnit, new HuffmanEncoder(scan.getDecoder(acTable)),
-                      os);
+            encodeACs(dataUnit, getEncoder(acTable, scan), os);
             index += 64;
           }
         }
@@ -131,6 +151,7 @@ public class JPEGCompressor {
    * @param scan the scan to compress
    */
   public DecompressedScan process(DecompressedScan scan) {
+    encoders = new TIntObjectHashMap<>();
     BitOutputStream os = new JPEGBitOutputStream();
     for(TIntList buffer : scan.getCoefficientBuffers()) {
       compress(scan, buffer, os);

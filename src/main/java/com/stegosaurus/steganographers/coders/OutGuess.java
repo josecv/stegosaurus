@@ -24,7 +24,7 @@ public abstract class OutGuess {
   /**
    * The original interval, to be used while dealing with status bytes.
    */
-  protected final int x = 32;
+  protected static final int x = 32;
 
   /**
    * Construct a new OutGuess object.
