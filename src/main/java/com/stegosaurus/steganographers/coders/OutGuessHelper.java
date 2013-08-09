@@ -87,7 +87,7 @@ public class OutGuessHelper extends OutGuess {
         }
       }, actSys.dispatcher()));
     }
-    Duration d = Duration.create(10, "seconds");
+    Duration d = Duration.create(1, "seconds");
     for(Future<Pair<int[], Integer>> f : futures) {
       try {
         Pair<int[], Integer> p = (Pair<int[], Integer>) Await.result(f, d);

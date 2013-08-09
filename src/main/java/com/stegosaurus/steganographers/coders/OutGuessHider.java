@@ -1,5 +1,7 @@
 package com.stegosaurus.steganographers.coders;
 
+import java.util.BitSet;
+
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
@@ -36,7 +38,7 @@ public class OutGuessHider extends OutGuess {
    * for the actual embedding of image data, and coefficients used for error
    * correction.
    */
-  private TIntSet locked;
+  private BitSet locked;
 
   /**
    * The frequency of DCT coefficients in the original image.
@@ -168,9 +170,9 @@ public class OutGuessHider extends OutGuess {
   private boolean exchDCT(int index, int coeff) {
     int adj = coeff ^ 1;
     for(int j = index - 1; j >= 0; j--) {
-      if(cover[j] == coeff && !locked.contains(j)) {
+      if(cover[j] == coeff && !locked.get(j)) {
         cover[j] = adj;
-        locked.add(j);
+        locked.set(j);
         return true;
       }
     }
@@ -187,14 +189,14 @@ public class OutGuessHider extends OutGuess {
     int original = cover[index];
     cover[index] = NumUtils.placeInLSB(cover[index], bit);
     int val = cover[index];
-    locked.add(index);
+    locked.set(index);
     if(original == val) {
       return;
     }
     bias += getDetectability(original);
     modified++;
-    /* Let's get adjacent coefficient, and see if we can't correct this one
-     * and that one at the same time.
+    /* Let's get the adjacent coefficient, and see if we can't correct this
+     * one and that one at the same time.
      */
     int adj = val ^ 1;
     if(errors.containsKey(adj) && errors.get(adj) > 0) {
@@ -222,6 +224,7 @@ public class OutGuessHider extends OutGuess {
   public OutGuessHider(int[] cover, String key, TIntIntMap freq,
     TIntDoubleMap tolerances, short seed) {
     super(key);
+    locked = new BitSet(cover.length);
     this.cover = cover.clone();
     /* TODO Unsure about precedence here. Paper not clear. Investigate. */
     alpha = 0.03 * 5000 / cover.length;
@@ -238,7 +241,6 @@ public class OutGuessHider extends OutGuess {
    * @return a pair containing the carrier and the number of changed bits.
    */
   public Pair<int[], Integer> hide(byte[] message) {
-    locked = new TIntHashSet(message.length);
     int index = hideStatus(message.length);
     hideMessage(message, index);
     correctErrors();
