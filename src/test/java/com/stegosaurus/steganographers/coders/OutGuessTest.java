@@ -23,7 +23,7 @@ public class OutGuessTest {
     String password = "Fluttershy";
     InputStream jpeg = getClass().getResourceAsStream(file);
     try {
-      OutGuessHider hider = new OutGuessHider(password);
+      OutGuessHelper hider = new OutGuessHelper(password);
       byte[] hidden = hider.hide(jpeg, msg.getBytes());
       jpeg.close();
       InputStream hiddenStream = new ByteArrayInputStream(hidden);

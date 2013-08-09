@@ -10,7 +10,8 @@ import com.stegosaurus.jpeg.DecompressedScan;
 import com.stegosaurus.stegutils.NumUtils;
 
 /**
- * Parent class for users of the outguess algorithm.
+ * Abstract base class providing common functionality for users of the
+ * OutGuess algorithm.
  * Outguess is described in Niels Provos' paper "Defending Against
  * Statistical Steganalysis", which can be found at:
  * http://static.usenix.org/events/sec01/full_papers/provos/provos_html/
@@ -130,5 +131,13 @@ public abstract class OutGuess {
   protected int getInterval(int[] cover, int index, int remainingMessage) {
     int coverBits = (cover.length - index);
     return (2 * coverBits) / remainingMessage;
+  }
+
+  /**
+   * Get the key in use by this object.
+   * @return the key.
+   */
+  protected String getKey() {
+    return key;
   }
 }
