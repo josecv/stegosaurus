@@ -163,6 +163,18 @@ public final class NumUtils {
   }
 
   /**
+   * Given a short, return a byte array for it. Use Big Endian ordering.
+   * @param s the short
+   * @return the byte array.
+   */
+  public static byte[] byteArrayFromShort(short s) {
+    byte[] retval = new byte[2];
+    retval[0] = (byte) (s >> 8);
+    retval[1] = (byte) (s & 0xFF);
+    return retval;
+  }
+
+  /**
    * Given some bits, create a byte array out of them, using Big Endian
    * ordering.
    * @param bits the bits to use.

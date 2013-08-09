@@ -26,6 +26,12 @@ public class OutGuessHider extends OutGuess {
   private final int[] cover;
 
   /**
+   * The seed that will be in use by this object once the status bytes
+   * are embeded.
+   */
+  private short seed;
+
+  /**
    * The set of modified coefficients. This includes both coefficients used
    * for the actual embedding of image data, and coefficients used for error
    * correction.
@@ -125,8 +131,8 @@ public class OutGuessHider extends OutGuess {
    */
   private int hideStatus(int length) {
     byte[] len = NumUtils.byteArrayFromInt(length);
-    byte[] seed = generateSeed(2);
-    len = ArrayUtils.addAll(len, seed);
+    byte[] seedBytes = NumUtils.byteArrayFromShort(seed);
+    len = ArrayUtils.addAll(len, seedBytes);
     BitInputStream in = new BitInputStream(len);
     int index = 0;
     while(in.available() > 0) {
@@ -138,7 +144,7 @@ public class OutGuessHider extends OutGuess {
       index += getRandom(x);
     }
     in.close();
-    reseedPRNG(seed);
+    reseedPRNG(seedBytes);
     return index;
   }
 
@@ -214,15 +220,15 @@ public class OutGuessHider extends OutGuess {
    * @param tolerances the tolerances derived from the frequency counts.
    */
   public OutGuessHider(int[] cover, String key, TIntIntMap freq,
-    TIntDoubleMap tolerances) {
+    TIntDoubleMap tolerances, short seed) {
     super(key);
     this.cover = cover.clone();
-    locked = new TIntHashSet();
     /* TODO Unsure about precedence here. Paper not clear. Investigate. */
     alpha = 0.03 * 5000 / cover.length;
     this.tolerances = tolerances;
     errors = new TIntIntHashMap();
     originalFrequencies = freq;
+    this.seed = seed;
   }
 
   /**
@@ -232,6 +238,7 @@ public class OutGuessHider extends OutGuess {
    * @return a pair containing the carrier and the number of changed bits.
    */
   public Pair<int[], Integer> hide(byte[] message) {
+    locked = new TIntHashSet(message.length);
     int index = hideStatus(message.length);
     hideMessage(message, index);
     correctErrors();
