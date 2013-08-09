@@ -1,13 +1,11 @@
 package com.stegosaurus.steganographers.coders;
 
-import java.util.BitSet;
-
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.procedure.TIntIntProcedure;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
+
+import java.util.BitSet;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -199,10 +197,9 @@ public class OutGuessHider extends OutGuess {
      * one and that one at the same time.
      */
     int adj = val ^ 1;
-    if(errors.containsKey(adj) && errors.get(adj) > 0) {
+    if(errors.get(adj) > 0) {
       errors.adjustValue(adj, -1);
-    } else if(!errors.containsKey(val) ||
-        (errors.containsKey(val) && errors.get(val) < getTolerance(val))) {
+    } else if(errors.get(val) < getTolerance(val)) {
       /* The error is still within acceptable bounds, so we can keep going */
       errors.adjustOrPutValue(val, 1, 1);
     } else if(!exchDCT(index)) {
@@ -229,7 +226,6 @@ public class OutGuessHider extends OutGuess {
     /* TODO Unsure about precedence here. Paper not clear. Investigate. */
     alpha = 0.03 * 5000 / cover.length;
     this.tolerances = tolerances;
-    errors = new TIntIntHashMap();
     originalFrequencies = freq;
     this.seed = seed;
   }
@@ -241,6 +237,7 @@ public class OutGuessHider extends OutGuess {
    * @return a pair containing the carrier and the number of changed bits.
    */
   public Pair<int[], Integer> hide(byte[] message) {
+    errors = new TIntIntHashMap(message.length * 4, (float) 0.75, -1, -1);
     int index = hideStatus(message.length);
     hideMessage(message, index);
     correctErrors();
