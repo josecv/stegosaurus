@@ -3,7 +3,6 @@ package com.stegosaurus.steganographers.coders;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Random;
 
 import com.stegosaurus.jpeg.DecompressedScan;
 import com.stegosaurus.jpeg.JPEGDecompressor;
@@ -22,10 +21,10 @@ public class OutGuessUnHider extends OutGuess {
 
   /**
    * CTOR.
-   * @param prng the pseudo random number generator to use.
+   * @param key the key for the pseudo random number generator to use.
    */
-  public OutGuessUnHider(Random prng) {
-    super(prng);
+  public OutGuessUnHider(String key) {
+    super(key);
   }
 
   /**

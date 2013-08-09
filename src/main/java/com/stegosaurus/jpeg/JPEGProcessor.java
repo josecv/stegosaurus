@@ -52,6 +52,9 @@ public abstract class JPEGProcessor<E extends Scan> {
    */
   private InputStream image;
 
+  /**
+   * The scan factory being used.
+   */
   private ScanFactory<E> scanFactory;
 
   /**

@@ -6,11 +6,8 @@ import static org.junit.Assume.assumeNoException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 
 import org.junit.Test;
-
-import com.stegosaurus.stegutils.NumUtils;
 
 /**
  * Tests the outguess classes.
@@ -23,16 +20,14 @@ public class OutGuessTest {
   public void testOutGuess() {
     String file = "/com/stegosaurus/jpeg/lena-colour.jpeg";
     String msg = "This'll be the day that I die.";
-    String password = "DOOM";
+    String password = "Fluttershy";
     InputStream jpeg = getClass().getResourceAsStream(file);
     try {
-      Random random = new Random(NumUtils.intFromBytes(password.getBytes()));
-      OutGuessHider hider = new OutGuessHider(random);
+      OutGuessHider hider = new OutGuessHider(password);
       byte[] hidden = hider.hide(jpeg, msg.getBytes());
       jpeg.close();
       InputStream hiddenStream = new ByteArrayInputStream(hidden);
-      random.setSeed(NumUtils.intFromBytes(password.getBytes()));
-      OutGuessUnHider unhider = new OutGuessUnHider(random);
+      OutGuessUnHider unhider = new OutGuessUnHider(password);
       String result = new String(unhider.unHide(hiddenStream));
       hiddenStream.close();
       assertEquals("OutGuess failure", msg, result);

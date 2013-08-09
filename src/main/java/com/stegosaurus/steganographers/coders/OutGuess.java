@@ -26,12 +26,49 @@ public abstract class OutGuess {
    */
   protected static final int x = 32;
 
+  protected static final int JPG_THRES_MAX = 0x25;
+
+  protected static final int JPG_THRES_LOW = 0x04;
+
+  protected static final int JPG_THRES_MIN = 0x03;
+
+  /**
+   * The key for the prng.
+   */
+  private String key;
+
   /**
    * Construct a new OutGuess object.
-   * @param prng the pseudo random number generator to use.
+   * @param key the key for the pseudo random number generator to use.
    */
-  public OutGuess(Random prng) {
-    this.prng = prng;
+  public OutGuess(String key) {
+    this.prng = new Random(key.hashCode());
+    this.key = key;
+  }
+
+  /**
+   * Reset the PRNG to its state immediately after construction. Essentially,
+   * reseed it with the key.
+   */
+  protected void resetPRNG() {
+    prng.setSeed(key.hashCode());
+  }
+
+  /**
+   * Get the detectability value for a given coefficient.
+   * @param coeff the coefficient
+   * @return its detectability
+   */
+  protected static int getDetectability(int coeff) {
+    int abs = Math.abs(coeff);
+    if(abs >= JPG_THRES_MAX) {
+      return -1;
+    } else if(abs >= JPG_THRES_LOW) {
+      return 0;
+    } else if(abs >= JPG_THRES_MIN) {
+      return 1;
+    }
+    return 2;
   }
 
   /**
