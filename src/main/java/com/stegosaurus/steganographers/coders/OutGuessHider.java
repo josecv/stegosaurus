@@ -23,7 +23,7 @@ public class OutGuessHider extends OutGuess {
   /**
    * The cover image.
    */
-  private final int[] cover;
+  private int[] cover;
 
   /**
    * The seed that will be in use by this object once the status bytes
@@ -69,6 +69,12 @@ public class OutGuessHider extends OutGuess {
   private int bias;
 
   /**
+   * Whether to pretend embedding. If true, no embedding or error correction
+   * will be performed. Used for seed selection.
+   */
+  private boolean pretend;
+
+  /**
    * Get the error tolerance value for the coefficient given.
    * @param coeff the coefficient.
    * @return the tolerance.
@@ -89,10 +95,11 @@ public class OutGuessHider extends OutGuess {
   private void hideMessage(byte[] message, int index) {
     BitInputStream stream = new BitInputStream(message);
     bias = modified = 0;
-    while(stream.available() > 0) {
+    int available = stream.available();
+    while(available > 0) {
       int i = 0;
       /* We'll change the interval every 8 bits */
-      index += getRandom(getInterval(cover, index, stream.available()));
+      index += getRandom(getInterval(cover, index, available));
       while(i < 8) {
         if(cover[index] == 0 || cover[index] == 1) {
           index++;
@@ -102,6 +109,7 @@ public class OutGuessHider extends OutGuess {
         index++;
         i++;
       }
+      available = stream.available();
     }
     stream.close();
   }
@@ -132,19 +140,20 @@ public class OutGuessHider extends OutGuess {
   private int hideStatus(int length) {
     byte[] len = NumUtils.byteArrayFromInt(length);
     byte[] seedBytes = NumUtils.byteArrayFromShort(seed);
-    len = ArrayUtils.addAll(len, seedBytes);
-    BitInputStream in = new BitInputStream(len);
+    BitInputStream in = new BitInputStream(len, seedBytes);
     int index = 0;
-    while(in.available() > 0) {
+    int total = in.available();
+    while(total > 0) {
       if(cover[index] == 0 || cover[index] == 1) {
         index++;
         continue;
       }
       hideAtIndex(in.read(), index);
+      total--;
       index += getRandom(x);
     }
     in.close();
-    reseedPRNG(seedBytes);
+    reseedPRNG(seed);
     return index;
   }
 
@@ -185,14 +194,17 @@ public class OutGuessHider extends OutGuess {
    */
   private void hideAtIndex(int bit, int index) {
     int original = cover[index];
-    cover[index] = NumUtils.placeInLSB(cover[index], bit);
-    int val = cover[index];
+    bias += getDetectability(original);
+    modified++;
+    int val = NumUtils.placeInLSB(cover[index], bit);
     locked.set(index);
     if(original == val) {
       return;
     }
-    bias += getDetectability(original);
-    modified++;
+    if(pretend) {
+      return;
+    }
+    cover[index] = val;
     /* Let's get the adjacent coefficient, and see if we can't correct this
      * one and that one at the same time.
      */
@@ -213,21 +225,28 @@ public class OutGuessHider extends OutGuess {
 
   /**
    * Construct a new OutGuess hider.
+   * Should the pretend value be true, no embedding or error correction
+   * will be done. This is used in seed selection.
    * @param cover the cover image.
    * @param key the key to seed the prng with initially.
    * @param freq the frequency counts of the DCT coeffiencts in the image.
    * @param tolerances the tolerances derived from the frequency counts.
+   * @param pretend whether to pretend embedding.
    */
   public OutGuessHider(int[] cover, String key, TIntIntMap freq,
-    TIntDoubleMap tolerances, short seed) {
+    TIntDoubleMap tolerances, short seed, boolean pretend) {
     super(key);
     locked = new BitSet(cover.length);
-    this.cover = cover.clone();
+    this.cover = cover;
+    if(!pretend) {
+      this.cover = cover.clone();
+    }
     /* TODO Unsure about precedence here. Paper not clear. Investigate. */
     alpha = 0.03 * 5000 / cover.length;
     this.tolerances = tolerances;
     originalFrequencies = freq;
     this.seed = seed;
+    this.pretend = pretend;
   }
 
   /**
@@ -240,7 +259,9 @@ public class OutGuessHider extends OutGuess {
     errors = new TIntIntHashMap(message.length * 4, (float) 0.75, -1, -1);
     int index = hideStatus(message.length);
     hideMessage(message, index);
-    correctErrors();
+    if(!pretend) {
+      correctErrors();
+    }
     return Pair.of(cover, bias + modified);
   }
 }

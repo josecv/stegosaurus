@@ -2,6 +2,8 @@ package com.stegosaurus.stegostreams;
 
 import java.io.InputStream;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * Produces, bit by bit, the byte array given. Operates in Big Endian, which
  * is to say the most significant bit of the 0th byte is returned, followed
@@ -24,9 +26,10 @@ public class BitInputStream extends InputStream {
    * Initialize the input stream with the input given.
    *
    * @param in the array of bytes whose bits we will return one by one.
+   * @param additional further byte arrays to return.
    */
-  public BitInputStream(byte[] in) {
-    this.data = in.clone();
+  public BitInputStream(byte[] in, byte... additional) {
+    this.data = ArrayUtils.addAll(in, additional);
     index = 0;
   }
 

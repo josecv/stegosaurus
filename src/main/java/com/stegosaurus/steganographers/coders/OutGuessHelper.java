@@ -82,23 +82,31 @@ public class OutGuessHelper extends OutGuess {
       futures.add(future(new Callable<Pair<int[], Integer>>() {
         public Pair<int[], Integer> call() {
           OutGuessHider hider = new OutGuessHider(cover, getKey(), freq,
-            tolerances, seed);
+            tolerances, seed, true);
           return hider.hide(message);
         }
       }, actSys.dispatcher()));
     }
     Duration d = Duration.create(1, "seconds");
-    for(Future<Pair<int[], Integer>> f : futures) {
+    short seed = 0;
+    /* We'll check every future in order, just so we know which seed we're
+     * dealing with.
+     */
+    for(short i = 0; i < futures.size(); i++) {
+      Future<Pair<int[], Integer>> f = futures.get(i);
       try {
         Pair<int[], Integer> p = (Pair<int[], Integer>) Await.result(f, d);
         if(p.getRight() < min) {
           min = p.getRight();
-          result = p.getLeft();
+          seed = i;
         }
       } catch(Exception e) {
         throw new RuntimeException(e);
       }
     }
+    OutGuessHider hider = new OutGuessHider(cover, getKey(), freq, tolerances,
+      seed, false);
+    result = hider.hide(message).getLeft();
     System.arraycopy(result, 0, cover, 0, cover.length);
   }
 

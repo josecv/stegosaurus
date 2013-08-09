@@ -95,6 +95,14 @@ public abstract class OutGuess {
   }
 
   /**
+   * Reseed the prng with the seed given.
+   * @param seed the seed.
+   */
+  protected void reseedPRNG(long seed) {
+    prng.setSeed(seed);
+  }
+
+  /**
    * Get a new pseudo-random number in the interval [1:interval].
    * @param interval the upper bound on the number returned.
    * @return the pseudo random number.
