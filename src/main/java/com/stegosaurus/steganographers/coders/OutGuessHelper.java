@@ -54,10 +54,9 @@ public class OutGuessHelper extends OutGuess {
    * @throws IOException on read error from the cover.
    */
   public void hide(final int[] cover, final byte[] message) {
-    final TIntIntMap freq = TCollections
+    TIntIntMap freq = TCollections
       .unmodifiableMap(calculateFrequencies(cover));
-    final TIntDoubleMap tolerances = TCollections
-      .synchronizedMap(new TIntDoubleHashMap());
+    TIntDoubleMap tolerances = new TIntDoubleHashMap();
     int[] result = cover;
     int min = Integer.MAX_VALUE;
     short seed = 0;
