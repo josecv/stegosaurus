@@ -9,7 +9,6 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
-import akka.actor.ActorSystem;
 
 /**
  * Tests the outguess classes.
@@ -24,9 +23,8 @@ public class OutGuessTest {
     String msg = "This'll be the day that I die.";
     String password = "Fluttershy";
     InputStream jpeg = getClass().getResourceAsStream(file);
-    ActorSystem system = ActorSystem.create();
     try {
-      OutGuessHelper hider = new OutGuessHelper(password, system);
+      OutGuessHelper hider = new OutGuessHelper(password);
       byte[] hidden = hider.hide(jpeg, msg.getBytes());
       jpeg.close();
       InputStream hiddenStream = new ByteArrayInputStream(hidden);

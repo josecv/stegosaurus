@@ -7,7 +7,6 @@ import gnu.trove.procedure.TIntIntProcedure;
 
 import java.util.BitSet;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.stegosaurus.stegostreams.BitInputStream;
