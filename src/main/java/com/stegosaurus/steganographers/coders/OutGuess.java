@@ -25,7 +25,7 @@ public abstract class OutGuess {
   /**
    * The original interval, to be used while dealing with status bytes.
    */
-  protected static final int x = 32;
+  protected static final int X = 32;
 
   protected static final int JPG_THRES_MAX = 0x25;
 

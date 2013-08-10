@@ -58,7 +58,7 @@ public class OutGuessUnHider extends OutGuess {
       }
       os.write(NumUtils.getLSB(cover[index]));
       i++;
-      index += getRandom(x);
+      index += getRandom(X);
     }
     byte[] data = os.data();
     os.close();

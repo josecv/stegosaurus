@@ -150,7 +150,7 @@ public class OutGuessHider extends OutGuess {
       }
       hideAtIndex(in.read(), index);
       total--;
-      index += getRandom(x);
+      index += getRandom(X);
     }
     in.close();
     reseedPRNG(seed);
