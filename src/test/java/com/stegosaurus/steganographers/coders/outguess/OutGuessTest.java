@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.coders;
+package com.stegosaurus.steganographers.coders.outguess;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeNoException;

@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.coders;
+package com.stegosaurus.steganographers.coders.outguess;
 
 import java.io.IOException;
 import java.io.InputStream;

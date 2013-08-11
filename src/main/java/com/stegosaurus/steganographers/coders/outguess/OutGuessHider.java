@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.coders;
+package com.stegosaurus.steganographers.coders.outguess;
 
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.TIntIntMap;
