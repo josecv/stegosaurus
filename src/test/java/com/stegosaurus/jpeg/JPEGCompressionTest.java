@@ -30,12 +30,21 @@ public class JPEGCompressionTest {
   }
 
   /**
-   * Like testCompresion, but make use of an exif image with a thumbnail
+   * Like testCompression, but make use of an exif image with a thumbnail
    * instead of a traditional JFIF.
    */
   @Test
   public void testCompressionThumbnail() {
     runTestCompression("wanderer-exif.jpeg");
+  }
+
+  /**
+   * Like testCompression, but make use of an image containing restart markers
+   * in the scan.
+   */
+  @Test
+  public void testCompressionRestartMarkers() {
+    runTestCompression("etretat-restart.jpeg");
   }
 
   /**

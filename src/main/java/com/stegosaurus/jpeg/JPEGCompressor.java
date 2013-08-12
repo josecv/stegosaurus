@@ -124,10 +124,11 @@ public class JPEGCompressor {
     int index = 0;
     int rst = 0;
     boolean isRST = scan.isRSTEnabled();
+    int mcus = scan.getNumberOfMCUsPerIteration();
     while(index < data.size()) {
       int[] lastDCs = new int[scan.getScanComponents()];
       /* TODO A solution for the repetition between this and the decompressor */
-      for(int mcu = 0; mcu < scan.getNumberOfMCUsPerIteration(); mcu++) {
+      for(int mcu = 0; mcu < mcus; mcu++) {
         for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
           for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
             for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
@@ -148,8 +149,8 @@ public class JPEGCompressor {
       }
       os.writeToEndOfByte(1);
       if(isRST) {
-        os.writeInt(0xFF, 8);
-        os.writeInt(0xD0 & (rst % 8), 8);
+        //os.writeInt(0xFF, 8);
+        //os.writeInt(0xD0 & (rst % 8), 8);
         rst++;
       }
     }

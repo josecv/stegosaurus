@@ -230,6 +230,15 @@ public class JPEGProcessorTest {
   }
 
   /**
+   * Test the processImage method when there are restart markers present
+   * in the scan.
+   */
+  @Test
+  public void testProcessImageRestartMarkers() {
+    runTestProcessImage("etretat-restart.jpeg");
+  }
+
+  /**
    * Actually do the heavy lifting of testing the process image method.
    * @param file the name of the file to use in the test.
    */
