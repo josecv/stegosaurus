@@ -117,11 +117,11 @@ public abstract class OutGuess {
    * @param scans the list of scans.
    * @return the data from the best scan, or null if the list is empty.
    */
-  protected DecompressedScan getBestScan(List<DecompressedScan> scans) {
+  protected static DecompressedScan getBestScan(List<DecompressedScan> scans) {
     int size = 0;
     DecompressedScan retval = null;
     for(DecompressedScan scan : scans) {
-      TIntList current = scan.getCoefficientBuffers().get(0);
+      TIntList current = scan.getCoefficients();
       if(current.size() > size) {
         size = current.size();
         retval = scan;

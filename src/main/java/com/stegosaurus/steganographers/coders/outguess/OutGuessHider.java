@@ -18,7 +18,7 @@ import com.stegosaurus.stegutils.NumUtils;
  * The actual hider for outguess, does the heavy lifting of embedding data
  * in the carrier.
  */
-public class OutGuessHider extends OutGuess {
+class OutGuessHider extends OutGuess {
   /**
    * The cover image.
    */

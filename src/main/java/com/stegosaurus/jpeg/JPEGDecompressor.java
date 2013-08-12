@@ -105,8 +105,7 @@ public class JPEGDecompressor extends JPEGProcessor<DecompressedScan> {
    */
   private void decompress(DecompressedScan scan, byte[] input)
       throws IOException {
-    /* TODO Handle the RST Markers that might be here!! */
-    TIntList output = scan.growCoefficients();
+    TIntList output = scan.getCoefficients();
     BitInputStream in = new JPEGBitInputStream(input);
     int[] lastDCs = new int[scan.getScanComponents()];
     int mcus = scan.getNumberOfMCUsPerIteration();

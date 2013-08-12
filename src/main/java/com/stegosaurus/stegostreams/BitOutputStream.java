@@ -3,6 +3,7 @@ package com.stegosaurus.stegostreams;
 import gnu.trove.list.TByteList;
 import gnu.trove.list.array.TByteArrayList;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -47,12 +48,25 @@ public class BitOutputStream extends OutputStream {
   }
 
   /**
+   * Write a bit array to this output stream.
+   * @param input the bit array.
+   */
+  @Override
+  public void write(byte[] input) {
+    try {
+      super.write(input);
+    } catch(IOException ioe) {
+      throw new IllegalStateException("Received unexpected IOException", ioe);
+    }
+  }
+
+  /**
    * Write an int, with the size given, to the stream, in big endian order.
    * @param val the int to write.
-   * @param size how many bits should be written.
+   * @param size how many bits should be written, counting from the lsb.
    */
   public void writeInt(int val, int size) {
-    for (int j = size - 1; j >= 0; j--) {
+    for(int j = size - 1; j >= 0; j--) {
       write((val >> j) & 1);
     }
   }

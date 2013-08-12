@@ -62,13 +62,13 @@ public class Scan implements Iterable<byte[]> {
   /**
    * The numbers for the chroma subsampling. Being the ID - 1 (so as to be 0
    * indexed) as a row, and then the horizontal on 0, and the vertical on 1.
-   * @TODO Better handling of this.
+   * TODO Better handling of this.
    */
   private byte[][] subsampling;
 
   /**
    * Huffman decoders for the usual components.
-   * @TODO: This probably sucks performance-wise.
+   * TODO: This probably sucks performance-wise.
    */
   private Map<Integer, HuffmanDecoder> decoders = new TreeMap<>();
 

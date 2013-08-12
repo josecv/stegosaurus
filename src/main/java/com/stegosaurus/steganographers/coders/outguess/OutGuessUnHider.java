@@ -37,7 +37,7 @@ public class OutGuessUnHider extends OutGuess {
     JPEGDecompressor decomp = new JPEGDecompressor(image);
     decomp.init();
     DecompressedScan scan = getBestScan(decomp.processImage());
-    int[] cover = scan.getCoefficientBuffers().get(0).toArray();
+    int[] cover = scan.getCoefficients().toArray();
     return unHide(cover);
   }
 

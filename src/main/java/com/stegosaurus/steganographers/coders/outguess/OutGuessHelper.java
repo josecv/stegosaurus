@@ -20,15 +20,19 @@ import com.stegosaurus.jpeg.JPEGDecompressor;
  * Acts as a facade for the OutGuess hider; should be used in its stead
  * invariably.
  */
-public class OutGuessHelper extends OutGuess {
+public class OutGuessHelper {
+
+  /**
+   * The key to use for encoding.
+   */
+  private String key;
 
   /**
    * Construct a new OutGuessHider instance.
    * @param key the key for the pseudo random number generator to use.
-   * @param system the Actor System to use for concurrent operations.
    */
   public OutGuessHelper(String key) {
-    super(key);
+    this.key = key;
   }
 
   /**
@@ -61,7 +65,7 @@ public class OutGuessHelper extends OutGuess {
     int min = Integer.MAX_VALUE;
     short seed = 0;
     for(short i = 0; i < 256; i++) {
-      OutGuessHider hider = new OutGuessHider(cover, getKey(), freq,
+      OutGuessHider hider = new OutGuessHider(cover, key, freq,
         tolerances, i, true);
       Pair<int[], Integer> p = hider.hide(message);
       if(p.getRight() < min) {
@@ -69,7 +73,7 @@ public class OutGuessHelper extends OutGuess {
         seed = i;
       }
     }
-    OutGuessHider hider = new OutGuessHider(cover, getKey(), freq, tolerances,
+    OutGuessHider hider = new OutGuessHider(cover, key, freq, tolerances,
       seed, false);
     result = hider.hide(message).getLeft();
     System.arraycopy(result, 0, cover, 0, cover.length);
@@ -86,9 +90,8 @@ public class OutGuessHelper extends OutGuess {
   public byte[] hide(InputStream cover, byte[] message) throws IOException {
     JPEGDecompressor jpeg = new JPEGDecompressor(cover);
     jpeg.init();
-    DecompressedScan scan = getBestScan(jpeg.processImage());
-    /* TODO Don't just get the 0th buffer, for fucks sake */
-    TIntList data = scan.getCoefficientBuffers().get(0);
+    DecompressedScan scan = OutGuess.getBestScan(jpeg.processImage());
+    TIntList data = scan.getCoefficients();
     hide(data, message);
     JPEGCompressor comp = new JPEGCompressor();
     comp.process(scan);

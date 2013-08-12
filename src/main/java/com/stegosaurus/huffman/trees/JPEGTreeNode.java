@@ -14,8 +14,7 @@ public class JPEGTreeNode extends TreeNode {
   /**
    * Construct a new Huffman tree from the JPEG Huffman table given.
    * 
-   * @param table
-   *            a Huffman table.
+   * @param table a Huffman table.
    */
   public JPEGTreeNode(byte[] table) {
     super();

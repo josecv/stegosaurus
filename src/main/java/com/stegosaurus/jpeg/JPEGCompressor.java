@@ -7,6 +7,7 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import com.stegosaurus.huffman.HuffmanEncoder;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegostreams.JPEGBitOutputStream;
+import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
 /**
@@ -121,29 +122,37 @@ public class JPEGCompressor {
   private void compress(DecompressedScan scan, TIntList data,
       BitOutputStream os) {
     int index = 0;
-    /* TODO Handle the RST Markers that might be here!! */
-    int[] lastDCs = new int[scan.getScanComponents()];
-    /* TODO A solution for the repetition between this and the decompressor */
-    for(int mcu = 0; mcu < scan.getNumberOfMCUsPerIteration(); mcu++) {
-      for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
-        for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
-          for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
-            /* TODO This looks to be incredibly slow */
-            int[] dataUnit = data.toArray(index, 64);
-            dataUnit = ZigZag.sequentialToZigZag(dataUnit);
-            int tableId = scan.getTableId(cmp + 1);
-            int dcTable = (tableId & 0xF0) >> 4;
-            int acTable = (tableId & 0x0F) | 0x10;
-            int dc = dataUnit[0];
-            encodeDC(dc, lastDCs[cmp], getEncoder(dcTable, scan), os);
-            lastDCs[cmp] = dc;
-            encodeACs(dataUnit, getEncoder(acTable, scan), os);
-            index += 64;
+    int rst = 0;
+    boolean isRST = scan.isRSTEnabled();
+    while(index < data.size()) {
+      int[] lastDCs = new int[scan.getScanComponents()];
+      /* TODO A solution for the repetition between this and the decompressor */
+      for(int mcu = 0; mcu < scan.getNumberOfMCUsPerIteration(); mcu++) {
+        for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
+          for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
+            for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
+              /* TODO This looks to be incredibly slow */
+              int[] dataUnit = data.toArray(index, 64);
+              dataUnit = ZigZag.sequentialToZigZag(dataUnit);
+              int tableId = scan.getTableId(cmp + 1);
+              int dcTable = (tableId & 0xF0) >> 4;
+              int acTable = (tableId & 0x0F) | 0x10;
+              int dc = dataUnit[0];
+              encodeDC(dc, lastDCs[cmp], getEncoder(dcTable, scan), os);
+              lastDCs[cmp] = dc;
+              encodeACs(dataUnit, getEncoder(acTable, scan), os);
+              index += 64;
+            }
           }
         }
       }
+      os.writeToEndOfByte(1);
+      if(isRST) {
+        os.writeInt(0xFF, 8);
+        os.writeInt(0xD0 & (rst % 8), 8);
+        rst++;
+      }
     }
-    os.writeToEndOfByte(1);
   }
 
   /**
@@ -153,9 +162,7 @@ public class JPEGCompressor {
   public DecompressedScan process(DecompressedScan scan) {
     encoders = new TIntObjectHashMap<>();
     BitOutputStream os = new JPEGBitOutputStream();
-    for(TIntList buffer : scan.getCoefficientBuffers()) {
-      compress(scan, buffer, os);
-    }
+    compress(scan, scan.getCoefficients(), os);
     scan.setData(os.data());
     return scan;
   }

@@ -50,6 +50,17 @@ public class BitOutputStreamTest {
    */
   @Test
   public void testWriteInt() {
-
+    BitOutputStream s = new BitOutputStream();
+    byte[] expected = { 0x3A, 0x4E, 0x1F };
+    s.writeInt(0x3A, 8);
+    s.write(0);
+    s.write(1);
+    s.writeInt(0, 2);
+    s.writeInt(0xE1, 8);
+    s.writeInt(0b111, 3);
+    s.write(1);
+    s.close();
+    byte[] result = s.data();
+    assertArrayEquals("WriteInt failed", expected, result);
   }
 }

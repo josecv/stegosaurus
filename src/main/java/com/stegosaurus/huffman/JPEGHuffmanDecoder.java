@@ -16,9 +16,8 @@ public class JPEGHuffmanDecoder extends HuffmanDecoder {
 	/**
 	 * Construct the JPEGHuffmanDecoder from the Huffman table given.
 	 * 
-	 * @param table
-	 *            the huffman table. Should be passed after the marker, the size
-	 *            bytes, and the DHT class/id.
+	 * @param table the huffman table. Should be passed after the marker, the
+	 * size bytes, and the DHT class/id.
 	 */
 	public JPEGHuffmanDecoder(byte[] table) {
 		super();
