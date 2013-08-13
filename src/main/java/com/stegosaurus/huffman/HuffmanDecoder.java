@@ -67,8 +67,8 @@ public abstract class HuffmanDecoder {
         n = n.right();
       }
     }
-    Byte retval = n.data();
-    if(retval == null) {
+    Byte retval;
+    if(n == null || ((retval = n.data()) == null)) {
       /* TODO Throw a better exception. */
       throw new IllegalArgumentException("Could not decode " + coded);
     }

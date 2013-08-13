@@ -36,14 +36,14 @@ public class BitInputStreamTest {
   public void testSkipToEndOfByte() {
     byte[] arg = { 0b01001111, 0b00001101 };
     BitInputStream st = new BitInputStream(arg);
-    for(int i = 0; i < 4; i++) {
+    for(int i = 0; i < 3; i++) {
       st.read();
     }
     st.skipToEndOfByte();
-    st.close();
     for(int i = 0; i < 4; i++) {
       assertEquals("Failed to skip all the way to next byte", st.read(), 0);
     }
+    st.close();
   }
 
   /**

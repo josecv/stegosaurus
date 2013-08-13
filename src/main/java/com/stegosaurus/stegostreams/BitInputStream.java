@@ -49,7 +49,7 @@ public class BitInputStream extends InputStream {
    * Skip any remaining bits in the current byte until a new one is reached.
    */
   public void skipToEndOfByte() {
-    skip(index % 8);
+    skip(8 - (index % 8));
   }
 
   /**
