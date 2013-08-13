@@ -22,4 +22,18 @@ public class JPEGBitOutputStream extends BitOutputStream {
       this.writeInt(0, 8);
     }
   }
+
+  /**
+   * Write the nth restart marker in this image.
+   * @param n the number corresponding to the restart marker to write.
+   */
+  public void writeRestart(int n) {
+    /* We have to manually write this stuff via the parent write(), to prevent
+     * a 0x00 from getting in.
+     */
+    for(int i = 0; i < 8; i++) {
+      super.write(1);
+    }
+    super.writeInt(0xD0 | (n % 8), 8);
+  }
 }

@@ -51,20 +51,28 @@ public abstract class HuffmanDecoder {
   /**
    * Decode the next byte in the BitInputStream given, and return it.
    * 
-   * @param in
-   *            the bit input stream with the encoded data.
+   * @param in the bit input stream with the encoded data.
    * @return the next decoded byte.
+   * @throws IllegalArgumentException if it was impossible to decode the data.
    */
   public byte decodeNext(BitInputStream in) {
     TreeNode n = root;
+    String coded = "";
     while(n != null && !n.isLeaf() && in.available() > 0) {
-      if (in.read() == 0) {
+      int read = in.read();
+      coded += read;
+      if (read == 0) {
         n = n.left();
       } else {
         n = n.right();
       }
     }
-    return n.data();
+    Byte retval = n.data();
+    if(retval == null) {
+      /* TODO Throw a better exception. */
+      throw new IllegalArgumentException("Could not decode " + coded);
+    }
+    return retval;
   }
 
   /**

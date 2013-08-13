@@ -217,7 +217,7 @@ public class JPEGProcessorTest {
    */
   @Test
   public void testProcessImageBasic() {
-    runTestProcessImage("lena-colour.jpeg");
+    runTestProcessImage("lena-colour.jpeg", 0);
   }
 
   /**
@@ -226,7 +226,7 @@ public class JPEGProcessorTest {
    */
   @Test
   public void testProcessImageThumbnail() {
-    runTestProcessImage("wanderer-exif.jpeg");
+    runTestProcessImage("wanderer-exif.jpeg", 0);
   }
 
   /**
@@ -235,20 +235,25 @@ public class JPEGProcessorTest {
    */
   @Test
   public void testProcessImageRestartMarkers() {
-    runTestProcessImage("etretat-restart.jpeg");
+    runTestProcessImage("etretat-restart.jpeg", 77686);
   }
 
   /**
    * Actually do the heavy lifting of testing the process image method.
    * @param file the name of the file to use in the test.
+   * @param scanSize the size of the scan in the image; optional, 0 to ignore.
    */
-  private void runTestProcessImage(String file) {
+  private void runTestProcessImage(String file, int scanSize) {
     InputStream in = this.getClass().getResourceAsStream(file);
     JPEGProcessor<Scan> proc = new DummyProcessor(in);
     try {
       proc.init();
       in.close();
-      proc.processImage();
+      List<Scan> scans = proc.processImage();
+      if(scans.size() == 1 && scanSize > 0) {
+        assertEquals("Extracted scan is of a different length than expected",
+          scanSize, scans.get(0).getData().length);
+      }
       byte[] processed = proc.getProcessed();
       InputStream expectedStream = this.getClass().getResourceAsStream(file);
       byte[] expected = IOUtils.toByteArray(expectedStream);

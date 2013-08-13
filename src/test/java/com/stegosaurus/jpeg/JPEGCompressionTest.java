@@ -67,7 +67,7 @@ public class JPEGCompressionTest {
       }
       decompressor.refresh();
       byte[] result = decompressor.getProcessed();
-      OutputStream os = new FileOutputStream("horror.jpeg");
+      OutputStream os = new FileOutputStream(file + ".out");
       os.write(result);
       os.close();
       InputStream expectedStream = this.getClass()

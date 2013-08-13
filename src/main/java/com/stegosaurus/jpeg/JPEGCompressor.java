@@ -120,7 +120,7 @@ public class JPEGCompressor {
    * TODO Optimize, refactor
    */
   private void compress(DecompressedScan scan, TIntList data,
-      BitOutputStream os) {
+      JPEGBitOutputStream os) {
     int index = 0;
     int rst = 0;
     boolean isRST = scan.isRSTEnabled();
@@ -148,9 +148,8 @@ public class JPEGCompressor {
         }
       }
       os.writeToEndOfByte(1);
-      if(isRST) {
-        //os.writeInt(0xFF, 8);
-        //os.writeInt(0xD0 & (rst % 8), 8);
+      if(isRST && index < data.size()) {
+        os.writeRestart(rst);
         rst++;
       }
     }
@@ -162,7 +161,7 @@ public class JPEGCompressor {
    */
   public DecompressedScan process(DecompressedScan scan) {
     encoders = new TIntObjectHashMap<>();
-    BitOutputStream os = new JPEGBitOutputStream();
+    JPEGBitOutputStream os = new JPEGBitOutputStream();
     compress(scan, scan.getCoefficients(), os);
     scan.setData(os.data());
     return scan;

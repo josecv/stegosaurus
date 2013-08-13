@@ -81,7 +81,7 @@ public class TreeNode {
    * 
    * @return the byte data associated with this leaf.
    */
-  public byte data() {
+  public Byte data() {
     return data;
   }
 

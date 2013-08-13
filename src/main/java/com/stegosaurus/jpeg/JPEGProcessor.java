@@ -122,7 +122,7 @@ public abstract class JPEGProcessor<E extends Scan> {
      */
     processed = new TByteArrayList(buffer.length);
     byte[] segment = nextSegment();
-    if(segment[0] != (byte) 0xFF || segment[1] != JPEGConstants.SOI_MARKER) {
+    if(segment[0] != (byte) 0xFF || segment[1] != JPEGMarkers.SOI_MARKER) {
       throw new WrongImageTypeException("File not structured like a JPEG file");
     }
     addToProcessed(segment);
@@ -161,7 +161,7 @@ public abstract class JPEGProcessor<E extends Scan> {
      * we're happy with
      */
     while(marker < buffer.length &&
-          JPEGConstants.isRSTMarker(buffer[marker + 1])) {
+          JPEGMarkers.isRSTMarker(buffer[marker + 1])) {
       marker = findMarker(marker, buffer);
     }
     return ArrayUtils.subarray(buffer, start, marker);
@@ -259,16 +259,16 @@ public abstract class JPEGProcessor<E extends Scan> {
       scan = scanFactory.build(scans.get(scans.size() - 1));
     }
     byte[] segment = nextSegment();
-    while(segment != null && segment[1] != JPEGConstants.SOS_MARKER) {
+    while(segment != null && segment[1] != JPEGMarkers.SOS_MARKER) {
       addToProcessed(segment);
       switch(segment[1]) {
-        case JPEGConstants.SOF0_MARKER:
+        case JPEGMarkers.SOF0_MARKER:
           startOfFrame(scan, segment);
           break;
-        case JPEGConstants.DHT_MARKER:
+        case JPEGMarkers.DHT_MARKER:
           defineHuffmanTable(scan, segment);
           break;
-        case JPEGConstants.DRI_MARKER:
+        case JPEGMarkers.DRI_MARKER:
           defineRestartInterval(scan, segment);
           break;
       }
