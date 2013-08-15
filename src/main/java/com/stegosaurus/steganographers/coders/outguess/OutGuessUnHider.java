@@ -12,7 +12,7 @@ import com.stegosaurus.stegutils.NumUtils;
 /**
  * Reveals messages hidden using the outguess algorithm.
  */
-public class OutGuessUnHider extends OutGuess {
+public class OutGuessUnHider {
 
   /**
    * The length of the message currently being decoded.
@@ -20,11 +20,21 @@ public class OutGuessUnHider extends OutGuess {
   private int len;
 
   /**
+   * The stego key.
+   */
+  private String key;
+
+  /**
+   * The iterator for the cover image.
+   */
+  private JPEGIterator iter;
+
+  /**
    * CTOR.
    * @param key the key for the pseudo random number generator to use.
    */
   public OutGuessUnHider(String key) {
-    super(key);
+    this.key = key;
   }
 
   /**
@@ -36,9 +46,32 @@ public class OutGuessUnHider extends OutGuess {
   public byte[] unHide(InputStream image) throws IOException {
     JPEGDecompressor decomp = new JPEGDecompressor(image);
     decomp.init();
-    DecompressedScan scan = getBestScan(decomp.processImage());
+    DecompressedScan scan = OutGuess.getBestScan(decomp.processImage());
     int[] cover = scan.getCoefficients().toArray();
     return unHide(cover);
+  }
+
+  /**
+   * Decode n bits from the cover given and write them to the output stream
+   * provided.
+   * @param os the output stream
+   * @param cover the cover image
+   * @param n the number of bits to decode.
+   * @return the last read index.
+   */
+  private int decodeToBitOutputStream(BitOutputStream os, int[] cover,
+                                       int n) {
+    int i = 0;
+    int index = -1;
+    while(i < n) {
+      index = iter.next();
+      while(cover[index] == 0 || cover[index] == 1) {
+        index = iter.skipIndex();
+      }
+      os.write(NumUtils.getLSB(cover[index]));
+      i++;
+    }
+    return index;
   }
 
   /**
@@ -48,22 +81,13 @@ public class OutGuessUnHider extends OutGuess {
    * @return the index to begin looking for hidden data.
    */
   private int decodeStatus(int[] cover) {
-    int index = 0;
     BitOutputStream os = new BitOutputStream();
-    int i = 0;
-    while(i < 48) {
-      if(cover[index] == 0 || cover[index] == 1) {
-        index++;
-        continue;
-      }
-      os.write(NumUtils.getLSB(cover[index]));
-      i++;
-      index += getRandom(X);
-    }
+    int index = decodeToBitOutputStream(os, cover, 48);
     byte[] data = os.data();
     os.close();
     len = NumUtils.intFromBytes(Arrays.copyOfRange(data, 0, 4));
-    reseedPRNG(Arrays.copyOfRange(data, 4, 6));
+    short seed = (short) NumUtils.intFromBytes(data, 4, 6);
+    iter.reseed(seed, len, cover.length, index);
     return index;
   }
 
@@ -73,21 +97,10 @@ public class OutGuessUnHider extends OutGuess {
    * @return the message.
    */
   public byte[] unHide(int[] cover) {
-    int index = decodeStatus(cover);
+    iter = new RandomJPEGIterator(key.hashCode(), 6, 2048, 0);
+    decodeStatus(cover);
     BitOutputStream os = new BitOutputStream();
-    for(int i = 0; i < len; i++) {
-      int j = 0;
-      index += getRandom(getInterval(cover, index, (len - i) * 8));
-      while(j < 8) {
-        if(cover[index] == 0 || cover[index] == 1) {
-          index++;
-          continue;
-        }
-        os.write(NumUtils.getLSB(cover[index]));
-        index++;
-        j++;
-      }
-    }
+    decodeToBitOutputStream(os, cover, len * 8);
     os.close();
     return os.data();
   }

@@ -7,7 +7,6 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 import com.stegosaurus.huffman.HuffmanEncoder;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegostreams.JPEGBitOutputStream;
-import com.stegosaurus.stegutils.NumUtils;
 import com.stegosaurus.stegutils.ZigZag;
 
 /**

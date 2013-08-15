@@ -18,7 +18,7 @@ import com.stegosaurus.stegutils.NumUtils;
  * The actual hider for outguess, does the heavy lifting of embedding data
  * in the carrier.
  */
-class OutGuessHider extends OutGuess {
+class OutGuessHider {
   /**
    * The cover image.
    */
@@ -74,6 +74,16 @@ class OutGuessHider extends OutGuess {
   private boolean pretend;
 
   /**
+   * The iterator to use when figuring out the next bit to hide the message in.
+   */
+  private JPEGIterator iter;
+
+  /**
+   * The stego key.
+   */
+  private String key;
+
+  /**
    * Get the error tolerance value for the coefficient given.
    * @param coeff the coefficient.
    * @return the tolerance.
@@ -92,24 +102,10 @@ class OutGuessHider extends OutGuess {
    * @param index the index to starting hiding in.
    */
   private void hideMessage(byte[] message, int index) {
-    BitInputStream stream = new BitInputStream(message);
+    iter.reseed(seed, message.length, cover.length, index);
     bias = modified = 0;
-    int available = stream.available();
-    while(available > 0) {
-      int i = 0;
-      /* We'll change the interval every 8 bits */
-      index += getRandom(getInterval(cover, index, available));
-      while(i < 8) {
-        if(cover[index] == 0 || cover[index] == 1) {
-          index++;
-          continue;
-        }
-        hideAtIndex(stream.read(), index);
-        index++;
-        i++;
-      }
-      available = stream.available();
-    }
+    BitInputStream stream = new BitInputStream(message);
+    hideStream(stream);
     stream.close();
   }
 
@@ -131,28 +127,39 @@ class OutGuessHider extends OutGuess {
   }
 
   /**
+   * Hide a bit input stream's contents in the carrier medium. Return the
+   * last index used.
+   * @param in the bit input stream.
+   * @return the last index used.
+   */
+  private int hideStream(BitInputStream in) {
+    int index = -1;
+    int total = in.available();
+    while(total > 0) {
+      index = iter.next();
+      while(cover[index] == 0 || cover[index] == 1) {
+        index = iter.skipIndex();
+      }
+      hideAtIndex(in.read(), index);
+      total--;
+    }
+    return index;
+  }
+
+  /**
    * Hide some status info in the cover, namely some length and a new seed
    * for the prng.
-   * @param length the length of the message, to be hidden.
+   * @param length the length of the message to be hidden.
    * @return the next index to use.
    */
   private int hideStatus(int length) {
     byte[] len = NumUtils.byteArrayFromInt(length);
     byte[] seedBytes = NumUtils.byteArrayFromShort(seed);
+    iter = new RandomJPEGIterator(key.hashCode(),
+      len.length + seedBytes.length, 2048, 0);
     BitInputStream in = new BitInputStream(len, seedBytes);
-    int index = 0;
-    int total = in.available();
-    while(total > 0) {
-      if(cover[index] == 0 || cover[index] == 1) {
-        index++;
-        continue;
-      }
-      hideAtIndex(in.read(), index);
-      total--;
-      index += getRandom(X);
-    }
+    int index = hideStream(in);
     in.close();
-    reseedPRNG(seed);
     return index;
   }
 
@@ -193,7 +200,7 @@ class OutGuessHider extends OutGuess {
    */
   private void hideAtIndex(int bit, int index) {
     int original = cover[index];
-    bias += getDetectability(original);
+    bias += OutGuess.getDetectability(original);
     modified++;
     int val = NumUtils.placeInLSB(cover[index], bit);
     locked.set(index);
@@ -234,7 +241,7 @@ class OutGuessHider extends OutGuess {
    */
   public OutGuessHider(int[] cover, String key, TIntIntMap freq,
     TIntDoubleMap tolerances, short seed, boolean pretend) {
-    super(key);
+    this.key = key;
     locked = new BitSet(cover.length);
     this.cover = cover;
     if(!pretend) {
