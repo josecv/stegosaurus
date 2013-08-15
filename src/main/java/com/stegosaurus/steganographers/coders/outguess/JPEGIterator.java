@@ -14,11 +14,11 @@ public interface JPEGIterator extends TIntIterator {
    * @param coverLen the length of the cover image, in bytes.
    * @param coverIndex the first index available for embedding in the image.
    */
-  public void reseed(long seed, int messageLen, int coverLen, int coverIndex);
+  void reseed(long seed, int messageLen, int coverLen, int coverIndex);
 
   /**
    * Skip the current index, returning the one immediately after it.
    * @return the index after the current one.
    */
-  public int skipIndex();
+  int skipIndex();
 }

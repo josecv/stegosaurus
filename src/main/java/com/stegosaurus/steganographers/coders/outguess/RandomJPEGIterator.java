@@ -93,7 +93,8 @@ public class RandomJPEGIterator implements JPEGIterator {
    * {@inheritDoc}
    */
   @Override
-  public void reseed(long seed, int messageLen, int coverLen, int coverIndex) {
+  public final void reseed(long seed, int messageLen, int coverLen,
+                           int coverIndex) {
     prng.setSeed(seed);
     this.messageLen = messageLen * 8;
     this.coverLen = coverLen;

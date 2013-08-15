@@ -51,8 +51,7 @@ public class OutGuessUnHider {
     JPEGDecompressor decomp = new JPEGDecompressor(image);
     decomp.init();
     DecompressedScan scan = OutGuessUtils.getBestScan(decomp.processImage());
-    int[] cover = scan.getCoefficients().toArray();
-    return unHide(cover);
+    return unHide(scan.getCoefficients().toArray());
   }
 
   /**
@@ -101,7 +100,7 @@ public class OutGuessUnHider {
    */
   public byte[] unHide(int[] cover) {
     iter = new RandomJPEGIterator(key.hashCode(), 6, 2048, 0);
-    this.cover = cover;
+    this.cover = cover.clone();
     decodeStatus();
     BitOutputStream os = new BitOutputStream();
     decodeToBitOutputStream(os, len * 8);
