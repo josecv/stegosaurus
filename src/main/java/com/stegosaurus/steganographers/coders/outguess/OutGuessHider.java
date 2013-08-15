@@ -203,7 +203,7 @@ class OutGuessHider {
    */
   private void hideAtIndex(int bit, int index) {
     int original = cover[index];
-    bias += OutGuess.getDetectability(original);
+    bias += OutGuessUtils.getDetectability(original);
     modified++;
     int val = NumUtils.placeInLSB(cover[index], bit);
     locked.set(index);

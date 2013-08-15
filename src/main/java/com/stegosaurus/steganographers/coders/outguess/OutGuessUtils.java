@@ -9,29 +9,24 @@ import com.stegosaurus.jpeg.DecompressedScan;
 /**
  * Provides some utilities for users of the outguess algorithm.
  */
-final class OutGuess {
+final class OutGuessUtils {
   /**
    * Private CTOR.
    */
-  private OutGuess() { }
+  private OutGuessUtils() { }
 
-  /**
-   * The original interval, to be used while dealing with status bytes.
-   */
-  protected static final int X = 32;
+  private static final int JPG_THRES_MAX = 0x25;
 
-  protected static final int JPG_THRES_MAX = 0x25;
+  private static final int JPG_THRES_LOW = 0x04;
 
-  protected static final int JPG_THRES_LOW = 0x04;
-
-  protected static final int JPG_THRES_MIN = 0x03;
+  private static final int JPG_THRES_MIN = 0x03;
 
   /**
    * Get the detectability value for a given coefficient.
    * @param coeff the coefficient
    * @return its detectability
    */
-  protected static int getDetectability(int coeff) {
+  public static int getDetectability(int coeff) {
     int abs = Math.abs(coeff);
     if(abs >= JPG_THRES_MAX) {
       return -1;
@@ -49,7 +44,7 @@ final class OutGuess {
    * @param scans the list of scans.
    * @return the data from the best scan, or null if the list is empty.
    */
-  protected static DecompressedScan getBestScan(List<DecompressedScan> scans) {
+  public static DecompressedScan getBestScan(List<DecompressedScan> scans) {
     int size = 0;
     DecompressedScan retval = null;
     for(DecompressedScan scan : scans) {

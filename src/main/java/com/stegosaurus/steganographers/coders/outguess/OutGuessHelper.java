@@ -89,7 +89,7 @@ public class OutGuessHelper {
   public byte[] hide(InputStream cover, byte[] message) throws IOException {
     JPEGDecompressor jpeg = new JPEGDecompressor(cover);
     jpeg.init();
-    DecompressedScan scan = OutGuess.getBestScan(jpeg.processImage());
+    DecompressedScan scan = OutGuessUtils.getBestScan(jpeg.processImage());
     TIntList data = scan.getCoefficients();
     hide(data, message);
     JPEGCompressor comp = new JPEGCompressor();

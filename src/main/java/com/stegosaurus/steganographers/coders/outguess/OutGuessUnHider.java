@@ -50,7 +50,7 @@ public class OutGuessUnHider {
   public byte[] unHide(InputStream image) throws IOException {
     JPEGDecompressor decomp = new JPEGDecompressor(image);
     decomp.init();
-    DecompressedScan scan = OutGuess.getBestScan(decomp.processImage());
+    DecompressedScan scan = OutGuessUtils.getBestScan(decomp.processImage());
     int[] cover = scan.getCoefficients().toArray();
     return unHide(cover);
   }
