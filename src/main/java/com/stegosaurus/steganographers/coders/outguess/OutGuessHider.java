@@ -17,6 +17,9 @@ import com.stegosaurus.stegutils.NumUtils;
 /**
  * The actual hider for outguess, does the heavy lifting of embedding data
  * in the carrier.
+ * Outguess is described in Niels Provos' paper "Defending Against
+ * Statistical Steganalysis", which can be found at:
+ * http://static.usenix.org/events/sec01/full_papers/provos/provos_html/
  */
 class OutGuessHider {
   /**

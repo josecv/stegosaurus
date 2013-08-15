@@ -13,7 +13,6 @@ import com.stegosaurus.stegutils.NumUtils;
  * Reveals messages hidden using the outguess algorithm.
  */
 public class OutGuessUnHider {
-
   /**
    * The length of the message currently being decoded.
    */
@@ -28,6 +27,11 @@ public class OutGuessUnHider {
    * The iterator for the cover image.
    */
   private JPEGIterator iter;
+
+  /**
+   * The stego image containing the message.
+   */
+  private int[] cover;
 
   /**
    * CTOR.
@@ -59,8 +63,7 @@ public class OutGuessUnHider {
    * @param n the number of bits to decode.
    * @return the last read index.
    */
-  private int decodeToBitOutputStream(BitOutputStream os, int[] cover,
-                                       int n) {
+  private int decodeToBitOutputStream(BitOutputStream os, int n) {
     int i = 0;
     int index = -1;
     while(i < n) {
@@ -80,9 +83,9 @@ public class OutGuessUnHider {
    * @param cover the cover image.
    * @return the index to begin looking for hidden data.
    */
-  private int decodeStatus(int[] cover) {
+  private int decodeStatus() {
     BitOutputStream os = new BitOutputStream();
-    int index = decodeToBitOutputStream(os, cover, 48);
+    int index = decodeToBitOutputStream(os, 48);
     byte[] data = os.data();
     os.close();
     len = NumUtils.intFromBytes(Arrays.copyOfRange(data, 0, 4));
@@ -98,9 +101,10 @@ public class OutGuessUnHider {
    */
   public byte[] unHide(int[] cover) {
     iter = new RandomJPEGIterator(key.hashCode(), 6, 2048, 0);
-    decodeStatus(cover);
+    this.cover = cover;
+    decodeStatus();
     BitOutputStream os = new BitOutputStream();
-    decodeToBitOutputStream(os, cover, len * 8);
+    decodeToBitOutputStream(os, len * 8);
     os.close();
     return os.data();
   }

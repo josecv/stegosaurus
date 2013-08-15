@@ -61,7 +61,6 @@ public class OutGuessHelper {
     TIntIntMap freq = TCollections
       .unmodifiableMap(calculateFrequencies(cover));
     TIntDoubleMap tolerances = new TIntDoubleHashMap();
-    int[] result = cover;
     int min = Integer.MAX_VALUE;
     short seed = 0;
     for(short i = 0; i < 256; i++) {
@@ -75,7 +74,7 @@ public class OutGuessHelper {
     }
     OutGuessHider hider = new OutGuessHider(cover, key, freq, tolerances,
       seed, false);
-    result = hider.hide(message).getLeft();
+    int[] result = hider.hide(message).getLeft();
     System.arraycopy(result, 0, cover, 0, cover.length);
   }
 

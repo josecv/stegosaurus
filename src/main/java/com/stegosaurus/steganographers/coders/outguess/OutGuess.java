@@ -7,11 +7,7 @@ import java.util.List;
 import com.stegosaurus.jpeg.DecompressedScan;
 
 /**
- * Abstract base class providing common functionality for users of the
- * OutGuess algorithm.
- * Outguess is described in Niels Provos' paper "Defending Against
- * Statistical Steganalysis", which can be found at:
- * http://static.usenix.org/events/sec01/full_papers/provos/provos_html/
+ * Provides some utilities for users of the outguess algorithm.
  */
 final class OutGuess {
   /**
