@@ -7,14 +7,18 @@ import gnu.trove.iterator.TIntIterator;
  */
 public interface JPEGIterator extends TIntIterator {
   /**
-   * Reseed this iterator with the seed given. Functionally equivalent to
-   * resetting it.
+   * Reseed this iterator with the seed given.
    * @param seed the seed to use.
    * @param messageLen the length of the message to embed, in bytes.
-   * @param coverLen the length of the cover image, in bytes.
-   * @param coverIndex the first index available for embedding in the image.
    */
-  void reseed(long seed, int messageLen, int coverLen, int coverIndex);
+  void reseed(long seed, int messageLen);
+
+  /**
+   * Get the next index that may be used for a status bit.
+   * @return the next index.
+   * @throws IllegalStateException if invoked after getting a non-status index.
+   */
+  int nextStatus();
 
   /**
    * Skip the current index, returning the one immediately after it.

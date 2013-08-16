@@ -105,10 +105,10 @@ class OutGuessHider {
    * @param index the index to starting hiding in.
    */
   private void hideMessage(byte[] message, int index) {
-    iter.reseed(seed, message.length, cover.length, index);
+    iter.reseed(seed, message.length);
     bias = modified = 0;
     BitInputStream stream = new BitInputStream(message);
-    hideStream(stream);
+    hideStream(stream, false);
     stream.close();
   }
 
@@ -133,13 +133,18 @@ class OutGuessHider {
    * Hide a bit input stream's contents in the carrier medium. Return the
    * last index used.
    * @param in the bit input stream.
+   * @param isStatus whether we are embedding status bits.
    * @return the last index used.
    */
-  private int hideStream(BitInputStream in) {
+  private int hideStream(BitInputStream in, boolean isStatus) {
     int index = -1;
     int total = in.available();
     while(total > 0) {
-      index = iter.next();
+      if(isStatus) {
+        index = iter.nextStatus();
+      } else {
+        index = iter.next();
+      }
       while(cover[index] == 0 || cover[index] == 1) {
         index = iter.skipIndex();
       }
@@ -159,9 +164,9 @@ class OutGuessHider {
     byte[] len = NumUtils.byteArrayFromInt(length);
     byte[] seedBytes = NumUtils.byteArrayFromShort(seed);
     iter = new RandomJPEGIterator(key.hashCode(),
-      len.length + seedBytes.length, 2048, 0);
+      len.length + seedBytes.length, cover.length, 0);
     BitInputStream in = new BitInputStream(len, seedBytes);
-    int index = hideStream(in);
+    int index = hideStream(in, true);
     in.close();
     return index;
   }
@@ -243,7 +248,7 @@ class OutGuessHider {
    * @param pretend whether to pretend embedding.
    */
   public OutGuessHider(int[] cover, String key, TIntIntMap freq,
-    TIntDoubleMap tolerances, short seed, boolean pretend) {
+      TIntDoubleMap tolerances, short seed, boolean pretend) {
     this.key = key;
     locked = new BitSet(cover.length);
     this.cover = cover;

@@ -59,8 +59,7 @@ public class OutGuessHelper {
    * @return the estimate.
    */
   public int getEstimate(int[] cover) {
-    freq = TCollections
-      .unmodifiableMap(calculateFrequencies(cover));
+    freq = TCollections.unmodifiableMap(calculateFrequencies(cover));
     int a = freq.get(-1);
     int b = freq.get(-2);
     int ones = freq.get(1);

@@ -21,7 +21,7 @@ public class RandomJPEGIterator implements JPEGIterator {
   /**
    * The length of the cover medium, in bytes.
    */
-  private int coverLen;
+  private int available;
 
   /**
    * The first index that may be used to embed a message bit.
@@ -31,19 +31,21 @@ public class RandomJPEGIterator implements JPEGIterator {
   /**
    * The upper bound on the interval for random numbers.
    */
-  private int interval;
+  private int interval = 0;
 
   /**
    * Construct a new RandomJPEGIterator, using the seed and parameters given.
    * @param seed the seed to use.
    * @param messageLen the length of the message to embed, in bytes.
-   * @param coverLen the number of bytes to use inside the cover medium.
+   * @param available the number of bytes to use inside the cover medium.
    * @param coverIndex the first index that may be used for embedding.
    */
-  public RandomJPEGIterator(long seed, int messageLen, int coverLen,
+  public RandomJPEGIterator(long seed, int messageLen, int available,
                             int coverIndex) {
     prng = new Random();
-    reseed(seed, messageLen, coverLen, coverIndex);
+    reseed(seed, messageLen);
+    this.available = available;
+    this.coverIndex = coverIndex;
   }
 
   /**
@@ -60,8 +62,7 @@ public class RandomJPEGIterator implements JPEGIterator {
    * @return the upper bound.
    */
   private int getInterval() {
-    int coverBits = (coverLen - coverIndex);
-    return (2 * coverBits) / messageLen;
+    return (2 * available) / messageLen;
   }
 
   /**
@@ -74,6 +75,15 @@ public class RandomJPEGIterator implements JPEGIterator {
   }
 
   /**
+   * Get the next int from the prng in the interval [1 : n].
+   * @param n the upper bound on the interval.
+   * @return the next int.
+   */
+  private int nextInInterval(int n) {
+    return prng.nextInt(n - 1) + 1;
+  }
+
+  /**
    * Return the next element in this iterator.
    * @return the next element.
    */
@@ -82,7 +92,7 @@ public class RandomJPEGIterator implements JPEGIterator {
     /* We recalculate the interval every 8 bits. */
     if(messageLen % 8 == 0) {
       interval = getInterval();
-      coverIndex += prng.nextInt(interval - 1) + 1;
+      coverIndex += nextInInterval(interval);
     }
     messageLen--;
     coverIndex++;
@@ -93,12 +103,22 @@ public class RandomJPEGIterator implements JPEGIterator {
    * {@inheritDoc}
    */
   @Override
-  public final void reseed(long seed, int messageLen, int coverLen,
-                           int coverIndex) {
+  public int nextStatus() {
+    if(interval != 0) {
+      throw new IllegalStateException("Getting status bits late.");
+    }
+    coverIndex += nextInInterval(OutGuessUtils.STATUS_INTERVAL);
+    available--;
+    return coverIndex;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public final void reseed(long seed, int messageLen) {
     prng.setSeed(seed);
     this.messageLen = messageLen * 8;
-    this.coverLen = coverLen;
-    this.coverIndex = coverIndex;
   }
 
   /**

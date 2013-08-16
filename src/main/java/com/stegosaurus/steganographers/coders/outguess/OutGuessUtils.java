@@ -22,6 +22,11 @@ final class OutGuessUtils {
   private static final int JPG_THRES_MIN = 0x03;
 
   /**
+   * The upper bound for the interval when embedding status bytes.
+   */
+  public static final int STATUS_INTERVAL = 32;
+
+  /**
    * Get the detectability value for a given coefficient.
    * @param coeff the coefficient
    * @return its detectability

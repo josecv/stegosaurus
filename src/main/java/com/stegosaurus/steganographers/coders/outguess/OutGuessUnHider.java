@@ -60,13 +60,19 @@ public class OutGuessUnHider {
    * @param os the output stream
    * @param cover the cover image
    * @param n the number of bits to decode.
+   * @param status whether we are decoding status bytes.
    * @return the last read index.
    */
-  private int decodeToBitOutputStream(BitOutputStream os, int n) {
+  private int decodeToBitOutputStream(BitOutputStream os, int n,
+      boolean status) {
     int i = 0;
     int index = -1;
     while(i < n) {
-      index = iter.next();
+      if(status) {
+        index = iter.nextStatus();
+      } else {
+        index = iter.next();
+      }
       while(cover[index] == 0 || cover[index] == 1) {
         index = iter.skipIndex();
       }
@@ -84,12 +90,12 @@ public class OutGuessUnHider {
    */
   private int decodeStatus() {
     BitOutputStream os = new BitOutputStream();
-    int index = decodeToBitOutputStream(os, 48);
+    int index = decodeToBitOutputStream(os, 48, true);
     byte[] data = os.data();
     os.close();
     len = NumUtils.intFromBytes(Arrays.copyOfRange(data, 0, 4));
     short seed = (short) NumUtils.intFromBytes(data, 4, 6);
-    iter.reseed(seed, len, cover.length, index);
+    iter.reseed(seed, len);
     return index;
   }
 
@@ -99,11 +105,11 @@ public class OutGuessUnHider {
    * @return the message.
    */
   public byte[] unHide(int[] cover) {
-    iter = new RandomJPEGIterator(key.hashCode(), 6, 2048, 0);
+    iter = new RandomJPEGIterator(key.hashCode(), 6, cover.length, 0);
     this.cover = cover.clone();
     decodeStatus();
     BitOutputStream os = new BitOutputStream();
-    decodeToBitOutputStream(os, len * 8);
+    decodeToBitOutputStream(os, len * 8, false);
     os.close();
     return os.data();
   }
