@@ -28,6 +28,11 @@ public class OutGuessHelper {
   private String key;
 
   /**
+   * The frequency table.
+   */
+  private TIntIntMap freq;
+
+  /**
    * Construct a new OutGuessHider instance.
    * @param key the key for the pseudo random number generator to use.
    */
@@ -48,6 +53,21 @@ public class OutGuessHelper {
     return retval;
   }
 
+  /**
+   * Estimate the number of bits that may be hidden in this image.
+   * @param cover the cover image
+   * @return the estimate.
+   */
+  public int getEstimate(int[] cover) {
+    freq = TCollections
+      .unmodifiableMap(calculateFrequencies(cover));
+    int a = freq.get(-1);
+    int b = freq.get(-2);
+    int ones = freq.get(1);
+    int zeroes = freq.get(0);
+    int usable = cover.length - (ones + zeroes);
+    return (2 * usable * b) / (a + b);
+  }
 
   /**
    * Hide the message given in the cover image data provided.
@@ -58,8 +78,12 @@ public class OutGuessHelper {
    * @throws IOException on read error from the cover.
    */
   public void hide(final int[] cover, final byte[] message) {
-    TIntIntMap freq = TCollections
-      .unmodifiableMap(calculateFrequencies(cover));
+    int estimate = getEstimate(cover);
+    if(estimate < (message.length * 8)) {
+      throw new MessageTooLargeException(estimate,
+        String.format("Message size of %d exceeds capacity of %d",
+          message.length * 8, estimate));
+    }
     TIntDoubleMap tolerances = new TIntDoubleHashMap();
     int min = Integer.MAX_VALUE;
     short seed = 0;
