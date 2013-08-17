@@ -92,10 +92,9 @@ public class RandomJPEGIterator implements JPEGIterator {
     /* We recalculate the interval every 8 bits. */
     if(messageLen % 8 == 0) {
       interval = getInterval();
-      coverIndex += nextInInterval(interval);
     }
+    coverIndex += nextInInterval(interval);
     messageLen--;
-    coverIndex++;
     return coverIndex;
   }
 

@@ -1,6 +1,8 @@
 package com.stegosaurus.steganographers.coders.outguess;
 
 import gnu.trove.list.TIntList;
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.util.List;
 
@@ -58,6 +60,19 @@ final class OutGuessUtils {
         size = current.size();
         retval = scan;
       }
+    }
+    return retval;
+  }
+
+  /**
+   * Calculate the frequency of every DCT component in the cover image given.
+   * @param cover the image to calculate frequencies for.
+   * @return the DCT frequency table.
+   */
+  public static TIntIntMap calculateFrequencies(int[] cover) {
+    TIntIntMap retval = new TIntIntHashMap();
+    for(int i : cover) {
+      retval.adjustOrPutValue(i, 1, 1);
     }
     return retval;
   }

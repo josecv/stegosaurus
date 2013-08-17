@@ -87,6 +87,11 @@ class OutGuessHider {
   private String key;
 
   /**
+   * The number of available bits that can be used to hide information.
+   */
+  int available;
+
+  /**
    * Get the error tolerance value for the coefficient given.
    * @param coeff the coefficient.
    * @return the tolerance.
@@ -163,8 +168,8 @@ class OutGuessHider {
   private int hideStatus(int length) {
     byte[] len = NumUtils.byteArrayFromInt(length);
     byte[] seedBytes = NumUtils.byteArrayFromShort(seed);
-    iter = new RandomJPEGIterator(key.hashCode(),
-      len.length + seedBytes.length, cover.length, 0);
+    int msgLen = len.length + seedBytes.length;
+    iter = new RandomJPEGIterator(key.hashCode(), msgLen, available, 0);
     BitInputStream in = new BitInputStream(len, seedBytes);
     int index = hideStream(in, true);
     in.close();
@@ -246,10 +251,12 @@ class OutGuessHider {
    * @param freq the frequency counts of the DCT coeffiencts in the image.
    * @param tolerances the tolerances derived from the frequency counts.
    * @param pretend whether to pretend embedding.
+   * @param available the number of available bytes to use to hide info.
    */
   public OutGuessHider(int[] cover, String key, TIntIntMap freq,
-      TIntDoubleMap tolerances, short seed, boolean pretend) {
+      TIntDoubleMap tolerances, short seed, boolean pretend, int available) {
     this.key = key;
+    this.available = available;
     locked = new BitSet(cover.length);
     this.cover = cover;
     if(!pretend) {

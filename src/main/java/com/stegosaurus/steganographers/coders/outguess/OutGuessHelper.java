@@ -41,25 +41,12 @@ public class OutGuessHelper {
   }
 
   /**
-   * Calculate the frequency of every DCT component in the cover image given.
-   * @param cover the image to calculate frequencies for.
-   * @return the DCT frequency table.
-   */
-  private TIntIntMap calculateFrequencies(int[] cover) {
-    TIntIntMap retval = new TIntIntHashMap();
-    for(int i : cover) {
-      retval.adjustOrPutValue(i, 1, 1);
-    }
-    return retval;
-  }
-
-  /**
    * Estimate the number of bits that may be hidden in this image.
    * @param cover the cover image
    * @return the estimate.
    */
   public int getEstimate(int[] cover) {
-    freq = TCollections.unmodifiableMap(calculateFrequencies(cover));
+    freq = OutGuessUtils.calculateFrequencies(cover);
     int a = freq.get(-1);
     int b = freq.get(-2);
     int ones = freq.get(1);
@@ -86,9 +73,10 @@ public class OutGuessHelper {
     TIntDoubleMap tolerances = new TIntDoubleHashMap();
     int min = Integer.MAX_VALUE;
     short seed = 0;
+    int available = cover.length - (freq.get(0) + freq.get(1));
     for(short i = 0; i < 256; i++) {
       OutGuessHider hider = new OutGuessHider(cover, key, freq,
-        tolerances, i, true);
+        tolerances, i, true, available);
       Pair<int[], Integer> p = hider.hide(message);
       if(p.getRight() < min) {
         min = p.getRight();
@@ -96,7 +84,7 @@ public class OutGuessHelper {
       }
     }
     OutGuessHider hider = new OutGuessHider(cover, key, freq, tolerances,
-      seed, false);
+      seed, false, available);
     int[] result = hider.hide(message).getLeft();
     System.arraycopy(result, 0, cover, 0, cover.length);
   }

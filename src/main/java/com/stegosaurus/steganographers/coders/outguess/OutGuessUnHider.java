@@ -1,5 +1,7 @@
 package com.stegosaurus.steganographers.coders.outguess;
 
+import gnu.trove.map.TIntIntMap;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -105,7 +107,9 @@ public class OutGuessUnHider {
    * @return the message.
    */
   public byte[] unHide(int[] cover) {
-    iter = new RandomJPEGIterator(key.hashCode(), 6, cover.length, 0);
+    TIntIntMap freq = OutGuessUtils.calculateFrequencies(cover);
+    int available = cover.length - (freq.get(0) + freq.get(1));
+    iter = new RandomJPEGIterator(key.hashCode(), 6, available, 0);
     this.cover = cover.clone();
     decodeStatus();
     BitOutputStream os = new BitOutputStream();
