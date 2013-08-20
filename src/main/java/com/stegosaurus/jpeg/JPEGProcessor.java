@@ -324,6 +324,9 @@ public abstract class JPEGProcessor<E extends Scan> {
    * @return the processed scan
    */
   public E nextScan() {
+    if(buffer == null) {
+      throw new IllegalStateException("Processor is uninitialized");
+    }
     E scan = readScan();
     /* All done */
     if(scan == null) {

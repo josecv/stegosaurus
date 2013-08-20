@@ -324,6 +324,15 @@ public class Scan implements Iterable<byte[]> {
   }
 
   /**
+   * Return whether a quantization table exists for the component given.
+   * @param comp the component id
+   * @return whether there is an associated quantization table.
+   */
+  public boolean hasQuantizationTable(int comp) {
+    return quantizationTables.containsKey(comp);
+  }
+
+  /**
    * Get the maximum sampling frequency of any component in the direction
    * given.
    * @param direction the direction, being 0 for horizontal, 1 for vertical
