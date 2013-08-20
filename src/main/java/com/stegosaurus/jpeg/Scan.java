@@ -421,6 +421,23 @@ public class Scan implements Iterable<byte[]> {
   }
 
   /**
+   * Run a given procedure once for every data unit in the image scan.
+   * @param proc the procedure to run.
+   */
+  public void forEachDataUnit(DataUnitProcedure proc) {
+    int mcus = getNumberOfMCUsPerIteration();
+    for(int mcu = 0; mcu < mcus; mcu++) {
+      for(byte cmp = 0; cmp < getScanComponents(); cmp++) {
+        for(byte hor = 0; hor < getSubsampling()[cmp][0]; hor++) {
+          for(byte vert = 0; vert < getSubsampling()[cmp][1]; vert++) {
+            proc.call(mcu, cmp, hor, vert, this);
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Return an iterator over this scan's RST marker separated sections.
    */
   @Override

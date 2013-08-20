@@ -1,5 +1,6 @@
 package com.stegosaurus.stegostreams;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -35,7 +36,6 @@ public class BitInputStream extends InputStream {
 
   /**
    * Get the next bit (0 or 1) from the byte array.
-   *
    * @return the next bit.
    */
   @Override
@@ -43,6 +43,22 @@ public class BitInputStream extends InputStream {
     int retval = (data[index/8] >> (7 - (index % 8))) & 1;
     index++;
     return retval;
+  }
+
+  /**
+   * Try to read n bits from the byte array and place them in b, where n is
+   * the length of b.
+   * @param b the output array.
+   * @return the number of bits actually read.
+   */
+  @Override
+  public int read(byte[] b) {
+    try {
+      return super.read(b);
+    } catch(IOException e) {
+      /* XXX */
+      throw new RuntimeException(e);
+    }
   }
 
   /**

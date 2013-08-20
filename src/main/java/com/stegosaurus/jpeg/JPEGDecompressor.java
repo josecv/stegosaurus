@@ -54,8 +54,7 @@ public class JPEGDecompressor extends JPEGProcessor<DecompressedScan> {
    * @param in the bit input stream containing scan data
    * @param lastDc the last dc coefficient decoded for this component.
    */
-  private int decodeDC(HuffmanDecoder decoder, BitInputStream in, int lastDC)
-      throws IOException {
+  private int decodeDC(HuffmanDecoder decoder, BitInputStream in, int lastDC) {
     int magnitude = decoder.decodeNext(in);
     byte[] additional = new byte[magnitude];
     in.read(additional);
@@ -73,7 +72,7 @@ public class JPEGDecompressor extends JPEGProcessor<DecompressedScan> {
    * @param out the byte array where the data is to be stored
    */
   private void decodeACs(HuffmanDecoder decoder, BitInputStream in,
-                          int[] out) throws IOException {
+                         int[] out) {
     int i = 1;
     final int total = 64;
     while(i < total) {
@@ -105,38 +104,32 @@ public class JPEGDecompressor extends JPEGProcessor<DecompressedScan> {
    */
   private void decompress(DecompressedScan scan, byte[] input)
       throws IOException {
-    TIntList output = scan.getCoefficients();
-    BitInputStream in = new JPEGBitInputStream(input);
+    final TIntList output = scan.getCoefficients();
+    final BitInputStream in = new JPEGBitInputStream(input);
     if(scan.isRSTEnabled() && JPEGMarkers.isRSTMarker(input[1])) {
       in.skip(16);
     }
-    int[] lastDCs = new int[scan.getScanComponents()];
-    int mcus = scan.getNumberOfMCUsPerIteration();
-    /* We'll iterate over each data unit */
-    for(int mcu = 0; mcu < mcus; mcu++) {
-      for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
-        for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
-          for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
-            /* The way this table stuff works is that the first four bits of
-             * the table data contain the table id for the dc values. We
-             * then fetch the huffman table with that id and with class 0.
-             * The next four bits contain the table id for the ac values, so
-             * we fetch the table with that id and with class 1.
-             */
-            int tableId = scan.getTableId(cmp + 1);
-            int dcTable = (tableId & 0xF0) >> 4;
-            int acTable = (tableId & 0x0F) | 0x10;
-            int dc = decodeDC(scan.getDecoder(dcTable), in, lastDCs[cmp]);
-            lastDCs[cmp] = dc;
-            int[] coeffs = new int[64];
-            coeffs[0] = dc;
-            decodeACs(scan.getDecoder(acTable), in, coeffs);
-            coeffs = ZigZag.zigZagToSequential(coeffs);
-            output.addAll(coeffs);
-          }
-        }
-      }
-    }
+    final int[] lastDCs = new int[scan.getScanComponents()];
+    scan.forEachDataUnit(new DataUnitProcedure() {
+      public void call(int mcu, byte cmp, byte hor, byte vert, Scan scan) {
+        /* The way this table stuff works is that the first four bits of
+         * the table data contain the table id for the dc values. We
+         * then fetch the huffman table with that id and with class 0.
+         * The next four bits contain the table id for the ac values, so
+         * we fetch the table with that id and with class 1.
+         */
+        int tableId = scan.getTableId(cmp + 1);
+        int dcTable = (tableId & 0xF0) >> 4;
+        int acTable = (tableId & 0x0F) | 0x10;
+        int dc = decodeDC(scan.getDecoder(dcTable), in, lastDCs[cmp]);
+        lastDCs[cmp] = dc;
+        int[] coeffs = new int[64];
+        coeffs[0] = dc;
+        decodeACs(scan.getDecoder(acTable), in, coeffs);
+        coeffs = ZigZag.zigZagToSequential(coeffs);
+        output.addAll(coeffs);
+      };
+    });
     in.close();
   }
 

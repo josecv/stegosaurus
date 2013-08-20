@@ -1,5 +1,7 @@
 package com.stegosaurus.jpeg;
 
+import org.apache.commons.lang3.mutable.MutableInt;
+
 import gnu.trove.list.TIntList;
 import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -118,36 +120,31 @@ public class JPEGCompressor {
    * @param output where the data should be placed.
    * TODO Optimize, refactor
    */
-  private void compress(DecompressedScan scan, TIntList data,
-      JPEGBitOutputStream os) {
-    int index = 0;
+  private void compress(DecompressedScan scan, final TIntList data,
+      final JPEGBitOutputStream os) {
+    /* TODO Reconsider the way state is being kept here... */
+    final MutableInt index = new MutableInt(0);
     int rst = 0;
     boolean isRST = scan.isRSTEnabled();
-    int mcus = scan.getNumberOfMCUsPerIteration();
-    while(index < data.size()) {
-      int[] lastDCs = new int[scan.getScanComponents()];
-      /* TODO A solution for the repetition between this and the decompressor */
-      for(int mcu = 0; mcu < mcus; mcu++) {
-        for(byte cmp = 0; cmp < scan.getScanComponents(); cmp++) {
-          for(byte hor = 0; hor < scan.getSubsampling()[cmp][0]; hor++) {
-            for(byte vert = 0; vert < scan.getSubsampling()[cmp][1]; vert++) {
-              /* TODO This looks to be incredibly slow */
-              int[] dataUnit = data.toArray(index, 64);
-              dataUnit = ZigZag.sequentialToZigZag(dataUnit);
-              int tableId = scan.getTableId(cmp + 1);
-              int dcTable = (tableId & 0xF0) >> 4;
-              int acTable = (tableId & 0x0F) | 0x10;
-              int dc = dataUnit[0];
-              encodeDC(dc, lastDCs[cmp], getEncoder(dcTable, scan), os);
-              lastDCs[cmp] = dc;
-              encodeACs(dataUnit, getEncoder(acTable, scan), os);
-              index += 64;
-            }
-          }
+    while(index.intValue() < data.size()) {
+      final int[] lastDCs = new int[scan.getScanComponents()];
+      scan.forEachDataUnit(new DataUnitProcedure() {
+        public void call(int mcu, byte cmp, byte hor, byte vert, Scan scan) {
+          /* TODO This looks to be incredibly slow */
+          int[] dataUnit = data.toArray(index.intValue(), 64);
+          dataUnit = ZigZag.sequentialToZigZag(dataUnit);
+          int tableId = scan.getTableId(cmp + 1);
+          int dcTable = (tableId & 0xF0) >> 4;
+          int acTable = (tableId & 0x0F) | 0x10;
+          int dc = dataUnit[0];
+          encodeDC(dc, lastDCs[cmp], getEncoder(dcTable, scan), os);
+          lastDCs[cmp] = dc;
+          encodeACs(dataUnit, getEncoder(acTable, scan), os);
+          index.add(64);
         }
-      }
+      });
       os.writeToEndOfByte(1);
-      if(isRST && index < data.size()) {
+      if(isRST && index.intValue() < data.size()) {
         os.writeRestart(rst);
         rst++;
       }
