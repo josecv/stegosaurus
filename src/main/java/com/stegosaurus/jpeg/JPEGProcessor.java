@@ -249,6 +249,28 @@ public abstract class JPEGProcessor<E extends Scan> {
   }
 
   /**
+   * Process a DQT segment for the scan given.
+   * @param scan the scan.
+   * @param segment the DQT segment.
+   */
+  private void defineQuantizationTables(E scan, byte[] segment) {
+    /* The total length of this segment, including the 2 bytes describing
+     * the length. We need this because there may be more than one quantization
+     * table present.
+     */
+    int size = NumUtils.intFromBytes(segment, 2, 4);
+    size -= 2;
+    int start = 4;
+    while(size > 0) {
+      byte id = segment[start];
+      start++;
+      byte[] table = ArrayUtils.subarray(segment, start, start + 64);
+      size -= 65;
+      scan.putQuantizationTable(id, table);
+    }
+  }
+
+  /**
    * Read an image scan with associated data, and return it without applying
    * any processing to it.
    * @return the image scan.
@@ -270,6 +292,9 @@ public abstract class JPEGProcessor<E extends Scan> {
           break;
         case JPEGMarkers.DRI_MARKER:
           defineRestartInterval(scan, segment);
+          break;
+        case JPEGMarkers.DQT_MARKER:
+          defineQuantizationTables(scan, segment);
           break;
       }
       segment = nextSegment();

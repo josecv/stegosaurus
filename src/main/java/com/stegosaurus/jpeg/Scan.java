@@ -1,8 +1,11 @@
 package com.stegosaurus.jpeg;
 
+import gnu.trove.map.TIntIntMap;
+import gnu.trove.map.TIntObjectMap;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
 import java.util.Iterator;
-import java.util.Map;
-import java.util.TreeMap;
 
 import org.apache.commons.lang3.Range;
 
@@ -19,6 +22,9 @@ import com.stegosaurus.huffman.HuffmanDecoder;
  * data may be found within the scan.
  */
 public class Scan implements Iterable<byte[]> {
+
+  /* TODO Consider refactoring the maps that use component ids into arrays */
+
   /**
    * The offset within the JPEG file where this scan's SOS marker is placed.
    */
@@ -68,14 +74,18 @@ public class Scan implements Iterable<byte[]> {
 
   /**
    * Huffman decoders for the usual components.
-   * TODO: This probably sucks performance-wise.
    */
-  private Map<Integer, HuffmanDecoder> decoders = new TreeMap<>();
+  private TIntObjectMap<HuffmanDecoder> decoders = new TIntObjectHashMap<>();
 
   /**
    * A map going from a component's id to its huffman table information.
    */
-  private Map<Integer, Integer> componentTables = new TreeMap<>();
+  private TIntIntMap componentTables = new TIntIntHashMap();
+
+  /**
+   * A map going from a component's id to its corresponding quantization table.
+   */
+  private TIntObjectMap<byte[]> quantizationTables = new TIntObjectHashMap<>();
 
   /**
    * The indices where the scan might be found in the image.
@@ -103,6 +113,7 @@ public class Scan implements Iterable<byte[]> {
     this.componentTables.putAll(scan.componentTables);
     this.range = Range.between(scan.range.getMinimum(),
       scan.range.getMaximum());
+    this.quantizationTables.putAll(scan.quantizationTables);
   }
 
   /**
@@ -291,6 +302,25 @@ public class Scan implements Iterable<byte[]> {
    */
   public boolean isRSTEnabled() {
     return restartInterval != 0;
+  }
+
+  /**
+   * Get the quantization table associated with the component given.
+   * @param comp the component
+   * @return the quantization table.
+   */
+  public byte[] getQuantizationTable(int comp) {
+    return quantizationTables.get(comp);
+  }
+
+  /**
+   * Associate the quantization table given with the
+   * component id given.
+   * @param comp the component.
+   * @param table the quantization table.
+   */
+  public byte[] putQuantizationTable(int comp, byte[] table) {
+    return quantizationTables.put(comp, table);
   }
 
   /**
