@@ -1,11 +1,9 @@
 package com.stegosaurus.steganographers.coders.outguess;
 
-import gnu.trove.TCollections;
 import gnu.trove.list.TIntList;
 import gnu.trove.map.TIntDoubleMap;
 import gnu.trove.map.TIntIntMap;
 import gnu.trove.map.hash.TIntDoubleHashMap;
-import gnu.trove.map.hash.TIntIntHashMap;
 
 import java.io.IOException;
 import java.io.InputStream;
