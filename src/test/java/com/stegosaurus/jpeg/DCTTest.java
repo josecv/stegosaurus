@@ -1,6 +1,7 @@
 package com.stegosaurus.jpeg;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNoException;
 
 import java.io.FileOutputStream;
@@ -14,9 +15,15 @@ import org.junit.Test;
  * Test the DCT class.
  */
 public class DCTTest {
+
+  /**
+   * Acceptable range for DCT coefficients. Thus, if we expect 6 but we get 7
+   * or 5 that's fine, but 2 is not.
+   */
+  private static final int RANGE = 4;
+
   /**
    * Test the discrete cosine transform and its inverse.
-   * TODO ACTUALLY TEST SOMETHING!!
    */
   @Test
   public void testDCT() {
@@ -31,7 +38,15 @@ public class DCTTest {
       DCT.inverseDct(scan);
       DCT.dct(scan);
       int[] result = scan.getCoefficients().toArray();
-      //assertArrayEquals("DCT failure", expected, result);
+      assertEquals("Length disparity. This is VERY bad",
+        expected.length, result.length);
+      for(int i = 0; i < expected.length; i++) {
+        String msg = String.format("Error at index %d. Expected ~%d was %d",
+          i, expected[i], result[i]);
+        int r = result[i], e = expected[i];
+        boolean expr = e - RANGE <= r && r <= e + RANGE;
+        assertTrue(msg, expr);
+      }
       JPEGQuantizer.quantize(scan);
       JPEGCompressor comp = new JPEGCompressor();
       comp.process(scan);
