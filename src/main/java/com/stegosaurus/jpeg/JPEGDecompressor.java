@@ -111,7 +111,8 @@ public class JPEGDecompressor extends JPEGProcessor<DecompressedScan> {
     }
     final int[] lastDCs = new int[scan.getScanComponents()];
     scan.forEachDataUnit(new DataUnitProcedure() {
-      public void call(int mcu, byte cmp, byte hor, byte vert, Scan scan) {
+      public void call(int mcu, byte cmp, byte hor, byte vert, int count,
+                       Scan scan) {
         /* The way this table stuff works is that the first four bits of
          * the table data contain the table id for the dc values. We
          * then fetch the huffman table with that id and with class 0.

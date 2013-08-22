@@ -7,7 +7,7 @@ import gnu.trove.list.TIntList;
 /**
  * Allows for the quantization and dequantization of JPEG image scans.
  */
-public class JPEGQuantizer {
+public final class JPEGQuantizer {
   /**
    * Private CTOR.
    */
@@ -42,11 +42,12 @@ public class JPEGQuantizer {
   private static void runThrough(DecompressedScan scan,
       final boolean multiply) {
     final TIntList list = scan.getCoefficients();
-    final MutableInt index = new MutableInt();
     scan.forEachDataUnit(new DataUnitProcedure() {
-      public void call(int mcu, byte comp, byte hor, byte vert, Scan scan) {
+      public void call(int mcu, byte comp, byte hor, byte vert, int count,
+                       Scan scan) {
         byte[] table = getQuantizationTable(comp, scan);
-        for(int i = index.intValue(), j = 0; j < 64; j++, i ++) {
+        int index = count * 64;
+        for(int i = index, j = 0; j < 64; j++, i ++) {
           int coeff = list.get(i);
           if(multiply) {
             /* If we're going to multiply, best not bother with floating
@@ -59,7 +60,6 @@ public class JPEGQuantizer {
           }
           list.set(i, coeff);
         }
-        index.add(64);
       }
     });
   }

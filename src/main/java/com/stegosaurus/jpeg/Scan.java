@@ -435,11 +435,13 @@ public class Scan implements Iterable<byte[]> {
    */
   public void forEachDataUnit(DataUnitProcedure proc) {
     int mcus = getNumberOfMCUsPerIteration();
+    int count = 0;
     for(int mcu = 0; mcu < mcus; mcu++) {
       for(byte cmp = 0; cmp < getScanComponents(); cmp++) {
         for(byte hor = 0; hor < getSubsampling()[cmp][0]; hor++) {
           for(byte vert = 0; vert < getSubsampling()[cmp][1]; vert++) {
-            proc.call(mcu, cmp, hor, vert, this);
+            proc.call(mcu, cmp, hor, vert, count, this);
+            count++;
           }
         }
       }

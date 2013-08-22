@@ -129,7 +129,8 @@ public class JPEGCompressor {
     while(index.intValue() < data.size()) {
       final int[] lastDCs = new int[scan.getScanComponents()];
       scan.forEachDataUnit(new DataUnitProcedure() {
-        public void call(int mcu, byte cmp, byte hor, byte vert, Scan scan) {
+        public void call(int mcu, byte cmp, byte hor, byte vert, int count,
+                         Scan scan) {
           /* TODO This looks to be incredibly slow */
           int[] dataUnit = data.toArray(index.intValue(), 64);
           dataUnit = ZigZag.sequentialToZigZag(dataUnit);
