@@ -1,17 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "dest_mgr.h"
-#define DEFAULT_BUFFER_SIZE 4096
+#define DEFAULT_BUFFER_SIZE 131072
 #define GET_SELF(cinfo) ((stegosaurus_dest_mgr *) cinfo->dest)
 
 /* Interface implementations */
 
 static void init_steg_destination(j_compress_ptr cinfo) {
   stegosaurus_dest_mgr *self = GET_SELF(cinfo);
-  self->buffer_start = (JOCTET *) malloc(sizeof(JOCTET) * DEFAULT_BUFFER_SIZE);
+  size_t len = *(self->outlen);
+  self->buffer_start = (JOCTET *) malloc(sizeof(JOCTET) * len);
   self->next_output_byte = self->buffer_start;
-  self->free_in_buffer = DEFAULT_BUFFER_SIZE;
-  self->buffer_len = DEFAULT_BUFFER_SIZE;
+  self->free_in_buffer = len;
+  self->buffer_len = len;
 }
 
 boolean empty_steg_output_buffer(j_compress_ptr cinfo) {
@@ -52,6 +53,8 @@ void term_steg_destination(j_compress_ptr cinfo) {
   used_bytes = self->buffer_len - self->free_in_buffer;
   self->buffer_start = (JOCTET *) realloc(self->buffer_start,
     used_bytes * sizeof(JOCTET));
+  *(self->output) = self->buffer_start;
+  *(self->outlen) = used_bytes;
   self->buffer_len = used_bytes;
   self->next_output_byte = NULL;
   self->free_in_buffer = 0;
@@ -59,7 +62,7 @@ void term_steg_destination(j_compress_ptr cinfo) {
 
 /* Custom stuff */
 
-stegosaurus_dest_mgr *steg_dest_mgr_for(j_compress_ptr comp) {
+void steg_dest_mgr_for(j_compress_ptr comp, JOCTET **output, long *outlen) {
   stegosaurus_dest_mgr *self =
     (stegosaurus_dest_mgr *) malloc(sizeof(stegosaurus_dest_mgr));
   comp->dest = (struct jpeg_destination_mgr *) self;
@@ -70,6 +73,9 @@ stegosaurus_dest_mgr *steg_dest_mgr_for(j_compress_ptr comp) {
   self->init_destination = &(init_steg_destination);
   self->empty_output_buffer = &(empty_steg_output_buffer);
   self->term_destination = &(term_steg_destination);
+  self->outlen = outlen;
+  self->output = output;
+  return;
 }
 
 void destroy_steg_dest_mgr(stegosaurus_dest_mgr *target) {

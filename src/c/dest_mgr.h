@@ -26,6 +26,8 @@ struct _stegosaurus_dest_mgr {
   /* Custom stuff starts here */
   JOCTET *buffer_start; /* Pointer to the very start of the buffer */
   size_t buffer_len; /* Total length of the buffer, including unused JOCTETs */
+  JOCTET **output; /* The output buffer */
+  long *outlen; /* The length of the output buffer */
 };
 
 typedef struct _stegosaurus_dest_mgr stegosaurus_dest_mgr;
@@ -35,10 +37,15 @@ typedef struct _stegosaurus_dest_mgr stegosaurus_dest_mgr;
 /**
  * Create a new stegosaurus_dest_mgr and associate it to the compression
  * pointer given.
+ * Notice that you should give the actual len of the desired buffer in the form
+ * of outlen so that it can all be allocated right away: there's a bug of
+ * some sort (either in this code or libjpeg turbo) that causes data
+ * corruption when the buffer has to be grown, so try to avoid that.
  * @param comp the compression object.
- * @return the new destination manager.
+ * @param output pointer to the output buffer, which should be null.
+ * @param outlen pointer to the output length.
  */
-stegosaurus_dest_mgr *steg_dest_mgr_for(j_compress_ptr comp);
+void steg_dest_mgr_for(j_compress_ptr comp, JOCTET **output, long *outlen);
 
 /**
  * Destroys a stegosaurus_dest_mgr structure and associated memory. Just like
