@@ -21,18 +21,15 @@ struct blockinfo {
  * Get the blockiness for a single component.
  * @param cinfo a pointer to the decompression handler.
  * @param cmp a pointer to the component info structure.
- * @param coeffs a pointer to the DCT coefficients themselves.
+ * @param buffer the DCT coefficients themselves.
  */
 int get_blockiness(struct jpeg_decompress_struct *cinfo,
-    jpeg_component_info *cmp, jvirt_barray_ptr *coeffs) {
+    jpeg_component_info *cmp, JBLOCKARRAY buffer) {
   int first = 0;
   int second = 0;
   struct blockinfo info;
   int i;
   int j;
-  JBLOCKARRAY buffer = (cinfo->mem->access_virt_barray)
-    ((j_common_ptr) cinfo, coeffs[cmp->component_index], 0,
-    cmp->height_in_blocks, 0);
   info.comp_w = cmp->downsampled_width;
   info.comp_h = cmp->downsampled_height;
   info.blk_w = cmp->downsampled_width / cmp->width_in_blocks;
