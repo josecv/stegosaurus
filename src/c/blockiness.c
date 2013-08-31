@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "jpeglib.h"
+#include "blockiness.h"
     
-/* SCOOTALOO */
 /* Get the coefficient at a given (x, y) location. */
 #define COEFF(inf, buf, x, y) (buf[y / inf.blk_h][x / inf.blk_w] \
   [((y % inf.blk_h) * inf.blk_w) + (x % inf.blk_w)])
@@ -17,12 +16,6 @@ struct blockinfo {
   int comp_h; /* The height of the downsampled component. */
 };
 
-/**
- * Get the blockiness for a single component.
- * @param cinfo a pointer to the decompression handler.
- * @param cmp a pointer to the component info structure.
- * @param buffer the DCT coefficients themselves.
- */
 int get_blockiness(struct jpeg_decompress_struct *cinfo,
     jpeg_component_info *cmp, JBLOCKARRAY buffer) {
   int first = 0;
