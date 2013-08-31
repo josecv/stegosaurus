@@ -3,3 +3,5 @@
 session.vim
 *.o
 .classpath
+build/
+libstegosaurus.so
