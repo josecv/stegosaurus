@@ -1,3 +1,6 @@
+#ifndef STEGOSAURUS_BIT_INPUT_STREAM
+#define STEGOSAURUS_BIT_INPUT_STREAM
+
 /*
  * Produces, bit by bit, the byte array given. Operates in Big Endian, which
  * is to say the most significant bit of the 0th byte is returned, followed
@@ -38,3 +41,5 @@ class BitInputStream {
    */
   const char *data;
 };
+
+#endif

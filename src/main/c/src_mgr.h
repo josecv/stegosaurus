@@ -4,6 +4,9 @@
  * source manager, but we don't use it since we may need stegosaurus
  * to work on systems that haven't been compiled with that manager.
  */
+#ifndef STEGOSAURUS_SRC_MGR
+#define STEGOSAURUS_SRC_MGR
+
 #include "jpeglib.h"
 
 /**
@@ -14,3 +17,5 @@
  * @param size the size of the buffer.
  */
 void steg_src_mgr_for(j_decompress_ptr comp, JOCTET *buffer, long size);
+
+#endif

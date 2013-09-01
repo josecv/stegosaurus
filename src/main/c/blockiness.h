@@ -1,3 +1,5 @@
+#ifndef STEGOSAURUS_BLOCKINESS
+#define STEGOSAURUS_BLOCKINESS
 /**
  * Defines the blockiness function for an array of DCT coefficients
  * representing a single component in an image.
@@ -12,3 +14,5 @@
  */
 int get_blockiness(struct jpeg_decompress_struct *cinfo,
     jpeg_component_info *cmp, JBLOCKARRAY buffer);
+
+#endif

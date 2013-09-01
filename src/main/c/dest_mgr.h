@@ -4,6 +4,9 @@
  * destination manager, but we don't use it since we may need stegosaurus
  * to work on systems that make use of the traditional libjpeg.
  */
+#ifndef STEGOSAURUS_DEST_MGR
+#define STEGOSAURUS_DEST_MGR
+
 #include "jpeglib.h"
 
 /**
@@ -57,3 +60,4 @@ void steg_dest_mgr_for(j_compress_ptr comp, JOCTET **output, long *outlen);
  */
 void destroy_steg_dest_mgr(stegosaurus_dest_mgr* target);
 
+#endif

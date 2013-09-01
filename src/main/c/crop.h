@@ -1,3 +1,9 @@
+/**
+ * Defines a function to perform a very simple crop on a jpeg image.
+ */
+#ifndef STEGOSAURUS_CROP
+#define STEGOSAURUS_CROP
+
 #include "jpeglib.h"
 
 /**
@@ -15,3 +21,5 @@
  */
 void crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     int x_off, int y_off);
+
+#endif
