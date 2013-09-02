@@ -57,14 +57,14 @@ static void term_steg_source(j_decompress_ptr comp) {
 
 /* Custom functions */
 
-void steg_src_mgr_for(j_decompress_ptr comp, JOCTET *buffer, long size) {
+void steg_src_mgr_for(j_decompress_ptr comp, const JOCTET *buffer, long size) {
   stegosaurus_src_mgr *self;
   if(comp->src == NULL) {
     comp->src = (struct jpeg_source_mgr *)
       (*comp->mem->alloc_small) ((j_common_ptr) comp, JPOOL_PERMANENT,
           sizeof(stegosaurus_src_mgr));
   }
-  self = (stegosaurus_src_mgr *) comp->src;
+  self = GET_SELF(comp);
   self->buffer_start = buffer;
   self->total_len = size;
   self->init_source = &(init_steg_source);

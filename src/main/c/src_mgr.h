@@ -16,6 +16,6 @@
  * @param buffer the buffer from which we'll be returning data.
  * @param size the size of the buffer.
  */
-void steg_src_mgr_for(j_decompress_ptr comp, JOCTET *buffer, long size);
+void steg_src_mgr_for(j_decompress_ptr comp, const JOCTET *buffer, long size);
 
 #endif
