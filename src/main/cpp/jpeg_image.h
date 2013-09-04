@@ -7,12 +7,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "jpeglib.h"
+#include "jpeg_component.h"
 
 /**
  * Represents a jpeg image in use by stegosaurus. Should be constructed by
  * a factory, or by other JPEG images.
  */
-class JPEGImage {
+class JPEGImage : public JPEGCoefficientsProvider {
  public:
   /**
    * CTOR. Should only be invoked from a factory, or by another image.
@@ -24,21 +25,16 @@ class JPEGImage {
    */
   JPEGImage(j_decompress_ptr d, j_compress_ptr c, JOCTET *i, long imglen);
 
-  ~JPEGImage();
+  /**
+   * Destructor.
+   */
+  virtual ~JPEGImage();
 
   /**
    * Read the coefficients and store them for later retrieval through use
    * of the function getBlockArray.
    */
   void readCoefficients(void);
-
-  /**
-   * Actually retreive a block array for the component given.
-   * @param comp the index of the component.
-   * @param write whether write access is desired.
-   * @return the block array.
-   */
-  JBLOCKARRAY getBlockArray(int comp, int write);
 
   /**
    * Get a jpeg_component_info structure for the component given.
@@ -70,6 +66,8 @@ class JPEGImage {
   int getComponentCount() {
     return this->component_count;
   }
+
+  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const;
 
  private:
   /**

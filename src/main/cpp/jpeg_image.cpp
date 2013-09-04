@@ -25,14 +25,14 @@ void JPEGImage::readCoefficients(void) {
   coeffs = jpeg_read_coefficients(decomp);
 }
 
-JBLOCKARRAY JPEGImage::getBlockArray(int comp, int write) {
-  jpeg_component_info *component = getComponentInfo(comp);
+JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) const {
+  int index = comp->getIndex();
   return (*decomp->mem->access_virt_barray) (
     (j_common_ptr) decomp,
-    coeffs[comp],
+    coeffs[index],
     0,
-    component->height_in_blocks,
-    write);
+    comp->getHeightInBlocks(),
+    1);
 }
 
 jpeg_component_info* JPEGImage::getComponentInfo(int comp) {
