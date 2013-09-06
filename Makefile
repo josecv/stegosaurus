@@ -4,7 +4,7 @@ CC=gcc
 CXX=g++
 # Compile with debug symbols for now.
 FLAGS=-Wall -Wextra -g -fPIC -pedantic
-CFLAGS=$(FLAGS) -std=c99
+CFLAGS=$(FLAGS)
 CXXFLAGS=$(FLAGS)
 SRCROOT=src/main
 CROOT=$(SRCROOT)/c
@@ -28,7 +28,7 @@ libstegosaurus.so: $(OBJECTS)
 	$(CXX) -shared -Wl,-soname,$@ -o $@ $(OBJECTS) $(LDFLAGS)
 
 build/%.o : $(CROOT)/%.c $(CROOT)/%.h build/
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CXX) $(CFLAGS) -c $< -o $@
 
 build/%.o: $(CXXROOT)/%.cpp $(CXXROOT)/%.h build/
 	$(CXX) $(CXXFLAGS) -c $< -o $@
