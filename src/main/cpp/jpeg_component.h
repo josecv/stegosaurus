@@ -11,7 +11,7 @@
 class JPEGCoefficientsProvider;
 
 /**
- * Encapsulates a component inside a jpeg image. Permits gathering information
+ * Represents a component inside a jpeg image. Permits gathering information
  * about said component, as well as acquiring the actual DCT coefficients.
  * Requires use of a coefficient provider, which will not be deleted by
  * the JPEGComponent, but should not be deleted before the JPEG component
@@ -82,6 +82,14 @@ class JPEGComponent {
    * @return the index.
    */
   int getIndex(void) const;
+
+  /**
+   * Get the total number of coefficients in this component.
+   * @return the total number of coefficients.
+   */
+  int getTotalNumberOfCoefficients(void) {
+    return downsampled_height * downsampled_width;
+  }
  private:
   /**
    * The DCT coefficients. Unrealized at construction.

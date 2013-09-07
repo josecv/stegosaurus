@@ -15,10 +15,24 @@ JPEGImage::JPEGImage(j_decompress_ptr d, j_compress_ptr c,
   /* TODO : Error checking */
   (void) jpeg_read_header(decomp, 1);
   component_count = decomp->num_components;
+  components = (JPEGComponent **)
+    malloc(sizeof(JPEGComponent*) * component_count);
 }
 
 JPEGImage::~JPEGImage() {
+  int i;
   free(this->image);
+  /* We obviously have to delete the components themselves before we free
+   * the pointer array.
+   * Since it's possible that not all of them were accessed, we check before
+   * we free them.
+   */
+  for(i = 0; i < component_count; i++) {
+    if(components[i] != NULL) {
+      delete components[i];
+    }
+  }
+  free(components);
 }
 
 void JPEGImage::readCoefficients(void) {
@@ -33,10 +47,6 @@ JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) const {
     0,
     comp->getHeightInBlocks(),
     1);
-}
-
-jpeg_component_info* JPEGImage::getComponentInfo(int comp) {
-  return decomp->comp_info + comp;
 }
 
 JPEGImage* JPEGImage::writeNew() {
@@ -63,4 +73,12 @@ JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
   jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
   return new JPEGImage(decomp, comp, output, outlen);
+}
+
+JPEGComponent* JPEGImage::getComponent(int index) {
+  jpeg_component_info *info = decomp->comp_info + index;
+  if(components[index] == NULL) {
+    components[index] = new JPEGComponent(info, this);
+  }
+  return components[index];
 }

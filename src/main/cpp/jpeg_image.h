@@ -37,13 +37,6 @@ class JPEGImage : public JPEGCoefficientsProvider {
   void readCoefficients(void);
 
   /**
-   * Get a jpeg_component_info structure for the component given.
-   * @param comp the index of the component.
-   * @return the component_info struct.
-   */
-  jpeg_component_info *getComponentInfo(int comp);
-
-  /**
    * Write the current state of the jpeg coefficients to a new image, and
    * return it.
    * This is useful when, for example, embedding a message into said
@@ -67,6 +60,19 @@ class JPEGImage : public JPEGCoefficientsProvider {
     return this->component_count;
   }
 
+  /**
+   * Get the component corresponding to a given index (its id - 1).
+   * It belongs to this image, which will clean it up on destruction.
+   * @param index the index.
+   * @return the component.
+   */
+  JPEGComponent *getComponent(int index);
+
+  /**
+   * Get the DCT coefficients for the component given. Should get all of them.
+   * @param comp the JPEGComponent
+   * @return the coefficients.
+   */
   virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const;
 
  private:
@@ -96,6 +102,11 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * The coefficients.
    */
   jvirt_barray_ptr *coeffs;
+
+  /**
+   * The JPEGComponents of this image.
+   */
+  JPEGComponent **components;
 };
 
 #endif
