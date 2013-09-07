@@ -22,7 +22,7 @@ test: steg_tests
 	./steg_tests
 
 steg_tests: libstegosaurus.so
-	$(CXX) -lgtest $(LDFLAGS) $(OBJECTS) $(CXXTEST)/test_run.cpp -o steg_tests
+	$(CXX) -lgtest $(LDFLAGS) $(CXXFLAGS) $(OBJECTS) $(CXXTEST)/test_run.cpp -o steg_tests
 
 libstegosaurus.so: $(OBJECTS)
 	$(CXX) -shared -Wl,-soname,$@ -o $@ $(OBJECTS) $(LDFLAGS)
