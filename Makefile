@@ -16,12 +16,12 @@ OBJECTS=build/blockiness.o build/crop.o build/dest_mgr.o build/src_mgr.o \
 	build/jpeg_image.o build/jpeg_context.o build/jpeg_component.o \
 	build/coefficient_accessor.o
 
-all: libstegosaurus.so
+all: libstegosaurus.so steg_tests
 
-test: steg_tests
+test: all
 	./steg_tests
 
-steg_tests: libstegosaurus.so
+steg_tests: $(OBJECTS)
 	$(CXX) -lgtest $(LDFLAGS) $(CXXFLAGS) $(OBJECTS) $(CXXTEST)/test_run.cpp -o steg_tests
 
 libstegosaurus.so: $(OBJECTS)
