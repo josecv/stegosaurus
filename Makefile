@@ -13,8 +13,8 @@ TESTROOT=src/test
 CXXTEST=$(TESTROOT)/cpp
 LDFLAGS=-ljpeg
 OBJECTS=build/blockiness.o build/crop.o build/dest_mgr.o build/src_mgr.o \
-	build/bit_input_stream.o build/jpeg_image.o build/jpeg_context.o \
-	build/jpeg_component.o build/coefficient_accessor.o
+	build/jpeg_image.o build/jpeg_context.o build/jpeg_component.o \
+	build/coefficient_accessor.o
 
 all: libstegosaurus.so
 
