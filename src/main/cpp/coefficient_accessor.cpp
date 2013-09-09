@@ -4,8 +4,7 @@ CoefficientAccessor::CoefficientAccessor(JPEGImage *img)
     : totalComponents(img->getComponentCount()),
       freeComponentArray(1) {
   int i;
-  components = (JPEGComponent **)
-    malloc(sizeof(JPEGComponent *) * totalComponents);
+  components = new JPEGComponent*[totalComponents];
   for(i = 0; totalComponents; i++) {
     components[i] = img->getComponent(i);
   }
@@ -21,7 +20,7 @@ CoefficientAccessor::CoefficientAccessor(JPEGComponent **componentArray,
 
 CoefficientAccessor::~CoefficientAccessor(void) {
   if(freeComponentArray) {
-    free(components);
+    delete [] components;
   }
 }
 

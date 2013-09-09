@@ -36,9 +36,9 @@ class CoefficientAccessorTest : public ::testing::Test {
   JBLOCKARRAY createBlockArray(int rows, int cols, unsigned int *c) {
     const int size = 64;
     int row, col, i;
-    JBLOCKARRAY retval = (JBLOCKARRAY) malloc(sizeof(JCOEF **) * rows);
+    JBLOCKARRAY retval = new JBLOCKROW[rows];
     for(row = 0; row < rows; row++) {
-      retval[row] = new JCOEF[cols][64];
+      retval[row] = new JBLOCK[cols];
       for(col = 0; col < cols; col++) {
         for(i = 0; i < size; i++, (*c)++) {
           retval[row][col][i] = (*c);
@@ -60,17 +60,17 @@ class CoefficientAccessorTest : public ::testing::Test {
    */
   JBLOCKARRAY *createRandomBlockArrays(int number, int *rows, int *cols,
       const unsigned int *testIndices, int sampleSize, JCOEF *values) {
-    JBLOCKARRAY *retval = (JBLOCKARRAY *) malloc(sizeof(JBLOCKARRAY) * number);
+    JBLOCKARRAY *retval = new JBLOCKARRAY[number];
     int n;
     const int size = 64;
     int row, col, i, j = 0;
     unsigned int c = 0;
     srand(time(NULL));
     for(n = 0; n < number; ++n) {
-      retval[n] = (JBLOCKARRAY) malloc(sizeof(JCOEF **) * rows[n]);
+      retval[n] = new JBLOCKROW[rows[n]];
       JBLOCKARRAY arr = retval[n];
       for(row = 0; row < rows[n]; ++row) {
-        arr[row] = new JCOEF[cols[n]][64];
+        arr[row] = new JBLOCK[cols[n]];
         for(col = 0; col < cols[n]; ++col) {
           for(i = 0; i < size; ++i, ++c) {
             JCOEF val = (rand() % 65534) - 32767;
@@ -94,9 +94,9 @@ class CoefficientAccessorTest : public ::testing::Test {
   void deleteBlockArray(JBLOCKARRAY blocks, int rows) {
     int row;
     for(row = 0; row < rows; ++row) {
-      delete (blocks[row]);
+      delete [] (blocks[row]);
     }
-    free(blocks);
+    delete [] blocks;
   }
 };
 
@@ -176,5 +176,5 @@ TEST_F(CoefficientAccessorTest, TestAccessMultipleComponents) {
   deleteBlockArray(b[0], rows);
   deleteBlockArray(b[1], rows);
   deleteBlockArray(b[2], rows * 2);
-  free(b);
+  delete [] b;
 }
