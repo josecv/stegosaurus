@@ -53,6 +53,11 @@ JCOEF CoefficientAccessor::getCoefficient(unsigned int index) {
   return *(getInComponent(index, comp));
 }
 
+void CoefficientAccessor::setCoefficient(unsigned int index, JCOEF value) {
+  JPEGComponent *comp = findComponent(&index);
+  *(getInComponent(index, comp)) = value;
+}
+
 int CoefficientAccessor::getLength(void) {
   int retval = 0;
   int c;

@@ -209,5 +209,24 @@ TEST_P(CoefficientAccessorTest, TestAccess) {
   }
 }
 
+/**
+ * Test the setCoefficient method.
+ */
+TEST_P(CoefficientAccessorTest, TestSetCoefficient) {
+  int i;
+  for(i = 0; i < sampleSize; i++) {
+    unsigned int index = tests[i];
+    if(index < expectedLength) {
+      /* There's really nothing special about the new value, but it's a
+       * reasonable, safe way to get a different value while avoiding any
+       * kind of overflow
+       */
+      int newVal = values[i] ^ 1;
+      acc->setCoefficient(index, newVal);
+      EXPECT_EQ(newVal, acc->getCoefficient(index)) << "Index " << index;
+    }
+  }
+}
+
 INSTANTIATE_TEST_CASE_P(CoefficientInstantiation, CoefficientAccessorTest,
   ::testing::Values(1, 3));
