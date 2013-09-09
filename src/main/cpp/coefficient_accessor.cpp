@@ -30,8 +30,8 @@ JPEGComponent* CoefficientAccessor::findComponent(unsigned int *index) {
   while((c < totalComponents) &&
         (*index) >= comp->getTotalNumberOfCoefficients()) {
     (*index) -= comp->getTotalNumberOfCoefficients();
-    comp++;
     c++;
+    comp = components[c];
   }
   return comp;
 }

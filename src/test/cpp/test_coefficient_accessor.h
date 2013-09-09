@@ -23,50 +23,137 @@ class DummyCoefficientsProvider : public JPEGCoefficientsProvider {
   JBLOCKARRAY array;
 };
 
-class CoefficientAccessorTest : public ::testing::Test {
- protected:
+/**
+ * Tests the coefficient accessor class. Creates some dummy JPEG components
+ * and their DCT coefficients.
+ * It's possible to use up to three components, with the third one
+ * being twice as wide and twice as high as the preceding two, to simulate
+ * subsampling.
+ */
+class CoefficientAccessorTest : public ::testing::TestWithParam<int> {
+ public:
   /**
-   * Create a JBLOCKARRAY containing a sequence of numbers, with the dimensions
-   * given.
-   * @param rows the number of rows of blocks to have
-   * @param cols the number of columns of blocks to have
-   * @param c a pointer to the value of first coefficient. At the end will
-   *    point to the value of final coefficient + 1.
+   * Set up the test. This means constructing some random block arrays
+   * corresponding to every component, sampling their values according to
+   * the tests array, setting the components and their providers up, and then
+   * constructing the actual CoefficientAccessor.
    */
-  JBLOCKARRAY createBlockArray(int rows, int cols, unsigned int *c) {
-    const int size = 64;
-    int row, col, i;
-    JBLOCKARRAY retval = new JBLOCKROW[rows];
-    for(row = 0; row < rows; row++) {
-      retval[row] = new JBLOCK[cols];
-      for(col = 0; col < cols; col++) {
-        for(i = 0; i < size; i++, (*c)++) {
-          retval[row][col][i] = (*c);
-        }
-      }
+  virtual void SetUp(void) {
+    int i;
+    compCount = GetParam();
+    for(i = 0; i < compCount; ++i) {
+      int factor = (i == 2 ? 2 : 1);
+      rowInfo[i] = rowCount * factor;
+      colInfo[i] = colCount * factor;
     }
-    return retval;
+    blockArrays = createRandomBlockArrays(rowInfo, colInfo);
+    for(i = 0; i < compCount; ++i) {
+      p[i] = new DummyCoefficientsProvider(blockArrays[i]);
+      components[i] = new JPEGComponent(colInfo[i], rowInfo[i], colInfo[i] * 8,
+        rowInfo[i] * 8, i, p[i]);
+    }
+    acc = new CoefficientAccessor(components, compCount);
   }
 
   /**
+   * Delete the memory allocated by this fixture.
+   */
+  virtual void tearDown(void) {
+    int row, i;
+    delete acc;
+    for(i = 0; i < compCount; i++) {
+      delete components[i];
+      delete p[i];
+    }
+    for(i = 0; i < compCount; ++i) {
+      for(row = 0; row < rowInfo[i]; ++row) {
+        delete [] (blockArrays[i][row]);
+      }
+      delete [] blockArrays[i];
+    }
+    delete [] blockArrays;
+  }
+
+ protected:
+  /**
+   * The actual coefficient accessor object.
+   */
+  CoefficientAccessor *acc;
+  /**
+   * The number of rows of blocks.
+   */
+  static const int rowCount = 16;
+
+  /**
+   * The number of columns of blocks.
+   */
+  static const int colCount = 16;
+
+  /**
+   * An array of row counts corresponding to the components.
+   */
+  int rowInfo[3];
+
+  /**
+   * An array of column counts corresponding to the components.
+   */
+  int colInfo[3];
+
+  /**
+   * The total number of components in this image.
+   */
+  int compCount;
+
+  /**
+   * The expected length reported by the accessor.
+   */
+  unsigned int expectedLength;
+
+  /**
+   * The array of block arrays.
+   */
+  JBLOCKARRAY *blockArrays;
+
+  /**
+   * The number of values that will be tested.
+   */
+  static const int sampleSize = 25;
+
+  /**
+   * This sorted array contains the indices that will be sampled for use in
+   * testing.
+   */
+  static const unsigned int tests[25];
+
+  /**
+   * The sampled values for the indices corresponding to the test array.
+   */
+  JCOEF values[25];
+
+ private:
+  /**
+   * The coefficient providers for the generated coefficients.
+   */
+  DummyCoefficientsProvider *p[3];
+
+  /**
+   * The component objects for the generated coefficients.
+   */
+  JPEGComponent *components[3];
+
+  /**
    * Create a number of block arrays with random coefficients.
-   * @param number the number of block arrays to create
    * @param rows array where rows[n] = number of rows in the nth block array
    * @param cols array where cols[n] = number of cols in the nth block array
-   * @param testIndices an array of indices whose values should be recorded.
-   *    Should be sorted!
-   * @param sampleSize the number of entries in the testIndices array
-   * @param values the values recorded for the indices given in testIndices.
    */
-  JBLOCKARRAY *createRandomBlockArrays(int number, int *rows, int *cols,
-      const unsigned int *testIndices, int sampleSize, JCOEF *values) {
-    JBLOCKARRAY *retval = new JBLOCKARRAY[number];
+  JBLOCKARRAY *createRandomBlockArrays(int *rows, int *cols) {
+    JBLOCKARRAY *retval = new JBLOCKARRAY[compCount];
     int n;
     const int size = 64;
     int row, col, i, j = 0;
     unsigned int c = 0;
     srand(time(NULL));
-    for(n = 0; n < number; ++n) {
+    for(n = 0; n < compCount; ++n) {
       retval[n] = new JBLOCKROW[rows[n]];
       JBLOCKARRAY arr = retval[n];
       for(row = 0; row < rows[n]; ++row) {
@@ -74,7 +161,7 @@ class CoefficientAccessorTest : public ::testing::Test {
         for(col = 0; col < cols[n]; ++col) {
           for(i = 0; i < size; ++i, ++c) {
             JCOEF val = (rand() % 65534) - 32767;
-            if(testIndices[j] == c && j < sampleSize) {
+            if(tests[j] == c && j < sampleSize) {
               values[j] = val;
               ++j;
             }
@@ -83,98 +170,44 @@ class CoefficientAccessorTest : public ::testing::Test {
         }
       }
     }
+    expectedLength = c;
     return retval;
-  }
-
-  /**
-   * Delete a JBLOCKARRAY allocated by this class.
-   * @param blocks the doomed array.
-   * @param rows the number of rows in the array
-   */
-  void deleteBlockArray(JBLOCKARRAY blocks, int rows) {
-    int row;
-    for(row = 0; row < rows; ++row) {
-      delete [] (blocks[row]);
-    }
-    delete [] blocks;
   }
 };
 
 /**
- * Basic test to ensure that the accessor works, when dealing with a single
- * component.
+ * This array includes 8 special cases:
+ *
+ *  - The very first one (0)
+ *  - The first one in the second column (64)
+ *  - The first one in the second row (1024)
+ *  - The very last one (16383)
+ *  - The first coef in the second component (16384)
+ *  - The last coef in the second component (32767)
+ *  - The first coef in the third component (32768)
+ *  - The last coef altogether (98303)
+ * The rest of them were randomly generated by Python, with a particularly
+ * large concentration in the first component.
  */
-TEST_F(CoefficientAccessorTest, TestAccessSingleComponent) {
-  const int rows = 16, cols = 16, size = 64;
-  unsigned int c = 0;
-  int i;
-  JBLOCKARRAY blocks = createBlockArray(rows, cols, &c);
-  DummyCoefficientsProvider p(blocks);
-  JPEGComponent comp(cols, rows, cols * 8, rows * 8, 0, &p);
-  JPEGComponent* arr[1] = { &comp };
-  CoefficientAccessor acc(arr, 1);
-  /* Here's the deal: because of the way this stuff was generated, the indeces
-   * are equal to their corresponding coefficients, so we can test this pretty
-   * easily by getting 10 coefficients. If you think this sounds like it'll
-   * allow a ton of bugs through, you're right to think so. That's why there
-   * are other tests.
-   *
-   * The first 4 indices are some special cases:
-   *  - The very first one
-   *  - The first one in the second column
-   *  - The first one in the second row
-   *  - The very last one.
-   * The other 6 were randomly generated by Python.
-   */
-  unsigned int tests[10] = { 0, 64, 1024, 16383, 9177, 1342,
-                             6600, 16334, 3257, 5906 };
-  for(i = 0; i < 10; i++) {
-    unsigned int val = tests[i];
-    EXPECT_EQ(val, acc.getCoefficient(val)) << "Index " << val;
-  }
-  EXPECT_EQ(rows * cols * size, acc.getLength());
-  deleteBlockArray(blocks, rows);
-}
+const unsigned int CoefficientAccessorTest::tests[25] = {
+    0, 64, 1024, 1194, 2132, 12634, 12849, 13320, 15244, 16383, 16384, 17399,
+    22661, 23006, 28042, 29460, 29624, 32767, 32768, 51230, 65105, 77865,
+    90453, 95958, 98303
+  };
 
 /**
- * Test to ensure that multiple components can be accessed.
+ * Test with different numbers of randomly generated components.
  */
-TEST_F(CoefficientAccessorTest, TestAccessMultipleComponents) {
-  /* We'll have two 16x16 components and one 32x32 component */
-  const int rows = 16, cols = 16, size = 64;
-  int rowInfo[3] = { rows, rows, rows * 2};
-  int colInfo[3] = { cols, cols, cols * 2};
-  /**
-   * This time our array is sorted, since that's what's required from
-   * createRandomBlockArrays, but the four special cases from above are
-   * included, as well as the following 4:
-   * - The first coef in the second component (16384)
-   * - The last coef in the second component (32767)
-   * - The first coef in the third component (32768)
-   * - The last coef altogether (98303)
-   * The other 12 were randomly generated by Python.
-   */
-  unsigned int tests[20] = { 0, 64, 1024, 13320, 16383, 16384, 17399, 22661,
-                             23006, 28042, 29460, 29624, 32767, 32768, 51230,
-                             65105, 77865, 90453, 95958, 98303 };
-  JCOEF values[20];
+TEST_P(CoefficientAccessorTest, TestAccess) {
   int i;
-  JBLOCKARRAY* b = createRandomBlockArrays(3, rowInfo, colInfo, tests, 20,
-    values);
-  DummyCoefficientsProvider p0(b[0]), p1(b[1]), p2(b[2]);
-  JPEGComponent cmp0(cols, rows, cols * 8, rows * 8, 0, &p0),
-                cmp1(cols, rows, cols * 8, rows * 8, 1, &p1),
-                cmp2(cols * 2, rows * 2, cols * 16, rows * 16, 2, &p2);
-  JPEGComponent *arr[3] = { &cmp0, &cmp1, &cmp2 };
-  CoefficientAccessor acc(arr, 3);
-  for(i = 0; i < 20; i++) {
+  EXPECT_EQ(expectedLength, acc->getLength());
+  for(i = 0; i < sampleSize; i++) {
     unsigned int index = tests[i];
-    EXPECT_EQ(values[i], acc.getCoefficient(index)) << "Index " << index;
+    if(index < expectedLength) {
+      EXPECT_EQ(values[i], acc->getCoefficient(index)) << "Index " << index;
+    }
   }
-  EXPECT_EQ((rows * cols * size) * 2 + (4 * rows * cols * 64),
-    acc.getLength());
-  deleteBlockArray(b[0], rows);
-  deleteBlockArray(b[1], rows);
-  deleteBlockArray(b[2], rows * 2);
-  delete [] b;
 }
+
+INSTANTIATE_TEST_CASE_P(CoefficientInstantiation, CoefficientAccessorTest,
+  ::testing::Values(1, 3));
