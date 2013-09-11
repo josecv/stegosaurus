@@ -181,7 +181,7 @@ class CoefficientAccessorTest : public ::testing::TestWithParam<int> {
  *  - The very first one (0)
  *  - The first one in the second column (64)
  *  - The first one in the second row (1024)
- *  - The very last one (16383)
+ *  - The last one in the first component (16383)
  *  - The first coef in the second component (16384)
  *  - The last coef in the second component (32767)
  *  - The first coef in the third component (32768)
@@ -205,6 +205,21 @@ TEST_P(CoefficientAccessorTest, TestAccess) {
     unsigned int index = tests[i];
     if(index < expectedLength) {
       EXPECT_EQ(values[i], acc->getCoefficient(index)) << "Index " << index;
+    }
+  }
+}
+
+/**
+ * Test the isDC coefficient.
+ */
+TEST_P(CoefficientAccessorTest, TestIsDC) {
+  int i;
+  const int isDCVal[25] = {1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+                           0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0};
+  for(i = 0; i < sampleSize; i++) {
+    unsigned int index = tests[i];
+    if(index < expectedLength) {
+      EXPECT_EQ(isDCVal[i], acc->isDC(index)) << "Index " << index;
     }
   }
 }
