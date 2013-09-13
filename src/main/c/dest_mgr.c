@@ -63,8 +63,9 @@ void term_steg_destination(j_compress_ptr cinfo) {
 /* Custom stuff */
 
 void steg_dest_mgr_for(j_compress_ptr comp, JOCTET **output, long *outlen) {
-  stegosaurus_dest_mgr *self =
-    (stegosaurus_dest_mgr *) malloc(sizeof(stegosaurus_dest_mgr));
+  stegosaurus_dest_mgr *self = (stegosaurus_dest_mgr *)
+    (*comp->mem->alloc_small) ((j_common_ptr) comp, JPOOL_PERMANENT,
+      sizeof(stegosaurus_dest_mgr));
   comp->dest = (struct jpeg_destination_mgr *) self;
   self->buffer_start = NULL;
   self->next_output_byte = NULL;
@@ -76,8 +77,4 @@ void steg_dest_mgr_for(j_compress_ptr comp, JOCTET **output, long *outlen) {
   self->outlen = outlen;
   self->output = output;
   return;
-}
-
-void destroy_steg_dest_mgr(stegosaurus_dest_mgr *target) {
-  free(target);
 }

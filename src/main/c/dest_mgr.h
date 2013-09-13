@@ -50,14 +50,4 @@ typedef struct _stegosaurus_dest_mgr stegosaurus_dest_mgr;
  */
 void steg_dest_mgr_for(j_compress_ptr comp, JOCTET **output, long *outlen);
 
-/**
- * Destroys a stegosaurus_dest_mgr structure and associated memory. Just like
- * the init_destination method, this doesn't actually free the buffer, which
- * is the bigger memory drain anyway. While you should obviously destroy
- * any destination managers you use, you should keep a closer eye on making
- * sure the buffer is properly disposed of.
- * @param target the destination manager to destroy.
- */
-void destroy_steg_dest_mgr(stegosaurus_dest_mgr* target);
-
 #endif
