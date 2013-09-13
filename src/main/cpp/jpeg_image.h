@@ -75,6 +75,12 @@ class JPEGImage : public JPEGCoefficientsProvider {
    */
   virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const;
 
+  /**
+   * Get the raw image data.
+   * @return the raw image data.
+   */
+  JOCTET *getData(void);
+
  private:
   /**
    * A decompression object.

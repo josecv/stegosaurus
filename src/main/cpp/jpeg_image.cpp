@@ -82,3 +82,7 @@ JPEGComponent* JPEGImage::getComponent(int index) {
   }
   return components[index];
 }
+
+JOCTET* JPEGImage::getData(void) {
+  return this->image;
+}
