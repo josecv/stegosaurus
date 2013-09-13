@@ -6,6 +6,10 @@
 
 void crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     int x_off, int y_off) {
+  /* We use the second buffer here to be able to get an offset of the first
+   * one's first row, without fooling around with the first buffer (which
+   * causes memory corruption, as you might expect)
+   */
   JSAMPARRAY buffer, buffer2;
   buffer2 = (JSAMPARRAY) malloc(sizeof(JSAMPROW));
   int row_stride, i;

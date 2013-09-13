@@ -50,8 +50,8 @@ JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) const {
 
 JPEGImage* JPEGImage::writeNew() {
   JOCTET *output = NULL;
-  long outlen = 0;
-  steg_dest_mgr_for(comp, &output, &len);
+  long outlen = len;
+  steg_dest_mgr_for(comp, &output, &outlen);
   jpeg_copy_critical_parameters(decomp, comp);
   comp->in_color_space = decomp->out_color_space;
   jpeg_write_coefficients(comp, coeffs);
@@ -61,16 +61,17 @@ JPEGImage* JPEGImage::writeNew() {
 
 JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
   JOCTET *output = NULL;
-  long outlen = 0;
-  steg_dest_mgr_for(comp, &output, &len);
+  long outlen = len;
   jpeg_copy_critical_parameters(decomp, comp);
   comp->in_color_space = decomp->out_color_space;
   comp->image_width = decomp->image_width - x_off;
   comp->image_height = decomp->image_height - y_off;
+  steg_dest_mgr_for(comp, &output, &outlen);
+  jpeg_start_compress(comp, 1);
   jpeg_start_decompress(decomp);
   crop(decomp, comp, x_off, y_off);
-  jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
+  jpeg_finish_compress(comp);
   return new JPEGImage(decomp, comp, output, outlen);
 }
 
