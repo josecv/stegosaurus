@@ -15,8 +15,7 @@ JPEGImage::JPEGImage(j_decompress_ptr d, j_compress_ptr c,
   /* TODO : Error checking */
   (void) jpeg_read_header(decomp, 1);
   component_count = decomp->num_components;
-  components = (JPEGComponent **)
-    malloc(sizeof(JPEGComponent*) * component_count);
+  components = new JPEGComponent*[component_count]();
 }
 
 JPEGImage::~JPEGImage() {
@@ -32,7 +31,7 @@ JPEGImage::~JPEGImage() {
       delete components[i];
     }
   }
-  free(components);
+  delete [] components;
 }
 
 void JPEGImage::readCoefficients(void) {
