@@ -6,7 +6,8 @@
 
 void crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
     int x_off, int y_off) {
-  JSAMPARRAY buffer;
+  JSAMPARRAY buffer, buffer2;
+  buffer2 = (JSAMPARRAY) malloc(sizeof(JSAMPROW));
   int row_stride, i;
   row_stride = srcinfo->output_width * srcinfo->output_components;
   buffer = (*srcinfo->mem->alloc_sarray)
@@ -19,10 +20,11 @@ void crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
       fprintf(stderr, "Read error\n");
       return;
     }
-    buffer[0] = &(buffer[0][x_off * srcinfo->output_components]);
-    if(!jpeg_write_scanlines(dstinfo, buffer, 1)) {
+    buffer2[0] = &(buffer[0][x_off * srcinfo->output_components]);
+    if(!jpeg_write_scanlines(dstinfo, buffer2, 1)) {
       fprintf(stderr, "Write error\n");
       return;
     }
   }
+  free(buffer2);
 }
