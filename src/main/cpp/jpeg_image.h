@@ -81,6 +81,14 @@ class JPEGImage : public JPEGCoefficientsProvider {
    */
   JOCTET *getData(void);
 
+  /**
+   * Get the total size of the raw image data.
+   * @return the size.
+   */
+  long getDataLen(void) {
+    return this->len;
+  }
+
  private:
   /**
    * A decompression object.
