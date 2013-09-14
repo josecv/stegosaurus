@@ -58,7 +58,7 @@ class CoefficientAccessorTest : public ::testing::TestWithParam<int> {
   /**
    * Delete the memory allocated by this fixture.
    */
-  virtual void tearDown(void) {
+  virtual void TearDown(void) {
     int row, i;
     delete acc;
     for(i = 0; i < compCount; i++) {
