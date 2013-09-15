@@ -39,6 +39,7 @@ class JPEGImageTest : public ::testing::Test {
     context->destroyImage(testImage);
     delete context;
     jpeg_destroy_decompress(reference);
+    free(reference);
     fclose(reffile);
   }
  protected:
@@ -87,4 +88,30 @@ class JPEGImageTest : public ::testing::Test {
 TEST_F(JPEGImageTest, testCrop) {
   JPEGImage *croppedImage = testImage->doCrop(4, 4);
   context->destroyImage(croppedImage);
+}
+
+/**
+ * Test the writeNew method.
+ * Done by requesting a bunch of coefficients, turning them all into zeroes,
+ * writing to a new image, and seeing if that works.
+ */
+TEST_F(JPEGImageTest, testWriteNew) {
+  int i, j;
+  JPEGImage *other;
+  testImage->readCoefficients();
+  for(i = 0; i < 3; ++i) {
+    JBLOCKARRAY arr = testImage->getCoefficients(i);
+    for(j = 0; j < 64; ++j) {
+      arr[0][0][j] = 0;
+    }
+  }
+  other = testImage->writeNew();
+  other->readCoefficients();
+  for(i = 0; i < 3; ++i) {
+    JBLOCKARRAY arr = other->getCoefficients(i);
+    for(j = 0; j < 64; ++j) {
+      EXPECT_EQ(0, arr[0][0][j]) << "Index " << j;
+    }
+  }
+  context->destroyImage(other);
 }

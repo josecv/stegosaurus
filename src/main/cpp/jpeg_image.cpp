@@ -16,6 +16,7 @@ JPEGImage::JPEGImage(j_decompress_ptr d, j_compress_ptr c,
   (void) jpeg_read_header(decomp, 1);
   component_count = decomp->num_components;
   components = new JPEGComponent*[component_count]();
+  coefficients = new JBLOCKARRAY[component_count]();
 }
 
 JPEGImage::~JPEGImage() {
@@ -30,8 +31,12 @@ JPEGImage::~JPEGImage() {
     if(components[i] != NULL) {
       delete components[i];
     }
+    if(coefficients[i] != NULL) {
+      delete [] coefficients[i];
+    }
   }
   delete [] components;
+  delete [] coefficients;
 }
 
 void JPEGImage::readCoefficients(void) {
@@ -39,13 +44,21 @@ void JPEGImage::readCoefficients(void) {
 }
 
 JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) const {
-  int index = comp->getIndex();
-  return (*decomp->mem->access_virt_barray) (
-    (j_common_ptr) decomp,
-    coeffs[index],
-    0,
-    comp->getHeightInBlocks(),
-    1);
+  return getCoefficients(comp->getIndex());
+}
+
+JBLOCKARRAY JPEGImage::getCoefficients(int component_index) const {
+  jpeg_component_info *info = decomp->comp_info + component_index;
+  int rows = info->height_in_blocks;
+  int i;
+  JBLOCKARRAY retval = new JBLOCKROW[rows];
+  for(i = 0; i < rows; ++i) {
+    JBLOCKARRAY arr = (*decomp->mem->access_virt_barray)
+      ((j_common_ptr) decomp, coeffs[component_index], 0, 1, 1);
+    retval[i] = arr[0];
+  }
+  coefficients[component_index] = retval;
+  return retval;
 }
 
 JPEGImage* JPEGImage::writeNew() {
@@ -56,6 +69,7 @@ JPEGImage* JPEGImage::writeNew() {
   comp->in_color_space = decomp->out_color_space;
   jpeg_write_coefficients(comp, coeffs);
   jpeg_finish_compress(comp);
+  jpeg_finish_decompress(decomp);
   return new JPEGImage(decomp, comp, output, outlen);
 }
 

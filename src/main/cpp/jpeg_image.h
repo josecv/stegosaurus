@@ -76,6 +76,14 @@ class JPEGImage : public JPEGCoefficientsProvider {
   virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const;
 
   /**
+   * Get the DCT coefficients for the component with the index given.
+   * Should get them all
+   * @param component_index the index of the component
+   * @return the coefficients.
+   */
+  JBLOCKARRAY getCoefficients(int component_index) const;
+
+  /**
    * Get the raw image data.
    * @return the raw image data.
    */
@@ -121,6 +129,11 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * The JPEGComponents of this image.
    */
   JPEGComponent **components;
+
+  /**
+   * The DCT coefficients of this image.
+   */
+  JBLOCKARRAY *coefficients;
 };
 
 #endif
