@@ -9,11 +9,16 @@ import com.stegosaurus.cpp.JoctetArray;
 
 /**
  * Smooths out some of the rougher aspects of the glue between the native
- * libstegosaurus and the Java portions of Stegosaurus.
+ * libstegosaurus and the Java portions of Stegosaurus; also charged with
+ * actually loading the library.
  * For the most part, this involves creating and populating arrays and
  * other such things.
  */
 public final class NativeUtils {
+  static {
+    /* TODO THIS IS VERY TEMPORARY!! */
+    System.load("/home/joe/code/stegosaurus/libstegosaurus.so");
+  }
   /**
    * Private CTOR.
    */
