@@ -12,6 +12,7 @@
 /*%include "arrays_java.i"
 %apply signed char[] {signed char *};*/
 %apply signed char {JOCTET};
+%apply unsigned short {JCOEF};
 %include "carrays.i"
 %array_class(JOCTET, JoctetArray);
 /* Now tell swig to parse the header files */
