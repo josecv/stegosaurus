@@ -6,3 +6,4 @@ session.vim
 build/
 libstegosaurus.so
 steg_tests
+target/
