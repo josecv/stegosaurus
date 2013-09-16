@@ -14,13 +14,13 @@ CXXTEST=$(TESTROOT)/cpp
 LDFLAGS=-ljpeg
 OBJECTS=build/blockiness.o build/crop.o build/dest_mgr.o build/src_mgr.o \
 	build/jpeg_image.o build/jpeg_context.o build/jpeg_component.o \
-	build/coefficient_accessor.o build/steg_utils.o \
-	build/stegosaurus_wrap.o
+	build/coefficient_accessor.o build/steg_utils.o
 SWIGDIR=src/main/java/com/stegosaurus/cpp
 SWIGPACKAGE=com.stegosaurus.cpp
 SWIGFLAGS=-package com.stegosaurus.cpp -outdir $(SWIGDIR)
 SWIG=swig
 SWIGWRAP=$(SRCROOT)/stegosaurus_wrap.cxx
+WRAPOBJ=build/stegosaurus_wrap.o
 JAVAINC=-I/usr/lib/jvm/java/include -I/usr/lib/jvm/java/include/linux
 
 all: libstegosaurus.so steg_tests
@@ -31,8 +31,8 @@ test: all
 steg_tests: $(OBJECTS)
 	$(CXX) -lgtest $(LDFLAGS) $(CXXFLAGS) $(OBJECTS) $(CXXTEST)/test_run.cpp -o $@
 
-libstegosaurus.so: $(OBJECTS)
-	$(CXX) -shared -Wl,-soname,$@ -o $@ $(OBJECTS) $(LDFLAGS)
+libstegosaurus.so: $(OBJECTS) $(WRAPOBJ)
+	$(CXX) -shared -Wl,-soname,$@ -o $@ $^ $(LDFLAGS)
 
 build/%.o : $(CROOT)/%.c $(CROOT)/%.h build/
 	$(CXX) $(CFLAGS) -c $< -o $@
@@ -46,7 +46,7 @@ build/stegosaurus_wrap.o: $(SWIGWRAP)
 build/:
 	mkdir -p build/
 
-$(SWIGWRAP): $(SRCROOT)/stegosaurus.i
+$(SWIGWRAP): $(SRCROOT)/stegosaurus.i $(OBJECTS)
 	$(SWIG) $(SWIGFLAGS) -c++ -java $<
 
 clean:
