@@ -231,4 +231,18 @@ public class NumUtilsTest {
       assertEquals("GetLSB failure", expected[i], result);
     }
   }
+
+  /**
+   * Test the byteArrayFromShort method.
+   */
+  @Test
+  public void testByteArrayFromShort() {
+    short s = 0x1A1C;
+    byte[] expectedBE = { 0x1A, 0x1C };
+    byte[] expectedLE = { 0x1C, 0x1A };
+    byte[] result = NumUtils.byteArrayFromShort(s, ByteOrder.BIG_ENDIAN);
+    assertArrayEquals(expectedBE, result);
+    result = NumUtils.byteArrayFromShort(s, ByteOrder.LITTLE_ENDIAN);
+    assertArrayEquals(expectedLE, result);
+  }
 }

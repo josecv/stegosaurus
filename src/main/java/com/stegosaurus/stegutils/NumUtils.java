@@ -167,10 +167,15 @@ public final class NumUtils {
    * @param s the short
    * @return the byte array.
    */
-  public static byte[] byteArrayFromShort(short s) {
+  public static byte[] byteArrayFromShort(short s, ByteOrder order) {
     byte[] retval = new byte[2];
-    retval[0] = (byte) (s >> 8);
-    retval[1] = (byte) (s & 0xFF);
+    if(order == ByteOrder.BIG_ENDIAN) {
+      retval[0] = (byte) (s >> 8);
+      retval[1] = (byte) (s & 0xFF);
+    } else {
+      retval[0] = (byte) (s & 0xFF);
+      retval[1] = (byte) (s >> 8);
+    }
     return retval;
   }
 
