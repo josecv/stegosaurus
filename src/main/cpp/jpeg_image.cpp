@@ -54,7 +54,7 @@ JBLOCKARRAY JPEGImage::getCoefficients(int component_index) const {
   JBLOCKARRAY retval = new JBLOCKROW[rows];
   for(i = 0; i < rows; ++i) {
     JBLOCKARRAY arr = (*decomp->mem->access_virt_barray)
-      ((j_common_ptr) decomp, coeffs[component_index], 0, 1, 1);
+      ((j_common_ptr) decomp, coeffs[component_index], i, 1, 1);
     retval[i] = arr[0];
   }
   coefficients[component_index] = retval;
