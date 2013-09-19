@@ -1,5 +1,6 @@
 #include "../../main/cpp/jpeg_context.h"
 #include "../../main/cpp/jpeg_image.h"
+#include "../../main/cpp/coefficient_accessor.h"
 #include "../../main/c/steg_utils.h"
 #include "../../main/c/src_mgr.h"
 
@@ -114,4 +115,22 @@ TEST_F(JPEGImageTest, testWriteNew) {
     }
   }
   context->destroyImage(other);
+}
+
+/**
+ * Test building a coefficient accessor from an image.
+ * The coefficient accessor class has its own tests, so we merely ensure
+ * that it's been built properly and that all three components are accessible.
+ */
+TEST_F(JPEGImageTest, testAccessorFromImage) {
+  testImage->readCoefficients();
+  CoefficientAccessor acc(testImage);
+  int off = 0, i;
+  for(i = 0; i < testImage->getComponentCount(); ++i) {
+    JPEGComponent *c = testImage->getComponent(i);
+    EXPECT_EQ(c->getCoefficients()[0][0][0], acc.getCoefficient(off))
+      << "Offset " << off;
+    off += c->getDownsampledWidth() * c->getDownsampledHeight();
+  }
+  EXPECT_EQ(off, acc.getLength());
 }

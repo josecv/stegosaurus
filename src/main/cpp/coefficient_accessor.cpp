@@ -5,7 +5,7 @@ CoefficientAccessor::CoefficientAccessor(JPEGImage *img)
       freeComponentArray(1) {
   int i;
   components = new JPEGComponent*[totalComponents];
-  for(i = 0; totalComponents; i++) {
+  for(i = 0; i < totalComponents; i++) {
     components[i] = img->getComponent(i);
   }
 }
