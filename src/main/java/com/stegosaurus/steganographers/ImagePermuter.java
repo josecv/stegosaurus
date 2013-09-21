@@ -1,7 +1,6 @@
 package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
-import gnu.trove.procedure.TIntProcedure;
 
 import java.util.BitSet;
 import java.util.Random;
