@@ -83,8 +83,7 @@ public class PM1Embedder {
          * needs to be changed in the carrier.
          */
         if((val < 0 && -(val % 2) == m) || (val > 0 && (val % 2) != m)) {
-          boolean atIndex = seq.atIndex(index);
-          val += (atIndex ? 1 : -1);
+          val += (seq.atIndex(index) ? 1 : -1);
           if(val == 0) {
             val = (m == 0 ? -1 : 1);
           }

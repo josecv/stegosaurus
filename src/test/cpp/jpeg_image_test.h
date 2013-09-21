@@ -134,3 +134,35 @@ TEST_F(JPEGImageTest, testAccessorFromImage) {
   }
   EXPECT_EQ(off, acc.getLength());
 }
+
+/**
+ * Test that accessing coefficients in JBLOCKARRAYS works as expected.
+ * This is equivalent to ensuring that the getCoefficient method is not
+ * doing anything fishy to the data it receives from libjpeg.
+ */
+TEST_F(JPEGImageTest, testCoefficientAccess) {
+  testImage->readCoefficients();
+  int c, r, col, i;
+  for(c = 0; c < testImage->getComponentCount(); ++c) {
+    JBLOCKARRAY arr = testImage->getCoefficients(c);
+    for(r = 0; r < 3; ++r) {
+      for(col = 0; col < 3; ++col) {
+        for(i = 0; i < 3; ++i) {
+          /* Just a pretty generic operation; should ensure a decent
+           * enough difference between coefficients. */
+          arr[r][col][i] = (c * r * col) + i;
+        }
+      }
+    }
+  }
+  for(c = 0; c < testImage->getComponentCount(); ++c) {
+    JBLOCKARRAY arr = testImage->getCoefficients(c);
+    for(r = 0; r < 3; ++r) {
+      for(col = 0; col < 3; ++col) {
+        for(i = 0; i < 3; ++i) {
+          EXPECT_EQ(arr[r][col][i], (c * r * col) + i);
+        }
+      }
+    }
+  }
+}
