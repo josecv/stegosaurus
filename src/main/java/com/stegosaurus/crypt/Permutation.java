@@ -25,7 +25,7 @@ public class Permutation implements TIntIterator {
   /**
    * The current index.
    */
-  private int i = 0;
+  private int index = 0;
 
   /**
    * Construct a new permutation. You should call init after constructing this.
@@ -45,14 +45,20 @@ public class Permutation implements TIntIterator {
    * example, wish to reseed the random number generator.
    */
   public void init() {
+    /* No need to allocate a new array if we already have one: the
+     * permutation algorithm isn't dependent on an array's contents, so
+     * we're fine.
+     */
+    if(permutation == null) {
+      permutation = new int[size];
+    }
     /* This stuff is just your basic Knuth permutation. */
-    permutation = new int[size];
-    int i;
-    for(i = 0; i < size; i++) {
+    for(int i = 0; i < size; i++) {
       int j = random.nextInt(i + 1);
       permutation[i] = permutation[j];
       permutation[j] = i;
     }
+    index = 0;
   }
 
   /**
@@ -63,8 +69,8 @@ public class Permutation implements TIntIterator {
     if(permutation == null) {
       throw new IllegalStateException("Permutation has not been initialized");
     }
-    int retval = permutation[i];
-    i++;
+    int retval = permutation[index];
+    index++;
     return retval;
   }
 
@@ -81,6 +87,6 @@ public class Permutation implements TIntIterator {
    */
   @Override
   public boolean hasNext() {
-    return i < size;
+    return index < size;
   }
 }

@@ -66,10 +66,30 @@ public class PermutationTest {
    */
   @Test
   public void testAllCovered() {
+    int i = 0;
     while(permutation.hasNext()) {
       int next = permutation.next();
       seen.set(next);
+      i++;
     }
     assertEquals("Not every number returned", size, seen.cardinality());
+    assertEquals("Iterating more than needed", size, i);
+  }
+
+  /**
+   * Test that the Permutation satisfies the other tests in this class
+   * regardless of how many times the init method is called.
+   */
+  @Test
+  public void testMultipleInit() {
+    /* 5 times should be informative enough... */
+    for(int i = 0; i < 5; i++) {
+      /* Again, allCovered and noRepetition imply one another, so this
+       * should be fine. */
+      testAllCovered();
+      seen.clear();
+      r.setSeed(i * 1000);
+      permutation.init();
+    }
   }
 }
