@@ -46,8 +46,11 @@ build/stegosaurus_wrap.o: $(SWIGWRAP)
 build/:
 	mkdir -p build/
 
-$(SWIGWRAP): $(SRCROOT)/stegosaurus.i $(OBJECTS)
+$(SWIGWRAP): $(SRCROOT)/stegosaurus.i $(OBJECTS) $(SWIGDIR)
 	$(SWIG) $(SWIGFLAGS) -c++ -java $<
+
+$(SWIGDIR):
+	mkdir -p $(SWIGDIR)
 
 clean:
 	rm -f build/*.o libstegosaurus.so steg_tests $(SWIGWRAP)
