@@ -6,16 +6,16 @@ CXX=g++
 FLAGS=-Wall -Wextra -g -fPIC -pedantic
 CFLAGS=$(FLAGS)
 CXXFLAGS=$(FLAGS)
-SRCROOT=src/main
+SRCROOT=stegosaurus-native/src/main
 CROOT=$(SRCROOT)/c
 CXXROOT=$(SRCROOT)/cpp
-TESTROOT=src/test
+TESTROOT=stegosaurus-native/src/test
 CXXTEST=$(TESTROOT)/cpp
 LDFLAGS=-ljpeg
 OBJECTS=build/blockiness.o build/crop.o build/dest_mgr.o build/src_mgr.o \
 	build/jpeg_image.o build/jpeg_context.o build/jpeg_component.o \
 	build/coefficient_accessor.o build/steg_utils.o
-SWIGDIR=src/main/java/com/stegosaurus/cpp
+SWIGDIR=stegosaurus-java/src/main/java/com/stegosaurus/cpp
 SWIGPACKAGE=com.stegosaurus.cpp
 SWIGFLAGS=-package com.stegosaurus.cpp -outdir $(SWIGDIR)
 SWIG=swig

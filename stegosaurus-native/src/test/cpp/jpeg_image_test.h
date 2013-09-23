@@ -5,6 +5,12 @@
 #include "../../main/c/src_mgr.h"
 
 /**
+ * The name of the image file used for testing
+ * TODO THIS SUCKS!
+ */
+static const char* filename = "stegosaurus-native/src/test/resources/cpp/lena-colour.jpeg";
+
+/**
  * Fixture used to run tests on the JPEGImage class.
  * This involves performing a ton of libjpeg operations, which is why
  * the fixture is somewhat verbose.
@@ -19,7 +25,7 @@ class JPEGImageTest : public ::testing::Test {
     imgbuf = NULL;
     imglen = 0;
     /* TODO Some sort of error handling here */
-    reffile = fopen("src/test/resources/cpp/lena-colour.jpeg", "rb");
+    reffile = fopen(filename, "rb");
     read_file(&imgbuf, &imglen, reffile);
     testImage = context->buildImage(imgbuf, imglen);
     /* We've got the buffer: we'll use it for the test image. Now we have
