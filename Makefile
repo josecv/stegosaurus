@@ -21,7 +21,7 @@ SWIGFLAGS=-package com.stegosaurus.cpp -outdir $(SWIGDIR)
 SWIG=swig
 SWIGWRAP=$(SRCROOT)/stegosaurus_wrap.cxx
 WRAPOBJ=build/stegosaurus_wrap.o
-JAVAINC=-I/usr/lib/jvm/java/include -I/usr/lib/jvm/java/include/linux
+JAVAINC=-I/usr/lib/jvm/icedtea-bin-7/include -I/usr/lib/jvm/icedtea-bin-7/include/linux
 
 all: libstegosaurus.so steg_tests
 
