@@ -2,6 +2,8 @@ package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Random;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
@@ -25,6 +27,14 @@ public class PM1Extractor {
   public PM1Extractor(Random random) {
     this.random = random;
   }
+  /**
+   * A byte buffer to be used for manipulating byte arrays and other
+   * such structures. Allocated to 2 bytes.
+   * Note that we must explicitly set the byte order, because the default
+   * is platform-specific.
+   */
+  private ByteBuffer byteBuffer = ByteBuffer.allocate(2)
+    .order(ByteOrder.BIG_ENDIAN);
 
   /**
    * Extract a message from the carrier image given.
@@ -41,15 +51,14 @@ public class PM1Extractor {
     ImagePermuter permuter = new ImagePermuter(acc, p);
     BitOutputStream os = new BitOutputStream();
     doExtract(permuter, os, 16);
-    byte[] seedBytes = os.data();
+    short seed = byteBuffer.put(os.data()).getShort(0);
     os.close();
-    short seed = (short) ((seedBytes[0] << 8) | (seedBytes[1] & 0xFF));
     random.setSeed(seed);
     p.init();
     os = new BitOutputStream();
     doExtract(permuter, os, 16);
-    byte[] lenBytes = os.data();
-    int len = ((lenBytes[0] << 8) | lenBytes[1] & 0xFF);
+    byteBuffer.clear();
+    int len = byteBuffer.put(os.data()).getShort(0);
     os.close();
     os = new BitOutputStream();
     doExtract(permuter, os, len * 8);

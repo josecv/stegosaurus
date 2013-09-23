@@ -2,6 +2,7 @@ package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Random;
 
@@ -9,7 +10,6 @@ import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.crypt.Permutation;
 import com.stegosaurus.stegostreams.BitInputStream;
-import com.stegosaurus.stegutils.NumUtils;
 
 /**
  * Embeds a message into a JPEG Image.
@@ -21,7 +21,19 @@ public class PM1Embedder {
    */
   private Random rand;
 
+  /**
+   * The plus-minus sequence used by this embedder.
+   */
   private PMSequence sequence;
+
+  /**
+   * A byte buffer to be used for manipulating byte arrays and other
+   * such structures. Allocated to 2 bytes.
+   * Note that we must explicitly set the byte order, because the default
+   * is platform-specific.
+   */
+  private ByteBuffer byteBuffer = ByteBuffer.allocate(2)
+    .order(ByteOrder.BIG_ENDIAN);
 
   /**
    * CTOR.
@@ -47,7 +59,7 @@ public class PM1Embedder {
     final Permutation p = ImagePermuter.buildPermutation(rand, acc);
     p.init();
     ImagePermuter permuter = new ImagePermuter(acc, p);
-    byte[] seedBytes = NumUtils.byteArrayFromShort(seed, ByteOrder.BIG_ENDIAN);
+    byte[] seedBytes = byteBuffer.putShort(seed).array();
     BitInputStream in = new BitInputStream(seedBytes);
     doEmbed(in, acc, permuter);
     in.close();
@@ -55,7 +67,8 @@ public class PM1Embedder {
     p.init();
     /* XXX */
     short len = (short) msg.length;
-    byte[] lenBytes = NumUtils.byteArrayFromShort(len, ByteOrder.BIG_ENDIAN);
+    byteBuffer.clear();
+    byte[] lenBytes = byteBuffer.putShort(len).array();
     in = new BitInputStream(lenBytes, msg);
     doEmbed(in, acc, permuter);
     in.close();
