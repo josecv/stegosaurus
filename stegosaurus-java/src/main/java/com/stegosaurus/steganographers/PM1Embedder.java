@@ -2,8 +2,6 @@ package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Random;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
@@ -15,33 +13,19 @@ import com.stegosaurus.stegostreams.BitInputStream;
  * Embeds a message into a JPEG Image.
  * Does only one pass, using a key, seed and PM sequence.
  */
-public class PM1Embedder {
-  /**
-   * The random number generator in use here.
-   */
-  private Random rand;
-
+public class PM1Embedder extends PM1Algorithm {
   /**
    * The plus-minus sequence used by this embedder.
    */
   private PMSequence sequence;
 
   /**
-   * A byte buffer to be used for manipulating byte arrays and other
-   * such structures. Allocated to 2 bytes.
-   * Note that we must explicitly set the byte order, because the default
-   * is platform-specific.
-   */
-  private ByteBuffer byteBuffer = ByteBuffer.allocate(2)
-    .order(ByteOrder.BIG_ENDIAN);
-
-  /**
    * CTOR.
-   * @param rand the random number generator; will be reseeded on embed.
+   * @param random the random number generator; will be reseeded on embed.
    * @param seq the plus-minus sequence to direct this object's embedding.
    */
-  public PM1Embedder(Random rand, PMSequence seq) {
-    this.rand = rand;
+  public PM1Embedder(Random random, PMSequence seq) {
+    super(random);
     sequence = seq;
   }
 
@@ -53,22 +37,18 @@ public class PM1Embedder {
    * @param seed the seed to reseed the permutation with.
    */
   public JPEGImage embed(byte[] msg, JPEGImage cover, String key, short seed) {
-    rand.setSeed(key.hashCode());
-    cover.readCoefficients();
-    final CoefficientAccessor acc = new CoefficientAccessor(cover);
-    final Permutation p = ImagePermuter.buildPermutation(rand, acc);
-    p.init();
+    CoefficientAccessor acc = buildAccessorForImage(cover);
+    Permutation p = buildPermutation(acc);
+    reseedPermutation(key.hashCode(), p);
     ImagePermuter permuter = new ImagePermuter(acc, p);
-    byte[] seedBytes = byteBuffer.putShort(seed).array();
+    byte[] seedBytes = getClearedBuffer().putShort(seed).array();
     BitInputStream in = new BitInputStream(seedBytes);
     doEmbed(in, acc, permuter);
     in.close();
-    rand.setSeed(seed);
-    p.init();
+    reseedPermutation(seed, p);
     /* XXX */
     short len = (short) msg.length;
-    byteBuffer.clear();
-    byte[] lenBytes = byteBuffer.putShort(len).array();
+    byte[] lenBytes = getClearedBuffer().putShort(len).array();
     in = new BitInputStream(lenBytes, msg);
     doEmbed(in, acc, permuter);
     in.close();

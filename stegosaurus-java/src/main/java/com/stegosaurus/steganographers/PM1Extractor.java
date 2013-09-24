@@ -2,8 +2,6 @@ package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Random;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
@@ -14,27 +12,14 @@ import com.stegosaurus.stegostreams.BitOutputStream;
 /**
  * Extracts messages from carrier images.
  */
-public class PM1Extractor {
-  /**
-   * The random object.
-   */
-  private Random random;
-
+public class PM1Extractor extends PM1Algorithm {
   /**
    * CTOR.
    * @param random the random object to use; will be reseeded on extract.
    */
   public PM1Extractor(Random random) {
-    this.random = random;
+    super(random);
   }
-  /**
-   * A byte buffer to be used for manipulating byte arrays and other
-   * such structures. Allocated to 2 bytes.
-   * Note that we must explicitly set the byte order, because the default
-   * is platform-specific.
-   */
-  private ByteBuffer byteBuffer = ByteBuffer.allocate(2)
-    .order(ByteOrder.BIG_ENDIAN);
 
   /**
    * Extract a message from the carrier image given.
@@ -43,22 +28,18 @@ public class PM1Extractor {
    * @return the message as a byte array.
    */
   public byte[] extract(JPEGImage carrier, String key) {
-    random.setSeed(key.hashCode());
-    carrier.readCoefficients();
-    CoefficientAccessor acc = new CoefficientAccessor(carrier);
-    Permutation p = ImagePermuter.buildPermutation(random, acc);
-    p.init();
+    CoefficientAccessor acc = buildAccessorForImage(carrier);
+    Permutation p = buildPermutation(acc);
+    reseedPermutation(key.hashCode(), p);
     ImagePermuter permuter = new ImagePermuter(acc, p);
     BitOutputStream os = new BitOutputStream();
     doExtract(permuter, os, 16);
-    short seed = byteBuffer.put(os.data()).getShort(0);
+    short seed = getClearedBuffer().put(os.data()).getShort(0);
     os.close();
-    random.setSeed(seed);
-    p.init();
+    reseedPermutation(seed, p);
     os = new BitOutputStream();
     doExtract(permuter, os, 16);
-    byteBuffer.clear();
-    int len = byteBuffer.put(os.data()).getShort(0);
+    int len = getClearedBuffer().put(os.data()).getShort(0);
     os.close();
     os = new BitOutputStream();
     doExtract(permuter, os, len * 8);
