@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Converts bit-by-bit input to a byte array.
+ * Converts bit-by-bit input to a byte array; close() is a no-op.
  * Operates in Big Endian (ie sequentially)
  */
 public class BitOutputStream extends OutputStream {
@@ -27,6 +27,7 @@ public class BitOutputStream extends OutputStream {
   public BitOutputStream() {
     super();
     data = new TByteArrayList();
+    count = 0;
   }
 
   /**
@@ -93,6 +94,20 @@ public class BitOutputStream extends OutputStream {
   }
 
   /**
+   * Reset the output stream, allowing the user to write to it again.
+   */
+  public void reset() {
+    count = 0;
+    data.clear();
+  }
+
+  /**
+   * Close the bit output stream; has no effect.
+   */
+  @Override
+  public void close() { }
+
+  /**
    * Get the number of bits that have been written.
    * @return the count.
    */
@@ -108,9 +123,4 @@ public class BitOutputStream extends OutputStream {
   protected TByteList getData() {
     return data;
   }
-
-  /**
-   * Close the bit output stream; has no effect.
-   */
-  public void close() { }
 }
