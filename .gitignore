@@ -7,3 +7,5 @@ build/
 libstegosaurus.so
 steg_tests
 target/
+.project
+.settings/
