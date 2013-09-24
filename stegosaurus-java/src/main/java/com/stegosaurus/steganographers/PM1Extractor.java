@@ -13,6 +13,12 @@ import com.stegosaurus.stegostreams.BitOutputStream;
  * Extracts messages from carrier images.
  */
 public class PM1Extractor extends PM1Algorithm {
+
+  /**
+   * A BitOutputStream to use for extracting steganographic bits in an image.
+   */
+  final BitOutputStream os = new BitOutputStream();
+
   /**
    * CTOR.
    * @param random the random object to use; will be reseeded on extract.
@@ -32,17 +38,12 @@ public class PM1Extractor extends PM1Algorithm {
     Permutation p = buildPermutation(acc);
     reseedPermutation(key.hashCode(), p);
     ImagePermuter permuter = new ImagePermuter(acc, p);
-    BitOutputStream os = new BitOutputStream();
-    doExtract(permuter, os, 16);
+    doExtract(permuter, 16);
     short seed = getClearedBuffer().put(os.data()).getShort(0);
-    os.close();
     reseedPermutation(seed, p);
-    os = new BitOutputStream();
-    doExtract(permuter, os, 16);
+    doExtract(permuter, 16);
     int len = getClearedBuffer().put(os.data()).getShort(0);
-    os.close();
-    os = new BitOutputStream();
-    doExtract(permuter, os, len * 8);
+    doExtract(permuter, len * 8);
     byte[] data = os.data();
     os.close();
     return data;
@@ -55,8 +56,8 @@ public class PM1Extractor extends PM1Algorithm {
    * @param os the bit output stream to place the message bits into.
    * @param len the number of bits to extract.
    */
-  private void doExtract(ImagePermuter permuter, final BitOutputStream os,
-      final int len) {
+  private void doExtract(ImagePermuter permuter, final int len) {
+    os.reset();
     permuter.walk(new TIntIntProcedure() {
       private int count;
       public boolean execute(int index, int value) {
