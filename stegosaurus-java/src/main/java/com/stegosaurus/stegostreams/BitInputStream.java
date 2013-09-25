@@ -30,7 +30,23 @@ public class BitInputStream extends InputStream {
    * @param additional further byte arrays to return.
    */
   public BitInputStream(byte[] in, byte... additional) {
+    reset(in, additional);
+  }
+
+  /**
+   * Reset the input stream, to handle different byte array.
+   * @param in the array of bytes whose bits we'll return
+   * @param additional further byte arrays to return.
+   */
+  public final void reset(byte[] in, byte... additional) {
     this.data = ArrayUtils.addAll(in, additional);
+    reset();
+  }
+
+  /**
+   * Reset the input stream to handle the same byte array as currently.
+   */
+  public final void reset() {
     index = 0;
   }
 
