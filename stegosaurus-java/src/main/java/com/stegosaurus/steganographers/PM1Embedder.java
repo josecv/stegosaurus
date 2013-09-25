@@ -44,12 +44,11 @@ public class PM1Embedder extends PM1Algorithm {
     byte[] seedBytes = getClearedBuffer().putShort(seed).array();
     BitInputStream in = new BitInputStream(seedBytes);
     doEmbed(in, acc, permuter);
-    in.close();
     reseedPermutation(seed, p);
     /* XXX */
     short len = (short) msg.length;
     byte[] lenBytes = getClearedBuffer().putShort(len).array();
-    in = new BitInputStream(lenBytes, msg);
+    in.reset(lenBytes, msg);
     doEmbed(in, acc, permuter);
     in.close();
     return cover.writeNew();
