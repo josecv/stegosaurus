@@ -51,10 +51,16 @@ public class PMChromosome implements PMSequence {
   /**
    * Mutate this chromosome.
    * Equivalent to randomly flipping some of its genes.
-   * @param mutationProbability the odds that a specific gene will be changed
+   * @param rate the probability that a specific gene will be changed
    * @return this object.
    */
-  public PMChromosome mutate(double mutationProbability) {
+  public PMChromosome mutate(double rate) {
+    for(int i = 0; i < size; i++) {
+      double rand = random.nextDouble();
+      if(rand < rate) {
+        set.flip(i);
+      }
+    }
     return this;
   }
 

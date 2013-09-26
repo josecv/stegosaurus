@@ -126,4 +126,34 @@ public class PMChromosomeTest {
       fail("Crossover with bad index did not throw");
     } catch(IndexOutOfBoundsException e) { }
   }
+
+  /**
+   * Test the mutate method.
+   * This is done by mutating a chromosome, counting the changed genes, and
+   * figuring out if the rate of mutation is equivalent to the rate requested.
+   */
+  @Test
+  public void testMutate() {
+    final double p = 0.4;
+    /* We need a larger size than the default on this class, since as the
+     * the chromosomes grow, our rate calculation grows more precise.
+     */
+    final int size = 16384;
+    PMChromosome chromosome = new PMChromosome(size, random).randomize();
+    random.setSeed(SEED);
+    PMChromosome original = new PMChromosome(size, random).randomize();
+    chromosome.mutate(p);
+    double different = 0.0;
+    for(int i = 0; i < size; i++) {
+      if(chromosome.atIndex(i) != original.atIndex(i)) {
+        different += 1.0;
+      }
+    }
+    double rate = different / size;
+    /* A delta of 0.1 is really not tolerable, especially for a large enough
+     * chromosome, but 0.05 is probably small enough for our purposes.
+     */
+    assertEquals(p, rate, 0.05);
+  }
+
 }
