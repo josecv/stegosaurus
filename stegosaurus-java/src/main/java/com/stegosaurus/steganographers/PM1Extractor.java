@@ -4,10 +4,12 @@ import gnu.trove.procedure.TIntIntProcedure;
 
 import java.util.Random;
 
+import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.crypt.Permutation;
 import com.stegosaurus.stegostreams.BitOutputStream;
+import com.stegosaurus.stegutils.ByteBufferHelper;
 
 /**
  * Extracts messages from carrier images.
@@ -22,9 +24,10 @@ public class PM1Extractor extends PM1Algorithm {
   /**
    * CTOR.
    * @param random the random object to use; will be reseeded on extract.
+   * @param helper an object that can provide us with ByteBuffers.
    */
-  public PM1Extractor(Random random) {
-    super(random);
+  private PM1Extractor(Random random, ByteBufferHelper helper) {
+    super(random, helper);
   }
 
   /**
@@ -70,5 +73,32 @@ public class PM1Extractor extends PM1Algorithm {
         return count < len;
       }
     });
+  }
+
+  /**
+   * Builds PM1Extractors.
+   */
+  public static class Factory {
+    /**
+     * The ByteBufferHelper that will be injected into built instances.
+     */
+    private ByteBufferHelper helper;
+
+    /**
+     * CTOR; should be called by Guava.
+     * @param helper the ByteBufferHelper that will be given to built objectws.
+     */
+    @Inject
+    public Factory(ByteBufferHelper helper) {
+      this.helper = helper;
+    }
+
+    /**
+     * Construct a new PM1Extractor.
+     * @param random the random object to use; will be reseeded on extract.
+     */
+    public PM1Extractor build(Random random) {
+      return new PM1Extractor(random, helper);
+    }
   }
 }

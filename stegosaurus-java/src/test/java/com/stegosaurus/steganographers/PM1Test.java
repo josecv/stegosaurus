@@ -13,11 +13,12 @@ import org.junit.Test;
 import com.stegosaurus.cpp.JPEGContext;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.stegutils.NativeUtils;
+import com.stegosaurus.testing.TestWithInjection;
 
 /**
  * Test the PM1Embedder and the PM1Extractor classes
  */
-public class PM1Test {
+public class PM1Test extends TestWithInjection {
   /**
    * The JPEGContext in use here.
    */
@@ -27,6 +28,13 @@ public class PM1Test {
    * The carrier image.
    */
   private JPEGImage cover;
+
+  /**
+   * An object capable of building PM1Exctractors.
+   */
+  private PM1Extractor.Factory extractorFactory;
+
+  private PM1Embedder.Factory embedderFactory;
 
   /**
    * A dummy PM sequence that returns true for every even index and false
@@ -44,7 +52,10 @@ public class PM1Test {
    */
   @Before
   public void setUp() {
+    super.setUp();
     con = new JPEGContext();
+    extractorFactory = injector.getInstance(PM1Extractor.Factory.class);
+    embedderFactory = injector.getInstance(PM1Embedder.Factory.class);
     InputStream in = getClass().getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
@@ -66,9 +77,9 @@ public class PM1Test {
     String msg = "Sing, goddess, the anger of Peleus' son Achilles";
     Random r = new Random();
     PMSequence seq = new DummySequence();
-    PM1Embedder emb = new PM1Embedder(r, seq);
+    PM1Embedder emb = embedderFactory.build(r, seq);
     JPEGImage stego = emb.embed(msg.getBytes(), cover, key, (short) 0xABBA);
-    PM1Extractor ex = new PM1Extractor(r);
+    PM1Extractor ex = extractorFactory.build(r);
     byte[] out = ex.extract(stego, key);
     String outStr = new String(out);
     assertEquals(msg, outStr);

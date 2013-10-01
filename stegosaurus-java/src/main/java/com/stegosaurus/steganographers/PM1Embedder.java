@@ -4,10 +4,12 @@ import gnu.trove.procedure.TIntIntProcedure;
 
 import java.util.Random;
 
+import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.crypt.Permutation;
 import com.stegosaurus.stegostreams.BitInputStream;
+import com.stegosaurus.stegutils.ByteBufferHelper;
 
 /**
  * Embeds a message into a JPEG Image.
@@ -23,9 +25,10 @@ public class PM1Embedder extends PM1Algorithm {
    * CTOR.
    * @param random the random number generator; will be reseeded on embed.
    * @param seq the plus-minus sequence to direct this object's embedding.
+   * @param helper an object that can provide us with ByteBuffers.
    */
-  public PM1Embedder(Random random, PMSequence seq) {
-    super(random);
+  private PM1Embedder(Random random, PMSequence seq, ByteBufferHelper helper) {
+    super(random, helper);
     sequence = seq;
   }
 
@@ -84,5 +87,33 @@ public class PM1Embedder extends PM1Algorithm {
         return in.available() != 0;
       }
     });
+  }
+
+  /**
+   * Builds PM1Embedders.
+   */
+  public static class Factory {
+    /**
+     * The ByteBufferHelper to inject into instances.
+     */
+    private ByteBufferHelper helper;
+
+    /**
+     * CTOR; to be invoked by Guava.
+     * @param helper the helper to be injected into instances.
+     */
+    @Inject
+    public Factory(ByteBufferHelper helper) {
+      this.helper = helper;
+    }
+
+   /**
+    * Build a new PM1Embedder.
+    * @param seq the plus-minus sequence to direct this object's embedding.
+    * @param helper an object that can provide us with ByteBuffers.
+    */
+    public PM1Embedder build(Random r, PMSequence seq) {
+      return new PM1Embedder(r, seq, helper);
+    }
   }
 }
