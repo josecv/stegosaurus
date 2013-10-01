@@ -4,7 +4,8 @@ import java.nio.ByteBuffer;
 
 /**
  * Provides byte buffers on request.
- * All the provided byte buffers must support the array() operation.
+ * All the provided byte buffers must support the array() operation, and
+ * must be in big endian order.
  */
 public interface ByteBufferHelper {
   /**

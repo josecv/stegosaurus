@@ -4,6 +4,7 @@ import gnu.trove.map.TIntObjectMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import com.google.inject.Singleton;
 
@@ -45,7 +46,7 @@ public class ByteBufferHelperImpl implements ByteBufferHelper {
     ByteBuffer retval = map.get(size);
     /* This saves us from the overhead of calling containsKey */
     if(retval == null) {
-      retval = ByteBuffer.allocate(size);
+      retval = ByteBuffer.allocate(size).order(ByteOrder.BIG_ENDIAN);
       map.put(size, retval);
     }
     retval.clear();

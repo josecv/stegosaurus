@@ -1,6 +1,7 @@
 package com.stegosaurus.stegutils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,5 +62,14 @@ public class ByteBufferHelperImplTest {
     ByteBuffer bufferAgain = helper.getClearedBuffer(4);
     assertTrue("Buffer not cached", buffer == bufferAgain);
     assertEquals("Buffer not cleared", 0, bufferAgain.position());
+  }
+
+  /**
+   * Ensure that the byte buffers' byte order is big endian.
+   */
+  @Test
+  public void testByteOrder() {
+    ByteBuffer buffer = helper.getClearedBuffer(2);
+    assertEquals("Wrong byte order", ByteOrder.BIG_ENDIAN, buffer.order());
   }
 }
