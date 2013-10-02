@@ -55,6 +55,19 @@ public class BitInputStreamTest {
   }
 
   /**
+   * Ensure that the read() method returns -1 on reaching the end of stream.
+   */
+  @Test
+  public void testEndOfStream() {
+    byte[] arg = { 0x5D };
+    stream = new BitInputStream(arg);
+    for(int i = 0; i < arg.length * 8; i++) {
+      stream.read();
+    }
+    assertEquals("Bad return value from end of stream", -1, stream.read());
+  }
+
+  /**
    * Test the skipToEndOfByte method.
    */
   @Test
@@ -66,7 +79,7 @@ public class BitInputStreamTest {
     }
     stream.skipToEndOfByte();
     for(int i = 0; i < 4; i++) {
-      assertEquals("Failed to skip all the way to next byte", stream.read(), 0);
+      assertEquals("Failed to skip all the way to next byte", 0, stream.read());
     }
   }
 

@@ -52,10 +52,13 @@ public class BitInputStream extends InputStream {
 
   /**
    * Get the next bit (0 or 1) from the byte array.
-   * @return the next bit.
+   * @return the next bit, or -1 if there are no more bits to read.
    */
   @Override
   public int read() {
+    if(index / 8 >= data.length) {
+      return -1;
+    }
     int retval = (data[index/8] >> (7 - (index % 8))) & 1;
     index++;
     return retval;
