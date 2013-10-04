@@ -6,9 +6,10 @@ import java.util.Random;
 import com.stegosaurus.steganographers.PMSequence;
 
 /**
- * A chromosme for the genetic PM1 algorithm.
+ * A chromosme for some genetic algorithm. Consists of a sequence of boolean
+ * genes that may be flipped on or off.
  */
-public class PMChromosome implements PMSequence {
+public class Chromosome implements PMSequence {
 
   /**
    * The bit set used to represent the chromosome.
@@ -31,7 +32,7 @@ public class PMChromosome implements PMSequence {
    * @param size the number of genes in the chromosome.
    * @param random the random number generator this chromosome should use.
    */
-  public PMChromosome(int size, Random random) {
+  public Chromosome(int size, Random random) {
     set = new BitSet(size);
     this.size = size;
     this.random = random;
@@ -41,7 +42,7 @@ public class PMChromosome implements PMSequence {
    * Randomize the genes in this chromosome.
    * @return this object.
    */
-  public PMChromosome randomize() {
+  public Chromosome randomize() {
     for(int i = 0; i < size; i++) {
       set.set(i, random.nextBoolean());
     }
@@ -54,7 +55,7 @@ public class PMChromosome implements PMSequence {
    * @param rate the probability that a specific gene will be changed
    * @return this object.
    */
-  public PMChromosome mutate(double rate) {
+  public Chromosome mutate(double rate) {
     for(int i = 0; i < size; i++) {
       double rand = random.nextDouble();
       if(rand < rate) {
@@ -73,7 +74,7 @@ public class PMChromosome implements PMSequence {
    * @param first the first chromosome.
    * @param second the second chromosome.
    */
-  public static void crossover(PMChromosome first, PMChromosome second) {
+  public static void crossover(Chromosome first, Chromosome second) {
     crossover(first, second, first.random.nextInt(first.size));
   }
 
@@ -86,7 +87,7 @@ public class PMChromosome implements PMSequence {
    * @throws IllegalArgumentException if the chromosomes are of unequal length
    * @throws IndexOutOfBoundsException if the index given is out of range
    */
-  public static void crossover(PMChromosome first, PMChromosome second,
+  public static void crossover(Chromosome first, Chromosome second,
     int index) {
     if(first.size != second.size) {
       throw new IllegalArgumentException("Chromosomes of unequal length");
@@ -107,7 +108,9 @@ public class PMChromosome implements PMSequence {
   }
 
   /**
-   * {@inheritDoc}
+   * Get the gene at the index given.
+   * @param index the index
+   * @return the gene (true or false).
    */
   public boolean atIndex(int index) {
     return set.get(index);

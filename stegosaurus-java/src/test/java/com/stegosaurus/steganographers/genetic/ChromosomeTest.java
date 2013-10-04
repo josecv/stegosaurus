@@ -10,9 +10,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Test the PMChromosome class.
+ * Test the Chromosome class.
  */
-public class PMChromosomeTest {
+public class ChromosomeTest {
 
   /**
    * The random object to use.
@@ -46,19 +46,19 @@ public class PMChromosomeTest {
   public void testCrossover() {
     int i;
     final int index = 75;
-    PMChromosome[] chromosomes = {
-      new PMChromosome(SIZE, random).randomize(),
-      new PMChromosome(SIZE, random).randomize()
+    Chromosome[] chromosomes = {
+      new Chromosome(SIZE, random).randomize(),
+      new Chromosome(SIZE, random).randomize()
     };
     /* By reseeding this thing, we can make sure that the expected[]
      * chromosomes are identical to the previously generated ones.
      */
     random.setSeed(SEED);
-    PMChromosome[] expected = {
-      new PMChromosome(SIZE, random).randomize(),
-      new PMChromosome(SIZE, random).randomize()
+    Chromosome[] expected = {
+      new Chromosome(SIZE, random).randomize(),
+      new Chromosome(SIZE, random).randomize()
     };
-    PMChromosome.crossover(chromosomes[0], chromosomes[1], index);
+    Chromosome.crossover(chromosomes[0], chromosomes[1], index);
     String msg = "Bad value for chromosome %d at index %d";
     for(i = 0; i < index; i++) {
       assertEquals(String.format(msg, 0, i),
@@ -83,16 +83,16 @@ public class PMChromosomeTest {
   @Test
   public void testRandomCrossover() {
     /* The set up is nearly identical to testCrossover's */
-    PMChromosome[] chromosomes = {
-      new PMChromosome(SIZE, random).randomize(),
-      new PMChromosome(SIZE, random).randomize()
+    Chromosome[] chromosomes = {
+      new Chromosome(SIZE, random).randomize(),
+      new Chromosome(SIZE, random).randomize()
     };
     random.setSeed(SEED);
-    PMChromosome[] expected = {
-      new PMChromosome(SIZE, random).randomize(),
-      new PMChromosome(SIZE, random).randomize()
+    Chromosome[] expected = {
+      new Chromosome(SIZE, random).randomize(),
+      new Chromosome(SIZE, random).randomize()
     };
-    PMChromosome.crossover(chromosomes[0], chromosomes[1]);
+    Chromosome.crossover(chromosomes[0], chromosomes[1]);
     String msg = "Crossover left chromosome unchanged";
     for(int i = 0; i < 2; i++) {
       assertFalse(msg, expected[0].equals(chromosomes[0]));
@@ -105,10 +105,10 @@ public class PMChromosomeTest {
    */
   @Test
   public void testCrossoverUnequalChromosomeLengths() {
-    PMChromosome first = new PMChromosome(SIZE, random);
-    PMChromosome second = new PMChromosome((SIZE * 2) - 7, random);
+    Chromosome first = new Chromosome(SIZE, random);
+    Chromosome second = new Chromosome((SIZE * 2) - 7, random);
     try {
-      PMChromosome.crossover(first, second, 22);
+      Chromosome.crossover(first, second, 22);
       fail("Crossover with unequally sized chromosomes did not throw");
     } catch(IllegalArgumentException e) { }
   }
@@ -119,10 +119,10 @@ public class PMChromosomeTest {
    */
   @Test
   public void testCrossoverIndexOutOfBounds() {
-    PMChromosome first = new PMChromosome(SIZE, random);
-    PMChromosome second = new PMChromosome(SIZE, random);
+    Chromosome first = new Chromosome(SIZE, random);
+    Chromosome second = new Chromosome(SIZE, random);
     try {
-      PMChromosome.crossover(first, second, SIZE * 2 - 17);
+      Chromosome.crossover(first, second, SIZE * 2 - 17);
       fail("Crossover with bad index did not throw");
     } catch(IndexOutOfBoundsException e) { }
   }
@@ -139,9 +139,9 @@ public class PMChromosomeTest {
      * the chromosomes grow, our rate calculation grows more precise.
      */
     final int size = 16384;
-    PMChromosome chromosome = new PMChromosome(size, random).randomize();
+    Chromosome chromosome = new Chromosome(size, random).randomize();
     random.setSeed(SEED);
-    PMChromosome original = new PMChromosome(size, random).randomize();
+    Chromosome original = new Chromosome(size, random).randomize();
     chromosome.mutate(p);
     double different = 0.0;
     for(int i = 0; i < size; i++) {

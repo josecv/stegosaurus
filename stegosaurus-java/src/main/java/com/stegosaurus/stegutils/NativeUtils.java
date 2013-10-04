@@ -58,6 +58,10 @@ public final class NativeUtils {
    */
   public static StegJoctetArray readInputStream(InputStream in)
     throws IOException {
+    /* TODO This is slower than just reading the stream in by hand.
+     * Unfortunately the correct way of reading an entire InputStream
+     * is highly elusive, and growing these JoctetArrays is _tough_.
+     */
     byte[] b = IOUtils.toByteArray(in);
     StegJoctetArray retval = new StegJoctetArray(b.length);
     for(int i = 0; i < b.length; i++) {
