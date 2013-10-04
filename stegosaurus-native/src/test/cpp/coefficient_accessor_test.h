@@ -1,27 +1,8 @@
 #include "../../main/cpp/coefficient_accessor.h"
+#include "../../main/cpp/dummy_coefficients_provider.h"
 #include "gtest/gtest.h"
 #include <stdlib.h>
 #include <time.h>
-
-/**
- * Provides JPEG Coefficients from an array given.
- */
-class DummyCoefficientsProvider : public JPEGCoefficientsProvider {
- public:
-  /**
-   * CTOR.
-   * @param arr the array that will be provided to any who ask.
-   */
-  DummyCoefficientsProvider(JBLOCKARRAY arr) : array(arr) { }
-  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const {
-    return array;
-  }
- private:
-  /**
-   * The array to return.
-   */
-  JBLOCKARRAY array;
-};
 
 /**
  * Tests the coefficient accessor class. Creates some dummy JPEG components
