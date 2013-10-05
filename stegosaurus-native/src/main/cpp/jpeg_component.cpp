@@ -1,5 +1,4 @@
 #include "jpeg_component.h"
-#include "../c/blockiness.h"
 
 JPEGComponent::JPEGComponent(const jpeg_component_info *info,
                              const JPEGCoefficientsProvider *p)
