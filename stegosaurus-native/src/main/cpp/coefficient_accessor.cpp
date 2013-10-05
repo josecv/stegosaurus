@@ -3,7 +3,7 @@
 CoefficientAccessor::CoefficientAccessor(JPEGImage *img)
     : totalComponents(img->getComponentCount()),
       freeComponentArray(1) {
-  int i;
+  unsigned int i;
   components = new JPEGComponent*[totalComponents];
   for(i = 0; i < totalComponents; i++) {
     components[i] = img->getComponent(i);
@@ -25,7 +25,7 @@ CoefficientAccessor::~CoefficientAccessor(void) {
 }
 
 JPEGComponent* CoefficientAccessor::findComponent(unsigned int *index) {
-  int c = 0;
+  unsigned int c = 0;
   JPEGComponent *comp = components[0];
   while((c < totalComponents) &&
         (*index) >= comp->getTotalNumberOfCoefficients()) {
@@ -60,7 +60,7 @@ void CoefficientAccessor::setCoefficient(unsigned int index, JCOEF value) {
 
 int CoefficientAccessor::getLength(void) {
   int retval = 0;
-  int c;
+  unsigned int c;
   for(c = 0; c < totalComponents; c++) {
     retval += (components[c])->getTotalNumberOfCoefficients();
   }

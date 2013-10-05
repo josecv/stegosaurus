@@ -67,7 +67,7 @@ class CoefficientAccessor {
   /**
    * The total number of components available.
    */
-  int totalComponents;
+  unsigned int totalComponents;
 
   /**
    * Whether the component array should be freed by us.
