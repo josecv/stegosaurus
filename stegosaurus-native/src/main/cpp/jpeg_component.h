@@ -67,12 +67,13 @@ class JPEGComponent {
    */
   JDIMENSION getDownsampledHeight(void) const;
   /**
-   * Get the block width.
+   * Get the width of a single block.
    * @return the block width.
    */
   JDIMENSION getBlockWidth(void) const;
+
   /**
-   * Get the block height.
+   * Get the height of a single block.
    * @return the block height.
    */
   JDIMENSION getBlockHeight(void) const;
@@ -87,8 +88,28 @@ class JPEGComponent {
    * Get the total number of coefficients in this component.
    * @return the total number of coefficients.
    */
-  int getTotalNumberOfCoefficients(void) {
+  unsigned int getTotalNumberOfCoefficients(void) {
     return downsampled_height * downsampled_width;
+  }
+
+  /**
+   * Calculate the blockiness of this component.
+   * This result is never kept internally by the object, so it is in fact
+   * calculated from scratch every time.
+   * @return the blockiness.
+   */
+  int calculateBlockiness(void);
+  /**
+   * Get the DCT coefficient at the x, y coordinates given.
+   * For obvious reasons, if the coefficients are unrealized, they will
+   * be obtained.
+   * @param x the x coordinate
+   * @param y the y coordinate
+   * @return the coefficient.
+   */
+  int coefficientAt(int x, int y) {
+    return getCoefficients()[y / block_height][x / block_width]
+      [((y % block_height) * block_width) + (x % block_width)];
   }
  private:
   /**

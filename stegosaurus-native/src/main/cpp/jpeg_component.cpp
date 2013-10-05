@@ -1,4 +1,5 @@
 #include "jpeg_component.h"
+#include "../c/blockiness.h"
 
 JPEGComponent::JPEGComponent(const jpeg_component_info *info,
                              const JPEGCoefficientsProvider *p)
@@ -34,6 +35,10 @@ JBLOCKARRAY JPEGComponent::getCoefficients(void) {
     coefficients = provider->getCoefficients(this);
   }
   return coefficients;
+}
+
+int JPEGComponent::calculateBlockiness(void) {
+  return 0;
 }
 
 JDIMENSION JPEGComponent::getWidthInBlocks(void) const {
