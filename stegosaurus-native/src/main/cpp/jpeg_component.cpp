@@ -38,7 +38,19 @@ JBLOCKARRAY JPEGComponent::getCoefficients(void) {
 }
 
 int JPEGComponent::calculateBlockiness(void) {
-  return 0;
+  int retval = 0;
+  unsigned int i, j;
+  for(i = 0; i < ((downsampled_width - 1) / 8); ++i) {
+    for(j = 0; j < downsampled_height; ++j) {
+      retval += abs(coefficientAt(8 * i, j) - coefficientAt((8 * i) + 1, j));
+    }
+  }
+  for(j = 0; ((downsampled_height -1) / 8); ++j) {
+    for(i = 0; i < downsampled_width; ++i) {
+      retval += abs(coefficientAt(i, 8 * j) - coefficientAt(i, (8 * j) + 1));
+    }
+  }
+  return retval;
 }
 
 JDIMENSION JPEGComponent::getWidthInBlocks(void) const {
