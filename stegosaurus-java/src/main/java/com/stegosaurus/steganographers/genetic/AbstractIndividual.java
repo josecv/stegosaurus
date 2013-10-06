@@ -6,6 +6,8 @@ package com.stegosaurus.steganographers.genetic;
  * These include keeping track of the fitness to know when it should be
  * recalculated, and ensuring that nobody tries to calculate it without
  * first having run the simulation.
+ * In addition, this class ensures that no simulation is run when none is
+ * needed (i.e. no crossover or mutation has ocurred).
  * Note: this class implements natural ordering inconsistent with equals()
  */
 public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
@@ -68,10 +70,22 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    */
   @Override
   public final Individual<T> simulate() {
-    simulateImpl();
-    needsSimulation = false;
-    fitness = -1.0;
+    if(needsSimulation) {
+      simulateImpl();
+      needsSimulation = false;
+      fitness = -1.0;
+    }
     return this;
+  }
+
+  /**
+   * Force a simulation to take place the next time simulate() is called,
+   * regardless of whether this class considers it necessary.
+   * Note that this method does not run a simulation! It merely ensures
+   * that the next call to simulate() will.
+   */
+  protected void forceNextSimulation() {
+    needsSimulation = true;
   }
 
   /**
@@ -107,9 +121,7 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    */
   @Override
   public int compareTo(Individual<T> other) {
-    double mine = calculateFitness();
-    double theirs = other.calculateFitness();
-    return Double.compare(mine, theirs);
+    return Double.compare(calculateFitness(), other.calculateFitness());
   }
 
   /**

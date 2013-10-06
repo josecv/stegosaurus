@@ -120,10 +120,28 @@ public class AbstractIndividualTest {
   @Test
   public void testFitnessRecalculation() {
     for(int j = 1; j < 4; j++)  {
-      individual.simulate();
+      individual.mutate(0.5).simulate();
       for(int i = 0; i < 3; i++) {
-        assertEquals(individual.calculateFitness(), 1.0 / j, 0.02);
+        assertEquals("Fitness not recalculated",
+          1.0 / j, individual.calculateFitness(), 0.02);
       }
+    }
+  }
+
+  /**
+   * Ensure that the individual will not run a simulation unless needed.
+   */
+  @Test
+  public void testPreventUnwarrantedSimulation() {
+    individual.simulate();
+    /* We know from other tests that simulate() will ordinarily force a
+     * fitness recalculation (eg from testCalculateFitness()), so we merely
+     * need to verify that none has ocurred to confirm that there has been
+     * no simulation.
+     */
+    for(int i = 0; i < 3; i++) {
+      individual.simulate();
+      assertEquals(1.0, individual.calculateFitness(), 0.02);
     }
   }
 }
