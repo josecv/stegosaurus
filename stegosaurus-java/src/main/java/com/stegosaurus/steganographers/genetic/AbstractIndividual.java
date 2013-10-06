@@ -6,6 +6,7 @@ package com.stegosaurus.steganographers.genetic;
  * These include keeping track of the fitness to know when it should be
  * recalculated, and ensuring that nobody tries to calculate it without
  * first having run the simulation.
+ * Note: this class implements natural ordering inconsistent with equals()
  */
 public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
   implements Individual<T> {
@@ -66,10 +67,11 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    * {@inheritDoc}
    */
   @Override
-  public final void simulate() {
+  public final Individual<T> simulate() {
     simulateImpl();
     needsSimulation = false;
     fitness = -1.0;
+    return this;
   }
 
   /**
@@ -95,4 +97,28 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    * @param other the individual to cross this one with.
    */
   protected abstract void crossoverImpl(Individual<T> other);
+
+  /**
+   * Compares this individual to another, returning a positive number, a 0,
+   * or a negative number if it is greater than, equal, or less than the
+   * other, respectively.
+   * NOTE: THIS ORDERING IS INCONSISTENT WITH equals().
+   * @param other the other individual
+   */
+  @Override
+  public int compareTo(Individual<T> other) {
+    double mine = calculateFitness();
+    double theirs = other.calculateFitness();
+    return Double.compare(mine, theirs);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Individual<T> mutate(double rate) {
+    chromosome.mutate(rate);
+    needsSimulation = true;
+    return this;
+  }
 }

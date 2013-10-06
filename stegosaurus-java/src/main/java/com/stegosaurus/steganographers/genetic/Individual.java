@@ -11,6 +11,11 @@ package com.stegosaurus.steganographers.genetic;
  * from the chromosome; as such, the general workflow should be to construct
  * the individual, call the simulate() method, and then calculate its fitness.
  *
+ * It is possible to compare an individual to another individual of the same
+ * type. For such a comparison, their fitness values are compared. Thus, if
+ * individual A is fitter than individual B, A is less than B.
+ * NOTE: This ordering is not necessarily consistent with the equals() method.
+ *
  * The idea with the template parameter here is that it should be set to the
  * actual implementing class. Thus, if class A implements individual, it
  * should be declared as "A implements Individual &gt;A&lt;". This is to
@@ -19,13 +24,15 @@ package com.stegosaurus.steganographers.genetic;
  * This should allow declaration of some variables as Individual&gt;?&lt;
  * provided crossover isn't called on them.
  */
-interface Individual<T extends Individual<T>> {
+interface Individual<T extends Individual<T>>
+  extends Comparable<Individual<T>> {
   /**
    * Run the simulation corresponding to this individual.
    * Evidently, the precise nature of this is incredibly variable, but it
    * should generally be assumed to be an expensive operation.
+   * @return this same individual.
    */
-  void simulate();
+  Individual<T> simulate();
 
   /**
    * Calculate and return the fitness of this individual.
@@ -45,4 +52,13 @@ interface Individual<T extends Individual<T>> {
    * @return the chromosome.
    */
   Chromosome getChromosome();
+
+  /**
+   * Randomly mutate this individual's chromosome, according to a given rate.
+   * Thus, if the rate is 1/3, a third of this individual's genes will
+   * be altered.
+   * @param rate the rate of mutation.
+   * @return this same individual.
+   */
+  Individual<T> mutate(double rate);
 }

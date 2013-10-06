@@ -78,6 +78,35 @@ public class AbstractIndividualTest {
   }
 
   /**
+   * Test the compareTo method.
+   */
+  @Test
+  public void testCompareTo() {
+    Chromosome otherChromosome = new Chromosome(CHROMOSOME_SIZE, random);
+    DummyIndividual other = new DummyIndividual(otherChromosome);
+    individual.simulate();
+    other.simulate();
+    assertEquals(0, individual.compareTo(other));
+    assertEquals(0, other.compareTo(individual));
+    other.mutate(0.5).simulate();
+    assertTrue(other.compareTo(individual) < 0);
+    assertTrue(individual.compareTo(other) > 0);
+  }
+
+  /**
+   * Test that calculateFitness throws if we've just mutated this individual.
+   */
+  @Test
+  public void testCalculateFitnessAfterMutation() {
+    individual.simulate();
+    individual.mutate(0.5);
+    try {
+      individual.calculateFitness();
+      fail("calculateFitness did not throw after mutation");
+    } catch(IllegalStateException e) { }
+  }
+
+  /**
    * Test that calculate fitness works under valid circumnstances.
    */
   @Test
