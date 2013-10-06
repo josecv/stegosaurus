@@ -65,8 +65,7 @@ public class AbstractIndividualTest {
     Chromosome otherChromosome = new Chromosome(CHROMOSOME_SIZE, random);
     DummyIndividual other = new DummyIndividual(otherChromosome);
     other.simulate();
-    individual.simulate();
-    individual.crossover(other);
+    individual.simulate().crossover(other);
     try {
       individual.calculateFitness();
       fail("calculateFitness did not throw after crossover");
@@ -98,8 +97,7 @@ public class AbstractIndividualTest {
    */
   @Test
   public void testCalculateFitnessAfterMutation() {
-    individual.simulate();
-    individual.mutate(0.5);
+    individual.simulate().mutate(0.5);
     try {
       individual.calculateFitness();
       fail("calculateFitness did not throw after mutation");
@@ -111,8 +109,7 @@ public class AbstractIndividualTest {
    */
   @Test
   public void testCalculateFitness() {
-    individual.simulate();
-    double fitness = individual.calculateFitness();
+    double fitness = individual.simulate().calculateFitness();
     assertEquals(fitness, 1.0, 0.02);
   }
 
