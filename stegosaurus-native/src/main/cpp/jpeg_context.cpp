@@ -1,8 +1,8 @@
 #include "jpeg_context.h"
 
 JPEGContext::JPEGContext() {
-  this->decomp = (j_decompress_ptr) malloc(sizeof(struct jpeg_decompress_struct));
-  this->comp = (j_compress_ptr) malloc(sizeof(struct jpeg_compress_struct));
+  this->decomp = (j_decompress_ptr) new struct jpeg_decompress_struct;
+  this->comp = (j_compress_ptr) new struct jpeg_compress_struct;
   this->decomp->err = jpeg_std_error(&(this->djerr));
   this->comp->err = jpeg_std_error(&(this->cjerr));
   jpeg_create_decompress(this->decomp);
