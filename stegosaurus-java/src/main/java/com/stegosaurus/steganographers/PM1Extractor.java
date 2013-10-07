@@ -19,7 +19,7 @@ public class PM1Extractor extends PM1Algorithm {
   /**
    * A BitOutputStream to use for extracting steganographic bits in an image.
    */
-  final BitOutputStream os = new BitOutputStream();
+  private final BitOutputStream os = new BitOutputStream();
 
   /**
    * CTOR.
@@ -48,7 +48,6 @@ public class PM1Extractor extends PM1Algorithm {
     int len = getClearedBuffer().put(os.data()).getShort(0);
     doExtract(permuter, len * 8);
     byte[] data = os.data();
-    os.close();
     return data;
   }
 
