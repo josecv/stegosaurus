@@ -1,7 +1,9 @@
 package com.stegosaurus.steganographers.genetic;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Random;
@@ -101,6 +103,29 @@ public class ChromosomeTest {
   }
 
   /**
+   * Test the equals and hashCode methods
+   */
+  @Test
+  public void testEqualsHashCode() {
+    Chromosome first = new Chromosome(SIZE, random);
+    Chromosome second = new Chromosome(SIZE, random);
+    first.randomize();
+    random.setSeed(SEED);
+    second.randomize();
+    assertEquals(first, second);
+    assertEquals(second, first);
+    assertTrue("Equals() idiocy", first.equals(first));
+    assertFalse("Equals() idiocy", first.equals(null));
+    assertEquals("hashCode() returning different hash codes for equal objects",
+      first.hashCode(), second.hashCode());
+    second.randomize();
+    assertNotEquals(first, second);
+    assertNotEquals(second, first);
+    assertNotEquals("hashCode() returning same hash codes for equal objects",
+      first.hashCode(), second.hashCode());
+  }
+
+  /**
    * Test the crossover method when the chromosomes are of unequal length.
    */
   @Test
@@ -155,5 +180,4 @@ public class ChromosomeTest {
      */
     assertEquals(p, rate, 0.05);
   }
-
 }

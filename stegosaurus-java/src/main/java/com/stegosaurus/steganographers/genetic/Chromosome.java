@@ -1,5 +1,6 @@
 package com.stegosaurus.steganographers.genetic;
 
+import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.Random;
 
@@ -114,5 +115,36 @@ public class Chromosome implements PMSequence {
    */
   public boolean atIndex(int index) {
     return set.get(index);
+  }
+
+  /**
+   * Get a representation of this Chromosome as a double precision floating
+   * point number.
+   * @return a representation of the chromosome as a double.
+   */
+  public double asDouble() {
+    return ByteBuffer.wrap(set.toByteArray()).getDouble();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if(obj == this) {
+      return true;
+    }
+    if(obj == null || !(obj instanceof Chromosome)) {
+      return false;
+    }
+    return ((Chromosome) obj).set.equals(set);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+    return set.hashCode();
   }
 }
