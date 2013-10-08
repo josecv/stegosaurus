@@ -1,8 +1,8 @@
 package com.stegosaurus.steganographers.genetic;
 
 /**
- * A Dummy individual, useful for testing.
- * The fitness returns 1 / n, where n is the number of times it's been
+ * A Dummy individual, useful for testing;
+ * its fitness returns 1 / n, where n is the number of times it's been
  * calculated.
  */
 public class DummyIndividual extends AbstractIndividual<DummyIndividual> {
@@ -18,14 +18,6 @@ public class DummyIndividual extends AbstractIndividual<DummyIndividual> {
    */
   public DummyIndividual(Chromosome c) {
     super(c);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void crossoverImpl(Individual<DummyIndividual> other) {
-    Chromosome.crossover(chromosome, other.getChromosome());
   }
 
   /**

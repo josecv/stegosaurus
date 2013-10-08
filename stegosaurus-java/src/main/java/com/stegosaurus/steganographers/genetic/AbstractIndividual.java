@@ -110,7 +110,9 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    * Actually cross this individual over with the one given.
    * @param other the individual to cross this one with.
    */
-  protected abstract void crossoverImpl(Individual<T> other);
+  protected void crossoverImpl(Individual<T> other) {
+    Chromosome.crossover(chromosome, other.getChromosome());
+  }
 
   /**
    * Compares this individual to another, returning a positive number, a 0,

@@ -47,8 +47,7 @@ public class PM1Extractor extends PM1Algorithm {
     doExtract(permuter, 16);
     int len = getClearedBuffer().put(os.data()).getShort(0);
     doExtract(permuter, len * 8);
-    byte[] data = os.data();
-    return data;
+    return os.data();
   }
 
   /**
