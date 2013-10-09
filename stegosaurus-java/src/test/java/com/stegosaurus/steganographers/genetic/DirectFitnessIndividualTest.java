@@ -85,13 +85,9 @@ public class DirectFitnessIndividualTest {
   @Test
   public void testFitnessInValidRange() {
     for(Individual<DirectFitnessIndividual> individual : population) {
-      try {
-        double val = individual.calculateFitness();
-        assertTrue("fitness < 0 : " + val, individual.calculateFitness() >= 0);
-        assertTrue("fitness > 1 : " + val, individual.calculateFitness() <= 1);
-      } catch(Exception e) {
-        System.out.println("We got a whoopsie");
-      }
+      double val = individual.calculateFitness();
+      assertTrue("fitness < 0 : " + val, individual.calculateFitness() >= 0);
+      assertTrue("fitness > 1 : " + val, individual.calculateFitness() <= 1);
     }
   }
 }

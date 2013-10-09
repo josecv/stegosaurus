@@ -1,8 +1,8 @@
 package com.stegosaurus.steganographers.genetic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -150,6 +150,50 @@ public class ChromosomeTest {
       Chromosome.crossover(first, second, SIZE * 2 - 17);
       fail("Crossover with bad index did not throw");
     } catch(IndexOutOfBoundsException e) { }
+  }
+
+  /* TODO Figure out a way to factor out common elements in the asX tests */
+
+  /**
+   * Test the asShort method.
+   */
+  @Test
+  public void testAsShort() {
+    /* The short value is almost like a truncated hash, so the only thing
+     * we really care about is that for two chromosomes A and B, A has
+     * the same asShort value as B iff A.equals(B) */
+    final int tries = 100;
+    for(int i = 0; i < tries; i++) {
+      random.setSeed(SEED);
+      Chromosome a = new Chromosome(SIZE, random).randomize();
+      /* Every so often we actually want them to be equal, or we're testing
+       * nothing at all... */
+      if(i % 5 == 0) {
+        random.setSeed(SEED);
+      }
+      Chromosome b = new Chromosome(SIZE, random).randomize();
+      assertTrue(!a.equals(b) || a.asShort() == b.asShort());
+      assertTrue(a.asShort() != b.asShort() || a.equals(b));
+    }
+  }
+
+  /**
+   * Test the asDouble method.
+   */
+  @Test
+  public void testAsDouble() {
+    /* This is basically identical as the testAsShort method. */
+    final int tries = 100;
+    for(int i = 0; i < tries; i++) {
+      random.setSeed(SEED);
+      Chromosome a = new Chromosome(SIZE, random).randomize();
+      if(i % 5 == 0) {
+        random.setSeed(SEED);
+      }
+      Chromosome b = new Chromosome(SIZE, random).randomize();
+      assertTrue(!a.equals(b) || a.asDouble() == b.asDouble());
+      assertTrue(a.asDouble() != b.asDouble() || a.equals(b));
+    }
   }
 
   /**

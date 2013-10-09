@@ -130,15 +130,33 @@ public class Chromosome implements PMSequence {
    * @return a representation of the chromosome as a double.
    */
   public double asDouble() {
-    /* The BitSet considers any 0x00s to be entirely non-existent which is
-     * inconvenient as hell, so we have to fill out the byte array correctly,
-     * or bad things will happen.
-     */
-    byte[] arr = set.toByteArray();
-    if(arr.length < Byte.SIZE) {
-      arr = ArrayUtils.addAll(arr, new byte[Byte.SIZE - arr.length]);
+    return ByteBuffer.wrap(asByteArray(Double.SIZE / Byte.SIZE)).getDouble();
+  }
+
+  /**
+   * Get a representation of this Chromosome as a short.
+   * Note that in the event of the chromosome not being large enough,
+   * the missing genes will be filled with 0.
+   * Similarly, in the event of the chromosome being too large, the extra
+   * genes will be ignored.
+   * @return a representation of this chromosome as a short.
+   */
+  public short asShort() {
+    return ByteBuffer.wrap(asByteArray(Short.SIZE / Byte.SIZE)).getShort();
+  }
+
+  /**
+   * Get a representation of this chromosome as a byte array of at least
+   * the size given.
+   * Any missing genes will be treated as 0s.
+   * @param minSize the lower bound on the size of the desired array.
+   */
+  private byte[] asByteArray(int minSize) {
+    byte[] retval = set.toByteArray();
+    if(retval.length < minSize) {
+      retval = ArrayUtils.addAll(retval, new byte[minSize - retval.length]);
     }
-    return ByteBuffer.wrap(arr).getDouble();
+    return retval;
   }
 
   /**
