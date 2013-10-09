@@ -27,7 +27,7 @@ public class PM1Embedder extends PM1Algorithm {
    * @param seq the plus-minus sequence to direct this object's embedding.
    * @param helper an object that can provide us with ByteBuffers.
    */
-  private PM1Embedder(Random random, PMSequence seq, ByteBufferHelper helper) {
+  protected PM1Embedder(Random random, PMSequence seq, ByteBufferHelper helper) {
     super(random, helper);
     sequence = seq;
   }

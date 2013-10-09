@@ -26,7 +26,7 @@ public class PM1Extractor extends PM1Algorithm {
    * @param random the random object to use; will be reseeded on extract.
    * @param helper an object that can provide us with ByteBuffers.
    */
-  private PM1Extractor(Random random, ByteBufferHelper helper) {
+  protected PM1Extractor(Random random, ByteBufferHelper helper) {
     super(random, helper);
   }
 
