@@ -39,12 +39,12 @@ public class BitOutputStream extends OutputStream {
     if(b != 0 && b != 1) {
       throw new IllegalArgumentException("Argument " + b + " not a bit");
     }
-    if (count / 8 == data.size()) {
+    if (count / Byte.SIZE == data.size()) {
       data.add((byte) 0);
     }
-    byte current = data.get(count / 8);
-    current |= (byte) (b << 7 - (count % 8));
-    data.set(count / 8, current);
+    byte current = data.get(count / Byte.SIZE);
+    current |= (byte) (b << 7 - (count % Byte.SIZE));
+    data.set(count / Byte.SIZE, current);
     count++;
   }
 
@@ -79,7 +79,7 @@ public class BitOutputStream extends OutputStream {
    * @param b the int to write
    */
   public void writeToEndOfByte(int b) {
-    while((count % 8) != 0) {
+    while((count % Byte.SIZE) != 0) {
       write(b);
     }
   }

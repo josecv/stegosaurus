@@ -56,10 +56,10 @@ public class BitInputStream extends InputStream {
    */
   @Override
   public int read() {
-    if(index / 8 >= data.length) {
+    if(index / Byte.SIZE >= data.length) {
       return -1;
     }
-    int retval = (data[index/8] >> (7 - (index % 8))) & 1;
+    int retval = (data[index/Byte.SIZE] >> (7 - (index % Byte.SIZE))) & 1;
     index++;
     return retval;
   }
@@ -84,7 +84,7 @@ public class BitInputStream extends InputStream {
    * Skip any remaining bits in the current byte until a new one is reached.
    */
   public void skipToEndOfByte() {
-    skip(8 - (index % 8));
+    skip(Byte.SIZE - (index % Byte.SIZE));
   }
 
   /**
@@ -109,7 +109,7 @@ public class BitInputStream extends InputStream {
    */
   @Override
   public int available() {
-    return (data.length * 8) - index;
+    return (data.length * Byte.SIZE) - index;
   }
 
   /**

@@ -41,12 +41,12 @@ public class PM1Extractor extends PM1Algorithm {
     Permutation p = buildPermutation(acc);
     reseedPermutation(key.hashCode(), p);
     ImagePermuter permuter = new ImagePermuter(acc, p);
-    doExtract(permuter, 16);
+    doExtract(permuter, Short.SIZE);
     short seed = getClearedBuffer().put(os.data()).getShort(0);
     reseedPermutation(seed, p);
-    doExtract(permuter, 16);
+    doExtract(permuter, Short.SIZE);
     int len = getClearedBuffer().put(os.data()).getShort(0);
-    doExtract(permuter, len * 8);
+    doExtract(permuter, len * Byte.SIZE);
     return os.data();
   }
 
