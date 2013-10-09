@@ -14,14 +14,14 @@ public class GenericIndividualFactory<T extends Individual<T>>
   /**
    * The constructor for the class we're providing instances of.
    */
-  private Constructor<T> ctor;
+  private Constructor<? extends T> ctor;
 
   /**
    * CTOR.
    * @param klass the type of the built instances.
    * @throws NoSuchMethodException if the constructor is missing.
    */
-  public GenericIndividualFactory(Class<T> klass)
+  public GenericIndividualFactory(Class<? extends T> klass)
     throws NoSuchMethodException {
     this.ctor = klass.getConstructor(Chromosome.class);
   }
