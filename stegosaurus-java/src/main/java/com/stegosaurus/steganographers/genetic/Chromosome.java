@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.Random;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import com.stegosaurus.steganographers.PMSequence;
 
 /**
@@ -120,10 +122,23 @@ public class Chromosome implements PMSequence {
   /**
    * Get a representation of this Chromosome as a double precision floating
    * point number.
+   * Note that in the event of the chromosome not being large enough, this
+   * will fill up the missing genes with 0.
+   * Similarly, in the event of the chromosome being too large, the extra
+   * genes will be ignored.
+   * WARNING: May return Infinity or NaN. Caveat salutator.
    * @return a representation of the chromosome as a double.
    */
   public double asDouble() {
-    return ByteBuffer.wrap(set.toByteArray()).getDouble();
+    /* The BitSet considers any 0x00s to be entirely non-existent which is
+     * inconvenient as hell, so we have to fill out the byte array correctly,
+     * or bad things will happen.
+     */
+    byte[] arr = set.toByteArray();
+    if(arr.length < Byte.SIZE) {
+      arr = ArrayUtils.addAll(arr, new byte[Byte.SIZE - arr.length]);
+    }
+    return ByteBuffer.wrap(arr).getDouble();
   }
 
   /**

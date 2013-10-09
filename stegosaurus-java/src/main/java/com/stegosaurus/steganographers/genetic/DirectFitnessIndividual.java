@@ -10,9 +10,13 @@ package com.stegosaurus.steganographers.genetic;
  * Note however that the fitness is not necessarily equal to the
  * chromosome's asDouble() value, given that the former must be between
  * 0 and 1, and the latter has no such constraint.
+ * A value of NaN or infinity for the chromosome is considered unfit as
+ * hell, and so produces a fitness of 1.0.
  * The precise algorithm for the fitness function is:
  * <code>
  *    a = abs(chromosome.asDouble())
+ *    if a is NaN or a is Infinity:
+ *      return 1.0
  *    if a &lt;= 1
  *      return a
  *    else
@@ -47,6 +51,9 @@ public class DirectFitnessIndividual
   @Override
   protected double calculateFitnessImpl() {
     double retval = Math.abs(chromosome.asDouble());
+    if(Double.isNaN(retval) || Double.isInfinite(retval)) {
+      return 1.0;
+    }
     if(retval <= 1) {
       return retval;
     }
