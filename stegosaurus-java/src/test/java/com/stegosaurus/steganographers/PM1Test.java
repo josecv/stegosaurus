@@ -1,6 +1,7 @@
 package com.stegosaurus.steganographers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
@@ -10,6 +11,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGContext;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.stegutils.NativeUtils;
@@ -34,13 +36,39 @@ public class PM1Test extends TestWithInjection {
    */
   private PM1Extractor.Factory extractorFactory;
 
+  /**
+   * An object capable of building PM1Embedders.
+   */
   private PM1Embedder.Factory embedderFactory;
+
+  /**
+   * A random number generator.
+   */
+  private Random random;
+
+  /**
+   * The stego key.
+   */
+  private static final String KEY = "Fluttershy";
+
+  /**
+   * The message to embed.
+   */
+  private static final String MSG = "Sing, goddess, the anger of Achilles";
+
+  /**
+   * The seed for the PM1Embedder.
+   */
+  private static final short SEED = (short) 0xABBA;
 
   /**
    * A dummy PM sequence that returns true for every even index and false
    * for every odd index.
    */
   private static class DummySequence implements PMSequence {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean atIndex(int index) {
       return index % 2 == 0;
@@ -53,6 +81,7 @@ public class PM1Test extends TestWithInjection {
   @Before
   public void setUp() {
     super.setUp();
+    random = new Random();
     con = new JPEGContext();
     extractorFactory = injector.getInstance(PM1Extractor.Factory.class);
     embedderFactory = injector.getInstance(PM1Embedder.Factory.class);
@@ -73,15 +102,35 @@ public class PM1Test extends TestWithInjection {
    */
   @Test
   public void testEmbedExtract() {
-    String key = "fluttershy";
-    String msg = "Sing, goddess, the anger of Peleus' son Achilles";
-    Random r = new Random();
     PMSequence seq = new DummySequence();
-    PM1Embedder emb = embedderFactory.build(r, seq);
-    JPEGImage stego = emb.embed(msg.getBytes(), cover, key, (short) 0xABBA);
-    PM1Extractor ex = extractorFactory.build(r);
-    byte[] out = ex.extract(stego, key);
+    PM1Embedder emb = embedderFactory.build(random, seq);
+    JPEGImage stego = emb.embed(MSG.getBytes(), cover, KEY, SEED);
+    PM1Extractor ex = extractorFactory.build(random);
+    byte[] out = ex.extract(stego, KEY);
     String outStr = new String(out);
-    assertEquals(msg, outStr);
+    assertEquals(MSG, outStr);
+  }
+
+  /**
+   * Ensure that the fakeEmbed doesn't actually change anything at all.
+   */
+  @Test
+  public void testFakeEmbedImmutability() {
+    PM1Embedder emb = embedderFactory.build(random, new DummySequence());
+    cover.readCoefficients();
+    CoefficientAccessor acc = new CoefficientAccessor(cover);
+    int[] expected = new int[acc.getLength()];
+    for(int i = 0; i < acc.getLength(); i++) {
+      expected[i] = acc.getCoefficient(i);
+    }
+    emb.fakeEmbed(MSG.getBytes(), cover, KEY, SEED);
+    JPEGImage other = cover.writeNew();
+    other.readCoefficients();
+    acc = new CoefficientAccessor(other);
+    int[] result = new int[acc.getLength()];
+    for(int i = 0; i < acc.getLength(); i++) {
+      result[i] = acc.getCoefficient(i);
+    }
+    assertArrayEquals(expected, result);
   }
 }
