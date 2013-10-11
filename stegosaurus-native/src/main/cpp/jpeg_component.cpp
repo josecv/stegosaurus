@@ -44,7 +44,7 @@ int JPEGComponent::calculateBlockiness(void) {
       retval += abs(coefficientAt(8 * i, j) - coefficientAt((8 * i) + 1, j));
     }
   }
-  for(j = 0; ((downsampled_height -1) / 8); ++j) {
+  for(j = 0; j < ((downsampled_height - 1) / 8); ++j) {
     for(i = 0; i < downsampled_width; ++i) {
       retval += abs(coefficientAt(i, 8 * j) - coefficientAt(i, (8 * j) + 1));
     }
