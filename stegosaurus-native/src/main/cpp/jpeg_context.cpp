@@ -20,6 +20,6 @@ void JPEGContext::destroyImage(JPEGImage* image) {
 JPEGContext::~JPEGContext() {
   jpeg_destroy_decompress(decomp);
   jpeg_destroy_compress(comp);
-  free(this->comp);
-  free(this->decomp);
+  delete (this->comp);
+  delete (this->decomp);
 }
