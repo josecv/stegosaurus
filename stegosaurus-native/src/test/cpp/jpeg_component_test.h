@@ -1,9 +1,15 @@
+#ifndef STEG_JPEG_COMPONENT_TEST
+#define STEG_JPEG_COMPONENT_TEST
+
 #include "../../main/cpp/dummy_coefficients_provider.h"
 #include "../../main/cpp/jpeg_component.h"
 #include "gtest/gtest.h"
 
+
 /**
  * Test the JPEGComponent class.
+ * Any blockiness related tests are left out, since those are quite complex.
+ * Instead, they may be found in the JPEGComponentBlockinessTest.
  */
 class JPEGComponentTest : public ::testing::Test {
  public:
@@ -105,3 +111,5 @@ TEST_F(JPEGComponentTest, TestCoefficientAt) {
   EXPECT_EQ(237, component->coefficientAt(13, 13));
   EXPECT_EQ(206, component->coefficientAt(14, 9));
 }
+
+#endif

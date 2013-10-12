@@ -1,3 +1,6 @@
+#ifndef STEG_COEFFICIENT_ACCESSOR_TEST
+#define STEG_COEFFICIENT_ACCESSOR_TEST
+
 #include "../../main/cpp/coefficient_accessor.h"
 #include "../../main/cpp/dummy_coefficients_provider.h"
 #include "gtest/gtest.h"
@@ -226,3 +229,5 @@ TEST_P(CoefficientAccessorTest, TestSetCoefficient) {
 
 INSTANTIATE_TEST_CASE_P(CoefficientInstantiation, CoefficientAccessorTest,
   ::testing::Values(1, 3));
+
+#endif
