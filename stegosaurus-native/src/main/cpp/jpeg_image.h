@@ -18,12 +18,10 @@ class JPEGImage : public JPEGCoefficientsProvider {
   /**
    * CTOR. Should only be invoked from a factory, or by another image.
    * Note that the image data will belong to this instance, which will free it.
-   * @param d the decompression object.
-   * @param c the compression object.
    * @param i a pointer to the image data.
    * @param imglen the size of the image data.
    */
-  JPEGImage(j_decompress_ptr d, j_compress_ptr c, JOCTET *i, long imglen);
+  JPEGImage(JOCTET *i, long imglen);
 
   /**
    * Destructor.
@@ -98,6 +96,18 @@ class JPEGImage : public JPEGCoefficientsProvider {
   }
 
  private:
+  /**
+   * Construct a jpeg_decompression_struct.
+   * @return a pointer to the built structure.
+   */
+  static j_decompress_ptr buildDecompressor();
+
+  /**
+   * Construct a jpeg_compression_struct.
+   * @return a pointer to the built structure.
+   */
+  static j_compress_ptr buildCompressor();
+
   /**
    * A decompression object.
    */

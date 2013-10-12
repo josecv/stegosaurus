@@ -3,13 +3,29 @@
 #include "../c/src_mgr.h"
 #include "../c/crop.h"
 
-JPEGImage::JPEGImage(j_decompress_ptr d, j_compress_ptr c,
-                     JOCTET *i, long imglen)
-    : decomp(d),
-      comp(c),
+j_decompress_ptr JPEGImage::buildDecompressor() {
+  j_decompress_ptr retval =
+    (j_decompress_ptr) new struct jpeg_decompress_struct;
+  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
+  jpeg_create_decompress(retval);
+  return retval;
+}
+
+j_compress_ptr JPEGImage::buildCompressor() {
+  j_compress_ptr retval = (j_compress_ptr) new struct jpeg_compress_struct;
+  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
+  jpeg_create_compress(retval);
+  return retval;
+}
+
+JPEGImage::JPEGImage(JOCTET *i, long imglen)
+    : decomp(NULL),
+      comp(NULL),
       image(i),
       len(imglen),
       coeffs(NULL) {
+  decomp = buildDecompressor();
+  comp = buildCompressor();
   steg_src_mgr_for(decomp, image, imglen);
   /* TODO : Necessary? */
   /* TODO : Error checking */
@@ -37,6 +53,12 @@ JPEGImage::~JPEGImage() {
   }
   delete [] components;
   delete [] coefficients;
+  delete decomp->err;
+  delete comp->err;
+  jpeg_destroy_decompress(decomp);
+  jpeg_destroy_compress(comp);
+  delete decomp;
+  delete comp;
 }
 
 void JPEGImage::readCoefficients(void) {
@@ -73,7 +95,7 @@ JPEGImage* JPEGImage::writeNew() {
   jpeg_write_coefficients(comp, coeffs);
   jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
-  return new JPEGImage(decomp, comp, output, outlen);
+  return new JPEGImage(output, outlen);
 }
 
 JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
@@ -89,7 +111,7 @@ JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
   crop(decomp, comp, x_off, y_off);
   jpeg_finish_decompress(decomp);
   jpeg_finish_compress(comp);
-  return new JPEGImage(decomp, comp, output, outlen);
+  return new JPEGImage(output, outlen);
 }
 
 JPEGComponent* JPEGImage::getComponent(int index) {

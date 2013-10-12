@@ -38,19 +38,6 @@ class JPEGContext {
    * Destructor.
    */
   ~JPEGContext();
- private:
-  /**
-   * The decompression object.
-   */
-  j_decompress_ptr decomp;
-  /**
-   * The compression object.
-   */
-  j_compress_ptr comp;
-  /**
-   * Error handlers for the decompression and compression object.
-   */
-  struct jpeg_error_mgr djerr, cjerr;
 };
 
 #endif
