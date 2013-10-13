@@ -12,8 +12,17 @@ class DummyCoefficientsProvider : public JPEGCoefficientsProvider {
    * @param arr the array that will be provided to any who ask.
    */
   DummyCoefficientsProvider(JBLOCKARRAY arr) : array(arr) { }
+
   virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const {
     return array;
+  }
+
+  /**
+   * Change the array to provide.
+   * @param arr the array.
+   */
+  void setArray(JBLOCKARRAY arr) {
+    this->array = arr;
   }
  private:
   /**

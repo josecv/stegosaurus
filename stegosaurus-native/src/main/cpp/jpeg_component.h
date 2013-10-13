@@ -99,6 +99,7 @@ class JPEGComponent {
    * @return the blockiness.
    */
   int calculateBlockiness(void);
+
   /**
    * Get the DCT coefficient at the x, y coordinates given.
    * For obvious reasons, if the coefficients are unrealized, they will
@@ -111,6 +112,13 @@ class JPEGComponent {
     return getCoefficients()[y / block_height][x / block_width]
       [((y % block_height) * block_width) + (x % block_width)];
   }
+
+  /**
+   * Force this object to request coefficients from its provider the next
+   * time it needs access to them, instead of using the ones previously
+   * returned.
+   */
+  void forceCoefReloadOnNextAccess(void);
  private:
   /**
    * The DCT coefficients. Unrealized at construction.

@@ -52,6 +52,10 @@ int JPEGComponent::calculateBlockiness(void) {
   return retval;
 }
 
+void JPEGComponent::forceCoefReloadOnNextAccess(void) {
+  coefficients = NULL;
+}
+
 JDIMENSION JPEGComponent::getWidthInBlocks(void) const {
   return this->width_in_blocks;
 }

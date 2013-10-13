@@ -17,17 +17,7 @@ class JPEGComponentTest : public ::testing::Test {
    * Set up the test.
    */
   void SetUp(void) {
-    coeffs = new JBLOCKROW[2];
-    int row, col, i = 0;
-    for(row = 0; row < 2; ++row) {
-      coeffs[row] = new JBLOCK[2];
-      for(col = 0; col < 2; ++col) {
-        int j;
-        for(j = 0; j < 64; ++j, ++i) {
-          coeffs[row][col][j] = i;
-        }
-      }
-    }
+    coeffs = buildArray(0);
     provider = new DummyCoefficientsProvider(coeffs);
     component = new JPEGComponent(2, 2, 16, 16, 0, provider);
   }
@@ -36,15 +26,44 @@ class JPEGComponentTest : public ::testing::Test {
    * Clean up after ourselves.
    */
   void TearDown(void) {
-    int row;
     delete component;
     delete provider;
-    for(row = 0; row < 2; ++row) {
-      delete [] coeffs[row];
-    }
-    delete [] coeffs;
+    destroyArray(coeffs);
   }
  protected:
+  /**
+   * Smash the JBLOCKARRAY given.
+   * @param array the doomed array.
+   */
+  void destroyArray(JBLOCKARRAY array) {
+    int row;
+    for(row = 0; row < 2; ++row) {
+      delete [] array[row];
+    }
+    delete [] array;
+  }
+
+  /**
+   * Construct a JBLOCKARRAY, of the dimensions this test uses, built
+   * sequentially from the starting number given (i.e. so that the first
+   * coefficient is start, the second is start + 1, etc).
+   * @param start the value of the first coef.
+   */
+  JBLOCKARRAY buildArray(int start) {
+    JBLOCKARRAY retval = new JBLOCKROW[2];
+    int row, col, i = start;
+    for(row = 0; row < 2; ++row) {
+      retval[row] = new JBLOCK[2];
+      for(col = 0; col < 2; ++col) {
+        int j;
+        for(j = 0; j < 64; ++j, ++i) {
+          retval[row][col][j] = i;
+        }
+      }
+    }
+    return retval;
+  }
+
   /**
    * The component we'll be using to test.
    */
@@ -110,6 +129,27 @@ TEST_F(JPEGComponentTest, TestCoefficientAt) {
   EXPECT_EQ(241, component->coefficientAt(9, 14));
   EXPECT_EQ(237, component->coefficientAt(13, 13));
   EXPECT_EQ(206, component->coefficientAt(14, 9));
+}
+
+/**
+ * Test the getCoefficients method.
+ */
+TEST_F(JPEGComponentTest, TestGetCoefficients) {
+  EXPECT_EQ(coeffs, component->getCoefficients());
+}
+
+/**
+ * Test the forceCoefReloadOnNextAccess method.
+ */
+TEST_F(JPEGComponentTest, TestForceCoefReload) {
+  JBLOCKARRAY other = buildArray(10);
+  /* Ensure they've been accessed */
+  component->getCoefficients();
+  provider->setArray(other);
+  EXPECT_EQ(coeffs, component->getCoefficients());
+  component->forceCoefReloadOnNextAccess();
+  EXPECT_EQ(other, component->getCoefficients());
+  destroyArray(other);
 }
 
 #endif
