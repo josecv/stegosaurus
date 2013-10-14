@@ -3,27 +3,14 @@
 #include "../c/src_mgr.h"
 #include "../c/crop.h"
 
-j_decompress_ptr JPEGImage::buildDecompressor() {
-  j_decompress_ptr retval =
-    (j_decompress_ptr) new struct jpeg_decompress_struct;
-  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
-  jpeg_create_decompress(retval);
-  return retval;
-}
-
-j_compress_ptr JPEGImage::buildCompressor() {
-  j_compress_ptr retval = (j_compress_ptr) new struct jpeg_compress_struct;
-  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
-  jpeg_create_compress(retval);
-  return retval;
-}
 
 JPEGImage::JPEGImage(JOCTET *i, long imglen)
     : decomp(NULL),
       comp(NULL),
       image(i),
       len(imglen),
-      coeffs(NULL) {
+      coeffs(NULL),
+      headers_read(true) {
   decomp = buildDecompressor();
   comp = buildCompressor();
   steg_src_mgr_for(decomp, image, imglen);
@@ -47,10 +34,8 @@ JPEGImage::~JPEGImage() {
     if(components[i] != NULL) {
       delete components[i];
     }
-    if(coefficients[i] != NULL) {
-      delete [] coefficients[i];
-    }
   }
+  deleteCoefficients();
   delete [] components;
   delete [] coefficients;
   delete decomp->err;
@@ -62,7 +47,10 @@ JPEGImage::~JPEGImage() {
 }
 
 void JPEGImage::readCoefficients(void) {
-  coeffs = jpeg_read_coefficients(decomp);
+  if(coeffs == NULL) {
+    reset();
+    coeffs = jpeg_read_coefficients(decomp);
+  }
 }
 
 JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) const {
@@ -95,10 +83,12 @@ JPEGImage* JPEGImage::writeNew() {
   jpeg_write_coefficients(comp, coeffs);
   jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
+  headers_read = false;
   return new JPEGImage(output, outlen);
 }
 
 JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
+  reset();
   JOCTET *output = NULL;
   long outlen = len;
   jpeg_copy_critical_parameters(decomp, comp);
@@ -111,6 +101,7 @@ JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
   crop(decomp, comp, x_off, y_off);
   jpeg_finish_decompress(decomp);
   jpeg_finish_compress(comp);
+  headers_read = false;
   return new JPEGImage(output, outlen);
 }
 
@@ -124,4 +115,46 @@ JPEGComponent* JPEGImage::getComponent(int index) {
 
 JOCTET* JPEGImage::getData(void) {
   return this->image;
+}
+
+void JPEGImage::reset(void) {
+  int i;
+  if(coeffs != NULL) {
+    coeffs = NULL;
+    deleteCoefficients();
+    for(i = 0; i < component_count; ++i) {
+      if(components[i] != NULL) {
+        components[i]->forceCoefReloadOnNextAccess();
+      }
+    }
+    jpeg_finish_decompress(decomp);
+    jpeg_read_header(decomp, 1);
+  } else if(!headers_read) {
+    jpeg_read_header(decomp, 1);
+  }
+  headers_read = true;
+}
+
+void JPEGImage::deleteCoefficients(void) {
+  int i;
+  for(i = 0; i < component_count; ++i) {
+    if(coefficients[i] != NULL) {
+      delete [] coefficients[i];
+    }
+  }
+}
+
+j_decompress_ptr JPEGImage::buildDecompressor() {
+  j_decompress_ptr retval =
+    (j_decompress_ptr) new struct jpeg_decompress_struct;
+  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
+  jpeg_create_decompress(retval);
+  return retval;
+}
+
+j_compress_ptr JPEGImage::buildCompressor() {
+  j_compress_ptr retval = (j_compress_ptr) new struct jpeg_compress_struct;
+  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
+  jpeg_create_compress(retval);
+  return retval;
 }

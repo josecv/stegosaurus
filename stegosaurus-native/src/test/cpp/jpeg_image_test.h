@@ -81,7 +81,7 @@ TEST_F(JPEGImageTest, testAccessorFromImage) {
       << "Offset " << off;
     off += c->getDownsampledWidth() * c->getDownsampledHeight();
   }
-  EXPECT_EQ(off, acc.getLength());
+  ASSERT_EQ(off, acc.getLength());
 }
 
 /**
@@ -114,6 +114,22 @@ TEST_F(JPEGImageTest, testCoefficientAccess) {
       }
     }
   }
+}
+
+/**
+ * Test that an image can be used for multiple operations, such as cropping
+ * it and then reading its coefficients.
+ * There's no real assertions going on in here, but libjpeg will positively
+ * kill a process when we do something it doesn't like, such as re-use a
+ * decompression object in an improper state. This test ensures our code
+ * doesn't cause that.
+ */
+TEST_F(JPEGImageTest, testImageReusability) {
+  JPEGImage *cropped = testImage->doCrop(4, 4);
+  testImage->readCoefficients();
+  context->destroyImage(cropped);
+  cropped = testImage->doCrop(4, 4);
+  context->destroyImage(cropped);
 }
 
 #endif

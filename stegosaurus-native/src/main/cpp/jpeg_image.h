@@ -12,6 +12,16 @@
 /**
  * Represents a jpeg image in use by stegosaurus. Should be constructed by
  * a factory, or by other JPEG images.
+ * You'll notice that this object is awfully stateful.
+ * Sadly, that's because of implementation concerns and you, the user, pay
+ * for the broken pot. As such, you should be mindful of how you're using
+ * these instances. Some specific gotchas:
+ *    - readCoefficients() needs to be called before making use of the
+ *      JPEGComponents or a CoefficientAccessor
+ *
+ * TODO Better document the stateful nature of this object.
+ * TODO Smarter, automatic, handling of the readCoefficients stuff.
+ * TODO All around refactoring and clean-up.
  */
 class JPEGImage : public JPEGCoefficientsProvider {
  public:
@@ -96,6 +106,17 @@ class JPEGImage : public JPEGCoefficientsProvider {
   }
 
  private:
+
+  /**
+   * Reset the state of this image object, allowing it to be used differently.
+   */
+  void reset(void);
+
+  /**
+   * Delete all the JBLOCKARRAYs that have been requested from this image.
+   */
+  void deleteCoefficients(void);
+
   /**
    * Construct a jpeg_decompression_struct.
    * @return a pointer to the built structure.
@@ -144,6 +165,15 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * The DCT coefficients of this image.
    */
   JBLOCKARRAY *coefficients;
+
+  /**
+   * Whether the headers have been read, by calling jpeg_read_headers on
+   * the decompression object.
+   * MUST be set to false after any calls to jpeg_finish_decompress.
+   * Note that we have the info contained in those headers regardless of
+   * whether or not they actually have been read.
+   */
+  bool headers_read;
 };
 
 #endif
