@@ -26,7 +26,7 @@ class JPEGComponent {
    * @param p a pointer to the coefficient provider to use.
    */
   JPEGComponent(const jpeg_component_info *info,
-                const JPEGCoefficientsProvider *p);
+                JPEGCoefficientsProvider *p);
   /**
    * Construct a JPEGComponent by passing some relevant information directly.
    * @param w_blocks width in blocks
@@ -39,7 +39,7 @@ class JPEGComponent {
   JPEGComponent(JDIMENSION w_blocks, JDIMENSION h_blocks,
                 JDIMENSION down_w, JDIMENSION down_h,
                 int ind,
-                const JPEGCoefficientsProvider *p);
+                JPEGCoefficientsProvider *p);
   /**
    * Get the DCT Coefficients for this component. If needed, they'll be
    * acquired from the coefficient provider.
@@ -127,7 +127,7 @@ class JPEGComponent {
   /**
    * The Coefficients provider.
    */
-  const JPEGCoefficientsProvider *provider;
+  JPEGCoefficientsProvider *provider;
   /**
    * Dimensions in blocks of this component.
    */
@@ -156,7 +156,7 @@ class JPEGCoefficientsProvider {
    * @param comp the JPEGComponent
    * @return the coefficients.
    */
-  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const = 0;
+  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) = 0;
 
   /**
    * Destructor. A no-op.

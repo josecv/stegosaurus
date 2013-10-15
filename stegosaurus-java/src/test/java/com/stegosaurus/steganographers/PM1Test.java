@@ -117,7 +117,6 @@ public class PM1Test extends TestWithInjection {
   @Test
   public void testFakeEmbedImmutability() {
     PM1Embedder emb = embedderFactory.build(random, new DummySequence());
-    cover.readCoefficients();
     CoefficientAccessor acc = cover.getCoefficientAccessor();
     int[] expected = new int[acc.getLength()];
     for(int i = 0; i < acc.getLength(); i++) {
@@ -125,7 +124,6 @@ public class PM1Test extends TestWithInjection {
     }
     emb.fakeEmbed(MSG.getBytes(), cover, KEY, SEED);
     JPEGImage other = cover.writeNew();
-    other.readCoefficients();
     acc = other.getCoefficientAccessor();
     int[] result = new int[acc.getLength()];
     for(int i = 0; i < acc.getLength(); i++) {

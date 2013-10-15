@@ -73,7 +73,6 @@ public class ImagePermuterTest {
    */
   @Test
   public void testNoRepeat() {
-    cover.readCoefficients();
     final TIntSet set = new TIntHashSet();
     long seed = "The National".hashCode();
     Random r = new Random(seed);

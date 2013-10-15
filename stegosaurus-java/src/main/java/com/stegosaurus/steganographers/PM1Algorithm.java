@@ -74,13 +74,11 @@ public abstract class PM1Algorithm {
   }
 
   /**
-   * Build a coefficient accessor for the image given, after reading said
-   * image's coefficients in.
+   * Get a coefficient accessor for the image given.
    * @param image the image.
    * @return the built accessor.
    */
-  protected CoefficientAccessor buildAccessorForImage(JPEGImage image) {
-    image.readCoefficients();
+  protected CoefficientAccessor getAccessorForImage(JPEGImage image) {
     return image.getCoefficientAccessor();
   }
 }

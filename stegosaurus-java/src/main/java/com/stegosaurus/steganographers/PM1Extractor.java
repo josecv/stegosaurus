@@ -37,7 +37,7 @@ public class PM1Extractor extends PM1Algorithm {
    * @return the message as a byte array.
    */
   public byte[] extract(JPEGImage carrier, String key) {
-    CoefficientAccessor acc = buildAccessorForImage(carrier);
+    CoefficientAccessor acc = getAccessorForImage(carrier);
     Permutation p = buildPermutation(acc);
     reseedPermutation(key.hashCode(), p);
     ImagePermuter permuter = new ImagePermuter(acc, p);

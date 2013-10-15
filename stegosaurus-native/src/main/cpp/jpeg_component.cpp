@@ -1,7 +1,7 @@
 #include "jpeg_component.h"
 
 JPEGComponent::JPEGComponent(const jpeg_component_info *info,
-                             const JPEGCoefficientsProvider *p)
+                             JPEGCoefficientsProvider *p)
     : coefficients(NULL),
       provider(p),
       width_in_blocks(info->width_in_blocks),
@@ -17,7 +17,7 @@ JPEGComponent::JPEGComponent(const jpeg_component_info *info,
 JPEGComponent::JPEGComponent(JDIMENSION w_blocks, JDIMENSION h_blocks,
                              JDIMENSION down_w, JDIMENSION down_h,
                              int ind,
-                             const JPEGCoefficientsProvider *p)
+                             JPEGCoefficientsProvider *p)
   : coefficients(NULL),
     provider(p),
     width_in_blocks(w_blocks),

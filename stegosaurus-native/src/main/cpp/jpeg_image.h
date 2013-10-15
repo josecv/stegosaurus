@@ -13,15 +13,19 @@
 /**
  * Represents a jpeg image in use by stegosaurus. Should be constructed by
  * a factory, or by other JPEG images.
- * You'll notice that this object is awfully stateful.
+ * Note that this object is not thread safe! It is best to confine a JPEGImage
+ * to a single thread.
+ * You may also notice that this object is awfully stateful (hence its lack of
+ * thread safety).
  * Sadly, that's because of implementation concerns and you, the user, pay
- * for the broken pot. As such, you should be mindful of how you're using
- * these instances. Some specific gotchas:
- *    - readCoefficients() needs to be called before making use of the
- *      JPEGComponents or a CoefficientAccessor
+ * for the broken pot. An attempt is made to hide this fact, but you should
+ * be aware of some caveats:
+ *  - The lack of thread safety.
+ *  - Cropping an image will cause its coefficients to be thrown away. They'll
+ *    be read automatically when next needed, but this can be a waste of time.
+ *    Consider not cropping the image until the last moment.
  *
  * TODO Better document the stateful nature of this object.
- * TODO Smarter, automatic, handling of the readCoefficients stuff.
  * TODO All around refactoring and clean-up.
  * TODO A SERIOUS review of error handling practices.
  */
@@ -39,12 +43,6 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * Destructor.
    */
   virtual ~JPEGImage();
-
-  /**
-   * Read the coefficients and store them for later retrieval through use
-   * of the function getBlockArray.
-   */
-  void readCoefficients(void);
 
   /**
    * Write the current state of the jpeg coefficients to a new image, and
@@ -83,7 +81,7 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * @param comp the JPEGComponent
    * @return the coefficients.
    */
-  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const;
+  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp);
 
   /**
    * Get the DCT coefficients for the component with the index given.
@@ -91,7 +89,7 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * @param component_index the index of the component
    * @return the coefficients.
    */
-  JBLOCKARRAY getCoefficients(int component_index) const;
+  JBLOCKARRAY getCoefficients(int component_index);
 
   /**
    * Get the raw image data.
@@ -116,6 +114,12 @@ class JPEGImage : public JPEGCoefficientsProvider {
   CoefficientAccessor* getCoefficientAccessor(void);
 
  private:
+  /**
+   * Request the DCT coefficients from libjpeg, and store a pointer to them
+   * for later retrieval.
+   * Note that they're not actually _accessed_ or loaded into memory.
+   */
+  void readCoefficients(void);
 
   /**
    * Reset the state of this image object, allowing it to be used differently.

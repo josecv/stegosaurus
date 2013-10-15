@@ -69,7 +69,7 @@ public class PM1Embedder extends PM1Algorithm {
    */
   private int embed(byte[] msg, JPEGImage cover, String key, short seed,
                     boolean real) {
-    CoefficientAccessor acc = buildAccessorForImage(cover);
+    CoefficientAccessor acc = getAccessorForImage(cover);
     Permutation p = buildPermutation(acc);
     reseedPermutation(key.hashCode(), p);
     ImagePermuter permuter = new ImagePermuter(acc, p);

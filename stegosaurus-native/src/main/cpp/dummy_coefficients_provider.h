@@ -13,7 +13,7 @@ class DummyCoefficientsProvider : public JPEGCoefficientsProvider {
    */
   DummyCoefficientsProvider(JBLOCKARRAY arr) : array(arr) { }
 
-  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) const {
+  virtual JBLOCKARRAY getCoefficients(const JPEGComponent *comp) {
     return array;
   }
 

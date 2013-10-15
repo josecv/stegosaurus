@@ -57,11 +57,12 @@ void JPEGImage::readCoefficients(void) {
   }
 }
 
-JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) const {
+JBLOCKARRAY JPEGImage::getCoefficients(const JPEGComponent *comp) {
   return getCoefficients(comp->getIndex());
 }
 
-JBLOCKARRAY JPEGImage::getCoefficients(int component_index) const {
+JBLOCKARRAY JPEGImage::getCoefficients(int component_index) {
+  readCoefficients();
   jpeg_component_info *info = decomp->comp_info + component_index;
   int rows = info->height_in_blocks;
   int i;
@@ -79,6 +80,7 @@ JBLOCKARRAY JPEGImage::getCoefficients(int component_index) const {
 }
 
 JPEGImage* JPEGImage::writeNew() {
+  readCoefficients();
   JOCTET *output = NULL;
   long outlen = len;
   steg_dest_mgr_for(comp, &output, &outlen);
@@ -86,8 +88,7 @@ JPEGImage* JPEGImage::writeNew() {
   comp->in_color_space = decomp->out_color_space;
   jpeg_write_coefficients(comp, coeffs);
   jpeg_finish_compress(comp);
-  jpeg_finish_decompress(decomp);
-  headers_read = false;
+  reset();
   return new JPEGImage(output, outlen);
 }
 
@@ -103,8 +104,8 @@ JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
   jpeg_start_compress(comp, 1);
   jpeg_start_decompress(decomp);
   crop(decomp, comp, x_off, y_off);
-  jpeg_finish_decompress(decomp);
   jpeg_finish_compress(comp);
+  jpeg_finish_decompress(decomp);
   headers_read = false;
   return new JPEGImage(output, outlen);
 }
@@ -156,6 +157,7 @@ void JPEGImage::deleteCoefficients(void) {
   for(i = 0; i < component_count; ++i) {
     if(coefficients[i] != NULL) {
       delete [] coefficients[i];
+      coefficients[i] = NULL;
     }
   }
 }

@@ -48,7 +48,6 @@ TEST_F(JPEGImageTest, testCrop) {
 TEST_F(JPEGImageTest, testWriteNew) {
   int i, j;
   JPEGImage *other;
-  testImage->readCoefficients();
   for(i = 0; i < 3; ++i) {
     JBLOCKARRAY arr = testImage->getCoefficients(i);
     for(j = 0; j < 64; ++j) {
@@ -56,7 +55,6 @@ TEST_F(JPEGImageTest, testWriteNew) {
     }
   }
   other = testImage->writeNew();
-  other->readCoefficients();
   for(i = 0; i < 3; ++i) {
     JBLOCKARRAY arr = other->getCoefficients(i);
     for(j = 0; j < 64; ++j) {
@@ -72,7 +70,6 @@ TEST_F(JPEGImageTest, testWriteNew) {
  * that it's been built properly and that all three components are accessible.
  */
 TEST_F(JPEGImageTest, testAccessorFromImage) {
-  testImage->readCoefficients();
   CoefficientAccessor *acc = testImage->getCoefficientAccessor();
   int off = 0, i;
   for(i = 0; i < testImage->getComponentCount(); ++i) {
@@ -90,7 +87,6 @@ TEST_F(JPEGImageTest, testAccessorFromImage) {
  * doing anything fishy to the data it receives from libjpeg.
  */
 TEST_F(JPEGImageTest, testCoefficientAccess) {
-  testImage->readCoefficients();
   int c, r, col, i;
   for(c = 0; c < testImage->getComponentCount(); ++c) {
     JBLOCKARRAY arr = testImage->getCoefficients(c);
@@ -132,11 +128,26 @@ TEST_F(JPEGImageTest, testCoefficientAccess) {
  * doesn't cause that.
  */
 TEST_F(JPEGImageTest, testImageReusability) {
+  int i;
+  CoefficientAccessor* acc = testImage->getCoefficientAccessor();
+  /* Force coefficients to be read */
+  for(i = 0; i < acc->getLength(); ++i) {
+    acc->getCoefficient(i);
+  }
+  /* Get coefficients, write them out, and crop */
+  JPEGImage *other = testImage->writeNew();
+  context->destroyImage(other);
   JPEGImage *cropped = testImage->doCrop(4, 4);
-  testImage->readCoefficients();
   context->destroyImage(cropped);
+
+  /* Get coefficients after crop, and then write them out. */
   cropped = testImage->doCrop(4, 4);
+  for(i = 0; i < acc->getLength(); ++i) {
+    acc->getCoefficient(i);
+  }
   context->destroyImage(cropped);
+  other = testImage->writeNew();
+  context->destroyImage(other);
 }
 
 /**
@@ -151,13 +162,11 @@ TEST_F(JPEGImageTest, testImageReusability) {
  */
 TEST_F(JPEGImageTest, testManyAccessors) {
   int i;
-  testImage->readCoefficients();
   CoefficientAccessor* first = testImage->getCoefficientAccessor();
   /* This will force coefficient access */
   for(i = 0; i < first->getLength(); ++i) {
     first->getCoefficient(i);
   }
-  testImage->readCoefficients();
   CoefficientAccessor* second = testImage->getCoefficientAccessor();
   for(i = 0; i < first->getLength(); ++i) {
     EXPECT_EQ(first->getCoefficient(i), second->getCoefficient(i));
