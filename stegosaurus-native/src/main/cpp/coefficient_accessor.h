@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "jpeglib.h"
-#include "jpeg_image.h"
+#include "jpeg_component.h"
 
 /**
  * Allows uniform access to a bunch of DCT coefficients, accross components,
@@ -13,12 +13,6 @@
  */
 class CoefficientAccessor {
  public:
-  /**
-   * Construct a coefficient accessor from an image.
-   * @param img the image.
-   */
-  CoefficientAccessor(JPEGImage *img);
-
   /**
    * Construct a coefficient accessor directly from an array of components.
    * @param componentArray array to the pointers to the components.
@@ -68,13 +62,6 @@ class CoefficientAccessor {
    * The total number of components available.
    */
   unsigned int totalComponents;
-
-  /**
-   * Whether the component array should be freed by us.
-   * True if we created it, false otherwise.
-   * Note that either way we don't free the actual components!
-   */
-  int freeComponentArray;
 
   /**
    * Find the component where a given index belongs; alter the index to

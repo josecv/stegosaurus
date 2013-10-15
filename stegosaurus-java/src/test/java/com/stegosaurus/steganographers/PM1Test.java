@@ -1,7 +1,7 @@
 package com.stegosaurus.steganographers;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
@@ -118,7 +118,7 @@ public class PM1Test extends TestWithInjection {
   public void testFakeEmbedImmutability() {
     PM1Embedder emb = embedderFactory.build(random, new DummySequence());
     cover.readCoefficients();
-    CoefficientAccessor acc = new CoefficientAccessor(cover);
+    CoefficientAccessor acc = cover.getCoefficientAccessor();
     int[] expected = new int[acc.getLength()];
     for(int i = 0; i < acc.getLength(); i++) {
       expected[i] = acc.getCoefficient(i);
@@ -126,7 +126,7 @@ public class PM1Test extends TestWithInjection {
     emb.fakeEmbed(MSG.getBytes(), cover, KEY, SEED);
     JPEGImage other = cover.writeNew();
     other.readCoefficients();
-    acc = new CoefficientAccessor(other);
+    acc = other.getCoefficientAccessor();
     int[] result = new int[acc.getLength()];
     for(int i = 0; i < acc.getLength(); i++) {
       result[i] = acc.getCoefficient(i);

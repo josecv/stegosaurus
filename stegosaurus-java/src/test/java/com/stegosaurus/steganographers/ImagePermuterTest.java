@@ -1,5 +1,8 @@
 package com.stegosaurus.steganographers;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assume.assumeNoException;
+
 import gnu.trove.procedure.TIntIntProcedure;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
@@ -8,8 +11,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
-import static org.junit.Assume.assumeNoException;
-import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -76,7 +77,7 @@ public class ImagePermuterTest {
     final TIntSet set = new TIntHashSet();
     long seed = "The National".hashCode();
     Random r = new Random(seed);
-    CoefficientAccessor ac = new CoefficientAccessor(cover);
+    CoefficientAccessor ac = cover.getCoefficientAccessor();
     Permutation p = ImagePermuter.buildPermutation(r, ac);
     p.init();
     ImagePermuter permuter = new ImagePermuter(ac, p);

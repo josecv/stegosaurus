@@ -81,6 +81,6 @@ public abstract class PM1Algorithm {
    */
   protected CoefficientAccessor buildAccessorForImage(JPEGImage image) {
     image.readCoefficients();
-    return new CoefficientAccessor(image);
+    return image.getCoefficientAccessor();
   }
 }

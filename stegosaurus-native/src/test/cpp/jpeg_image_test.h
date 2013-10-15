@@ -73,15 +73,15 @@ TEST_F(JPEGImageTest, testWriteNew) {
  */
 TEST_F(JPEGImageTest, testAccessorFromImage) {
   testImage->readCoefficients();
-  CoefficientAccessor acc(testImage);
+  CoefficientAccessor *acc = testImage->getCoefficientAccessor();
   int off = 0, i;
   for(i = 0; i < testImage->getComponentCount(); ++i) {
     JPEGComponent *c = testImage->getComponent(i);
-    EXPECT_EQ(c->getCoefficients()[0][0][0], acc.getCoefficient(off))
+    EXPECT_EQ(c->getCoefficients()[0][0][0], acc->getCoefficient(off))
       << "Offset " << off;
     off += c->getDownsampledWidth() * c->getDownsampledHeight();
   }
-  ASSERT_EQ(off, acc.getLength());
+  ASSERT_EQ(off, acc->getLength());
 }
 
 /**
@@ -116,6 +116,13 @@ TEST_F(JPEGImageTest, testCoefficientAccess) {
   }
 }
 
+/* The following are "life tests"; in other words, they don't do many
+ * assertions, and those that are performed are of tangential importance.
+ * Instead, if they fail, the whole program crashes.
+ * You'll be surprised to hear that the policy is to ensure that they always
+ * pass.
+ */
+
 /**
  * Test that an image can be used for multiple operations, such as cropping
  * it and then reading its coefficients.
@@ -130,6 +137,31 @@ TEST_F(JPEGImageTest, testImageReusability) {
   context->destroyImage(cropped);
   cropped = testImage->doCrop(4, 4);
   context->destroyImage(cropped);
+}
+
+/**
+ * Try building two coefficient accessors from this image, and ensure they all
+ * provide access to coefficients equally.
+ * This is one of those tests that was motivated by actual breakage,
+ * specifically when a reset() is performed that should not have been.
+ * For instance, when we've got some coefficients hanging about in an accessor,
+ * and the creation of another accessor induces a reset(), we try to access
+ * both (not even necessarily simultaneously).
+ * TODO This test makes no sense now, at least not the way it's written.
+ */
+TEST_F(JPEGImageTest, testManyAccessors) {
+  int i;
+  testImage->readCoefficients();
+  CoefficientAccessor* first = testImage->getCoefficientAccessor();
+  /* This will force coefficient access */
+  for(i = 0; i < first->getLength(); ++i) {
+    first->getCoefficient(i);
+  }
+  testImage->readCoefficients();
+  CoefficientAccessor* second = testImage->getCoefficientAccessor();
+  for(i = 0; i < first->getLength(); ++i) {
+    EXPECT_EQ(first->getCoefficient(i), second->getCoefficient(i));
+  }
 }
 
 #endif

@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "jpeglib.h"
 #include "jpeg_component.h"
+#include "coefficient_accessor.h"
 
 /**
  * Represents a jpeg image in use by stegosaurus. Should be constructed by
@@ -22,6 +23,7 @@
  * TODO Better document the stateful nature of this object.
  * TODO Smarter, automatic, handling of the readCoefficients stuff.
  * TODO All around refactoring and clean-up.
+ * TODO A SERIOUS review of error handling practices.
  */
 class JPEGImage : public JPEGCoefficientsProvider {
  public:
@@ -105,6 +107,14 @@ class JPEGImage : public JPEGCoefficientsProvider {
     return this->len;
   }
 
+  /**
+   * Get a coefficient accessor providing access to this image's DCT
+   * coefficients.
+   *
+   * @return the accessor.
+   */
+  CoefficientAccessor* getCoefficientAccessor(void);
+
  private:
 
   /**
@@ -165,6 +175,12 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * The DCT coefficients of this image.
    */
   JBLOCKARRAY *coefficients;
+
+  /**
+   * The coefficient accessor to provide access to this image's DCT
+   * coefficients.
+   */
+  CoefficientAccessor *accessor;
 
   /**
    * Whether the headers have been read, by calling jpeg_read_headers on

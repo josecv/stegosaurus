@@ -1,27 +1,17 @@
 #include "coefficient_accessor.h"
-
-CoefficientAccessor::CoefficientAccessor(JPEGImage *img)
-    : totalComponents(img->getComponentCount()),
-      freeComponentArray(1) {
-  unsigned int i;
-  components = new JPEGComponent*[totalComponents];
-  for(i = 0; i < totalComponents; i++) {
-    components[i] = img->getComponent(i);
-  }
-}
+/* For memcpy */
+#include <string.h>
 
 CoefficientAccessor::CoefficientAccessor(JPEGComponent **componentArray,
                                          int total)
-    : components(componentArray),
-      totalComponents(total),
-      freeComponentArray(0) {
-
+    : components(NULL),
+      totalComponents(total) {
+  components = new JPEGComponent*[total];
+  memcpy(components, componentArray, sizeof(JPEGComponent *) * total);
 }
 
 CoefficientAccessor::~CoefficientAccessor(void) {
-  if(freeComponentArray) {
-    delete [] components;
-  }
+  delete [] components;
 }
 
 JPEGComponent* CoefficientAccessor::findComponent(unsigned int *index) {

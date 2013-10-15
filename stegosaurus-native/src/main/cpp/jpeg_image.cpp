@@ -10,6 +10,7 @@ JPEGImage::JPEGImage(JOCTET *i, long imglen)
       image(i),
       len(imglen),
       coeffs(NULL),
+      accessor(NULL),
       headers_read(true) {
   decomp = buildDecompressor();
   comp = buildCompressor();
@@ -25,6 +26,9 @@ JPEGImage::JPEGImage(JOCTET *i, long imglen)
 JPEGImage::~JPEGImage() {
   int i;
   free(this->image);
+  if(accessor != NULL) {
+    delete accessor;
+  }
   /* We obviously have to delete the components themselves before we free
    * the pointer array.
    * Since it's possible that not all of them were accessed, we check before
@@ -115,6 +119,18 @@ JPEGComponent* JPEGImage::getComponent(int index) {
 
 JOCTET* JPEGImage::getData(void) {
   return this->image;
+}
+
+CoefficientAccessor* JPEGImage::getCoefficientAccessor(void) {
+  if(accessor == NULL) {
+    int i;
+    /* Ensure that the components have been realized */
+    for(i = 0; i < component_count; ++i) {
+      getComponent(i);
+    }
+    accessor = new CoefficientAccessor(components, component_count);
+  }
+  return accessor;
 }
 
 void JPEGImage::reset(void) {
