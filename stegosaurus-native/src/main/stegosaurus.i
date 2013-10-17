@@ -9,14 +9,25 @@
 #include "cpp/coefficient_accessor.h"
 #include "cpp/jpeg_context.h"
 %}
-/*%include "arrays_java.i"
-%apply signed char[] {signed char *};*/
+
+/* Create the JoctetArray class, to wrap around (gasp) JOCTET arrays */
 %apply signed char {JOCTET};
 %apply unsigned short {JCOEF};
 %include "carrays.i"
 %array_class(JOCTET, JoctetArray);
-/* Now tell swig to parse the header files */
+
+/* Now bring in our classes */
+
 %include "cpp/jpeg_component.h"
+
+/* We need to ensure that the JPEGImages returned by other JPEGImages are
+ * garbage collected apropriately.
+ * In other words, any images constructed by writeNew or doCrop must be
+ * freed by the Java side (since no pointer is kept on the native side)*/
+%newobject JPEGImage::writeNew();
+%newobject JPEGImage::doCrop(int, int);
+
 %include "cpp/jpeg_image.h"
+
 %include "cpp/coefficient_accessor.h"
 %include "cpp/jpeg_context.h"

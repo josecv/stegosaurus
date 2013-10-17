@@ -101,7 +101,6 @@ public class PM1Test extends TestWithInjection {
     byte[] out = ex.extract(stego, KEY);
     String outStr = new String(out);
     assertEquals(MSG, outStr);
-    stego.delete();
   }
 
   /**
@@ -123,6 +122,5 @@ public class PM1Test extends TestWithInjection {
       result[i] = acc.getCoefficient(i);
     }
     assertArrayEquals(expected, result);
-    other.delete();
   }
 }

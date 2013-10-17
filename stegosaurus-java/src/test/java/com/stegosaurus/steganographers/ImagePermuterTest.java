@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,6 +43,15 @@ public class ImagePermuterTest {
     } catch(IOException ioe) {
       assumeNoException(ioe);
     }
+  }
+
+  /**
+   * Tear down the test.
+   */
+  @After
+  public void tearDown() {
+    /* TODO I have no clue why this is necessary. It shouldn't be. */
+    cover.delete();
   }
 
   /**
