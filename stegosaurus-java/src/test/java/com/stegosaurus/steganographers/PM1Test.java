@@ -12,20 +12,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
-import com.stegosaurus.cpp.JPEGContext;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.stegutils.NativeUtils;
 import com.stegosaurus.testing.TestWithInjection;
 
 /**
- * Test the PM1Embedder and the PM1Extractor classes
+ * Test the PM1Embedder and the PM1Extractor classes.
  */
 public class PM1Test extends TestWithInjection {
-  /**
-   * The JPEGContext in use here.
-   */
-  private JPEGContext con;
-
   /**
    * The carrier image.
    */
@@ -82,19 +76,17 @@ public class PM1Test extends TestWithInjection {
   public void setUp() {
     super.setUp();
     random = new Random();
-    con = new JPEGContext();
     extractorFactory = injector.getInstance(PM1Extractor.Factory.class);
     embedderFactory = injector.getInstance(PM1Embedder.Factory.class);
     InputStream in = getClass().getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
       in.close();
-      cover = con.buildImage(arr.cast(), arr.length());
+      cover = new JPEGImage(arr.cast(), arr.length());
     } catch(IOException ioe) {
       assumeNoException(ioe);
     }
   }
-
 
   /**
    * Conduct a crazy test by embedding a message into an image and then
@@ -109,6 +101,7 @@ public class PM1Test extends TestWithInjection {
     byte[] out = ex.extract(stego, KEY);
     String outStr = new String(out);
     assertEquals(MSG, outStr);
+    stego.delete();
   }
 
   /**
@@ -130,5 +123,6 @@ public class PM1Test extends TestWithInjection {
       result[i] = acc.getCoefficient(i);
     }
     assertArrayEquals(expected, result);
+    other.delete();
   }
 }

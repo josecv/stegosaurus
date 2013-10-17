@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
-import com.stegosaurus.cpp.JPEGContext;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.crypt.Permutation;
 import com.stegosaurus.stegutils.NativeUtils;
@@ -26,11 +25,6 @@ import com.stegosaurus.stegutils.NativeUtils;
  */
 public class ImagePermuterTest {
   /**
-   * The jpeg context.
-   */
-  private JPEGContext con;
-
-  /**
    * The cover image.
    */
   private JPEGImage cover;
@@ -40,12 +34,11 @@ public class ImagePermuterTest {
    */
   @Before
   public void setUp() {
-    con = new JPEGContext();
     InputStream in = getClass().getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
       in.close();
-      cover = con.buildImage(arr.cast(), arr.length());
+      cover = new JPEGImage(arr.cast(), arr.length());
     } catch(IOException ioe) {
       assumeNoException(ioe);
     }

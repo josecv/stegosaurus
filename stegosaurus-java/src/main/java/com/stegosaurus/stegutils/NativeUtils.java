@@ -26,7 +26,9 @@ public final class NativeUtils {
 
   /**
    * A custom JoctetArray, extended to the SWIG-generated one, but keeps
-   * length information handy.
+   * length information handy; note that it is not garbage collected.
+   * Note that the JPEGImage class frees any joctet arrays it's given, so
+   * you should only manually delete this when using it for another purpose.
    */
   public static class StegJoctetArray extends JoctetArray {
     /**
@@ -39,6 +41,7 @@ public final class NativeUtils {
      */
     public StegJoctetArray(int nelements) {
       super(nelements);
+      swigCMemOwn = false;
       length = nelements;
     }
     /**
