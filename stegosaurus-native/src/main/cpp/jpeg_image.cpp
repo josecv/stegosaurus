@@ -15,7 +15,6 @@ JPEGImage::JPEGImage(JOCTET *i, long imglen)
   decomp = buildDecompressor();
   comp = buildCompressor();
   steg_src_mgr_for(decomp, image, imglen);
-  /* TODO : Necessary? */
   /* TODO : Error checking */
   (void) jpeg_read_header(decomp, 1);
   component_count = decomp->num_components;
@@ -23,6 +22,7 @@ JPEGImage::JPEGImage(JOCTET *i, long imglen)
   coefficients = new JBLOCKARRAY[component_count]();
 }
 
+/* TODO: Holy cow this method is long and ugly. */
 JPEGImage::~JPEGImage() {
   int i;
   free(this->image);
@@ -111,6 +111,9 @@ JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
 }
 
 JPEGComponent* JPEGImage::getComponent(int index) {
+  if(!headers_read) {
+    reset();
+  }
   jpeg_component_info *info = decomp->comp_info + index;
   if(components[index] == NULL) {
     components[index] = new JPEGComponent(info, this);

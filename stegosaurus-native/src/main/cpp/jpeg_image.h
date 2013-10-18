@@ -26,7 +26,7 @@
  *    Consider not cropping the image until the last moment.
  *
  * TODO Better document the stateful nature of this object.
- * TODO All around refactoring and clean-up.
+ * TODO All around refactoring and clean-up; this class is too fragile.
  * TODO A SERIOUS review of error handling practices.
  */
 class JPEGImage : public JPEGCoefficientsProvider {

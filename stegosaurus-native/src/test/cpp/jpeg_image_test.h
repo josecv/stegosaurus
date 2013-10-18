@@ -37,6 +37,7 @@ class JPEGImageTest : public TestWithImage {
  */
 TEST_F(JPEGImageTest, testCrop) {
   JPEGImage *croppedImage = testImage->doCrop(4, 4);
+  EXPECT_EQ(testImage->getComponentCount(), croppedImage->getComponentCount());
   context->destroyImage(croppedImage);
 }
 
