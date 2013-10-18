@@ -9,8 +9,9 @@ JPEGComponent::JPEGComponent(const jpeg_component_info *info,
       downsampled_width(info->downsampled_width),
       downsampled_height(info->downsampled_height),
       index(info->component_index) {
-  block_width = downsampled_width / width_in_blocks;
-  block_height = downsampled_height / height_in_blocks;
+  /* I believe the docs specify that the blocks are always 64 bytes long */
+  block_width = 8;
+  block_height = 8;
 }
 
 
@@ -25,8 +26,8 @@ JPEGComponent::JPEGComponent(JDIMENSION w_blocks, JDIMENSION h_blocks,
     downsampled_width(down_w),
     downsampled_height(down_h),
     index(ind) {
-  block_width = downsampled_width / width_in_blocks;
-  block_height = downsampled_height / height_in_blocks;
+  block_width = 8;
+  block_height = 8;
 }
 
 JBLOCKARRAY JPEGComponent::getCoefficients(void) {
