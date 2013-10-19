@@ -56,6 +56,11 @@ public class PM1Test extends TestWithInjection {
   private static final short SEED = (short) 0xABBA;
 
   /**
+   * The EmbedRequest crafted from this object's fields.
+   */
+  private EmbedRequest request;
+
+  /**
    * A dummy PM sequence that returns true for every even index and false
    * for every odd index.
    */
@@ -86,6 +91,7 @@ public class PM1Test extends TestWithInjection {
     } catch(IOException ioe) {
       assumeNoException(ioe);
     }
+    request = new EmbedRequest(cover, MSG.getBytes(), KEY);
   }
 
   /**
@@ -96,7 +102,7 @@ public class PM1Test extends TestWithInjection {
   public void testEmbedExtract() {
     PMSequence seq = new DummySequence();
     PM1Embedder emb = embedderFactory.build(random, seq);
-    JPEGImage stego = emb.embed(MSG.getBytes(), cover, KEY, SEED);
+    JPEGImage stego = emb.embed(request, SEED);
     PM1Extractor ex = extractorFactory.build(random);
     byte[] out = ex.extract(stego, KEY);
     String outStr = new String(out);
@@ -114,7 +120,7 @@ public class PM1Test extends TestWithInjection {
     for(int i = 0; i < acc.getLength(); i++) {
       expected[i] = acc.getCoefficient(i);
     }
-    emb.fakeEmbed(MSG.getBytes(), cover, KEY, SEED);
+    emb.fakeEmbed(request, SEED);
     JPEGImage other = cover.writeNew();
     acc = other.getCoefficientAccessor();
     int[] result = new int[acc.getLength()];

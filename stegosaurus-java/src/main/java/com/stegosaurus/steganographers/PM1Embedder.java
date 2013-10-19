@@ -27,48 +27,46 @@ public class PM1Embedder extends PM1Algorithm {
    * @param seq the plus-minus sequence to direct this object's embedding.
    * @param helper an object that can provide us with ByteBuffers.
    */
-  protected PM1Embedder(Random random, PMSequence seq, ByteBufferHelper helper) {
+  protected PM1Embedder(Random random, PMSequence seq,
+                        ByteBufferHelper helper) {
     super(random, helper);
     sequence = seq;
   }
 
   /**
-   * Pretend to embed the message given into the cover image given. Do not
-   * actually modify anything.
-   * @param msg the message.
-   * @param cover the cover image.
-   * @param key the key to use when embedding the seed.
+   * Pretend to fulfill the embed request given, by faking embedding
+   * its message into its cover. Do not actually modify anything.
+   * @param request the embed request.
    * @param seed the seed to reseed the permutation with.
    * @return the number of changes required.
    */
-  public int fakeEmbed(byte[] msg, JPEGImage cover, String key, short seed) {
-    return embed(msg, cover, key, seed, false);
+  public int fakeEmbed(EmbedRequest request, short seed) {
+    return embed(request, seed, false);
   }
 
   /**
-   * Embed the message given into the cover image given.
-   * @param msg the message.
-   * @param cover the cover image.
-   * @param key the key to use when embedding the seed.
+   * Fulfill an embed request, by embedding a message into a cover.
+   * @param request the embed request to fulfill.
    * @param seed the seed to reseed the permutation with.
    * @return the new image, containing the message.
    */
-  public JPEGImage embed(byte[] msg, JPEGImage cover, String key, short seed) {
-    embed(msg, cover, key, seed, true);
-    return cover.writeNew();
+  public JPEGImage embed(EmbedRequest request, short seed) {
+    embed(request, seed, true);
+    return request.getCover().writeNew();
   }
 
   /**
-   * Embed (or pretend to) the message given into the cover image given.
-   * @param msg the message.
-   * @param cover the cover image.
-   * @param key the key to use when embedding the seed.
+   * Embed (or pretend to) the request's message into its cover image.
+   * @param request the embed request.
    * @param seed the seed to reseed the permutation with.
    * @param real whether to actually do any changing of the image data.
    * @return the number of changes required.
    */
-  private int embed(byte[] msg, JPEGImage cover, String key, short seed,
+  private int embed(EmbedRequest request, short seed,
                     boolean real) {
+    JPEGImage cover = request.getCover();
+    String key = request.getKey();
+    byte[] msg = request.getMessage();
     CoefficientAccessor acc = getAccessorForImage(cover);
     Permutation p = buildPermutation(acc);
     reseedPermutation(key.hashCode(), p);
