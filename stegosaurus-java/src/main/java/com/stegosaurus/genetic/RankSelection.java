@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import java.util.List;
 import java.util.Random;

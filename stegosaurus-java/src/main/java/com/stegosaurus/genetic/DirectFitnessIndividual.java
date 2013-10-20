@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 /**
  * A more sophisticated dummy individual whose fitness is a floating point

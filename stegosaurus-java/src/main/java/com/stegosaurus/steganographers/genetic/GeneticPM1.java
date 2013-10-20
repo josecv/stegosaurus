@@ -10,6 +10,10 @@ import java.util.Random;
 
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.genetic.GeneticAlgorithm;
+import com.stegosaurus.genetic.Individual;
+import com.stegosaurus.genetic.RankSelection;
+import com.stegosaurus.genetic.SelectionOperator;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.PM1Embedder;
 import com.stegosaurus.steganographers.PMSequence;

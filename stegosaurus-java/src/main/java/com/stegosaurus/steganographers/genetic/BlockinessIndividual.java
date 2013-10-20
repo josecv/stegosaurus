@@ -3,6 +3,8 @@ package com.stegosaurus.steganographers.genetic;
 import java.util.Random;
 
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.genetic.AbstractIndividual;
+import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.PM1Embedder;
 

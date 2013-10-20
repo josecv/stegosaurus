@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 /**
  * Builds instances of the Individual class.

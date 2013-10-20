@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -6,6 +6,10 @@ import static org.junit.Assert.fail;
 import java.util.Random;
 
 import org.junit.Test;
+
+import com.stegosaurus.genetic.Chromosome;
+import com.stegosaurus.genetic.DummyIndividual;
+import com.stegosaurus.genetic.GenericIndividualFactory;
 
 /**
  * Tests the GenericIndividualFactory class.

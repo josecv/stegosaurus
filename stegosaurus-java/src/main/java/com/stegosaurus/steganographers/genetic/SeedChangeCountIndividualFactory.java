@@ -2,6 +2,8 @@ package com.stegosaurus.steganographers.genetic;
 
 import java.util.Random;
 
+import com.stegosaurus.genetic.Chromosome;
+import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.PM1Embedder;
 import com.stegosaurus.steganographers.utils.DummyPMSequence;

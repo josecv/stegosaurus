@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 /**
  * Serves to wrap around the Individual interface, providing some common 

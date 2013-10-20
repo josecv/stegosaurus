@@ -1,10 +1,14 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import java.util.Random;
 
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.stegosaurus.genetic.Chromosome;
+import com.stegosaurus.genetic.DummyIndividual;
+import com.stegosaurus.genetic.Individual;
 
 /**
  * Tests the AbstractIndividual class, via the DummyIndividual.

@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -10,6 +10,8 @@ import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.stegosaurus.genetic.Chromosome;
 
 /**
  * Test the Chromosome class.

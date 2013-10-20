@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import static org.junit.Assume.assumeNoException;
 
@@ -10,6 +10,15 @@ import java.util.Random;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.stegosaurus.genetic.Chromosome;
+import com.stegosaurus.genetic.DirectFitnessIndividual;
+import com.stegosaurus.genetic.GenericIndividualFactory;
+import com.stegosaurus.genetic.GeneticAlgorithm;
+import com.stegosaurus.genetic.Individual;
+import com.stegosaurus.genetic.IndividualFactory;
+import com.stegosaurus.genetic.RankSelection;
+import com.stegosaurus.genetic.SelectionOperator;
 
 /**
  * Test the GeneticAlgorithm class.

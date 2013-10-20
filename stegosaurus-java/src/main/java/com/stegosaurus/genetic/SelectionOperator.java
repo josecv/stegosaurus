@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import java.util.List;
 import java.util.Random;
@@ -7,7 +7,7 @@ import java.util.Random;
  * Selects individuals for reproduction out of a list of possible candidates.
  * @param <T> the kind of Individual to operate on.
  */
-interface SelectionOperator<T extends Individual<T>> {
+public interface SelectionOperator<T extends Individual<T>> {
   /**
    * Select an individual for reproduction from the population pool given,
    * and remove it from the population.

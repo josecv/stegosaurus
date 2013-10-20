@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import gnu.trove.map.TObjectDoubleMap;
 import gnu.trove.map.TObjectIntMap;
@@ -12,6 +12,12 @@ import java.util.Random;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.stegosaurus.genetic.Chromosome;
+import com.stegosaurus.genetic.DummyIndividual;
+import com.stegosaurus.genetic.Individual;
+import com.stegosaurus.genetic.RankSelection;
+import com.stegosaurus.genetic.SelectionOperator;
 
 /**
  * Test the Rank Selection class.

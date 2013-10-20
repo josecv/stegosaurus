@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,10 @@ import java.util.Random;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.stegosaurus.genetic.Chromosome;
+import com.stegosaurus.genetic.DirectFitnessIndividual;
+import com.stegosaurus.genetic.Individual;
 
 /**
  * Test the directFitnessIndividual class.

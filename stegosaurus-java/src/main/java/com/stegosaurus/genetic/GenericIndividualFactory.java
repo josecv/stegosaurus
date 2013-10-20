@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

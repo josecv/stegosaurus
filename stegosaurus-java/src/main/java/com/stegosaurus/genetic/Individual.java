@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers.genetic;
+package com.stegosaurus.genetic;
 
 /**
  * An individual in a genetic algorithm. Possesses a single chromosome, is
@@ -24,7 +24,7 @@ package com.stegosaurus.steganographers.genetic;
  * This should allow declaration of some variables as Individual&gt;?&lt;
  * provided crossover isn't called on them.
  */
-interface Individual<T extends Individual<T>>
+public interface Individual<T extends Individual<T>>
   extends Comparable<Individual<T>> {
   /**
    * Run the simulation corresponding to this individual.
