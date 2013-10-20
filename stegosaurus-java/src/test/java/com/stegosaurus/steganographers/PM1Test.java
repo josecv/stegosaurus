@@ -1,7 +1,6 @@
 package com.stegosaurus.steganographers;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ public class PM1Test extends TestWithInjection {
   /**
    * The carrier image.
    */
-  private JPEGImage cover;
+  protected JPEGImage cover;
 
   /**
    * An object capable of building PM1Exctractors.
@@ -44,12 +43,12 @@ public class PM1Test extends TestWithInjection {
   /**
    * The stego key.
    */
-  private static final String KEY = "Fluttershy";
+  protected static final String KEY = "Fluttershy";
 
   /**
    * The message to embed.
    */
-  private static final String MSG = "Sing, goddess, the anger of Achilles";
+  protected static final String MSG = "Sing, goddess, the anger of Achilles";
 
   /**
    * The seed for the PM1Embedder.
@@ -59,7 +58,7 @@ public class PM1Test extends TestWithInjection {
   /**
    * The EmbedRequest crafted from this object's fields.
    */
-  private EmbedRequest request;
+  protected EmbedRequest request;
 
   /**
    * Set up a test.
@@ -70,7 +69,7 @@ public class PM1Test extends TestWithInjection {
     random = new Random();
     extractorFactory = injector.getInstance(PM1Extractor.Factory.class);
     embedderFactory = injector.getInstance(PM1Embedder.Factory.class);
-    InputStream in = getClass().getResourceAsStream("lena-colour.jpeg");
+    InputStream in = PM1Test.class.getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
       in.close();
@@ -82,6 +81,21 @@ public class PM1Test extends TestWithInjection {
   }
 
   /**
+   * Ensure that the image given contains the message given.
+   * Really just extracts and then does an assertEquals.
+   * @param msg the message to produce on failure.
+   * @param image the purported cover image.
+   * @param key the key to use when extracting.
+   * @param expected the message the image is hoped to contain.
+   */
+  protected void assertImageContainsMessage(String msg,
+      JPEGImage image, String key, byte[] expected) {
+    PM1Extractor ex = extractorFactory.build(random);
+    byte[] out = ex.extract(image, key);
+    assertArrayEquals(msg, expected, out);
+  }
+
+  /**
    * Conduct a crazy test by embedding a message into an image and then
    * extracting it.
    */
@@ -90,10 +104,8 @@ public class PM1Test extends TestWithInjection {
     PMSequence seq = new DummyPMSequence();
     PM1Embedder emb = embedderFactory.build(random, seq);
     JPEGImage stego = emb.embed(request, SEED);
-    PM1Extractor ex = extractorFactory.build(random);
-    byte[] out = ex.extract(stego, KEY);
-    String outStr = new String(out);
-    assertEquals(MSG, outStr);
+    assertImageContainsMessage("Stego image lacks message",
+        stego, KEY, MSG.getBytes());
   }
 
   /**
