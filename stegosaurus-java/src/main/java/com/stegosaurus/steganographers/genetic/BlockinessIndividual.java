@@ -58,6 +58,7 @@ public class BlockinessIndividual
     this.random = random;
     this.seed = seed;
     this.embedderFactory = embedderFactory;
+    this.request = request;
   }
 
   /**

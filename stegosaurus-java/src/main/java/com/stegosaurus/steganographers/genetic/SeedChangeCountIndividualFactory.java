@@ -32,6 +32,7 @@ public class SeedChangeCountIndividualFactory
   public SeedChangeCountIndividualFactory(EmbedRequest request,
                                           PM1Embedder.Factory factory) {
     this.embedder = factory.build(new Random(), new DummyPMSequence());
+    this.request = request;
   }
 
   /**
