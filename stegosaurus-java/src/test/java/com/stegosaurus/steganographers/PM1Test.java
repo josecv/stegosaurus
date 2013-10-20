@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.steganographers.utils.DummyPMSequence;
 import com.stegosaurus.stegutils.NativeUtils;
 import com.stegosaurus.testing.TestWithInjection;
 
@@ -61,20 +62,6 @@ public class PM1Test extends TestWithInjection {
   private EmbedRequest request;
 
   /**
-   * A dummy PM sequence that returns true for every even index and false
-   * for every odd index.
-   */
-  private static class DummySequence implements PMSequence {
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean atIndex(int index) {
-      return index % 2 == 0;
-    }
-  }
-
-  /**
    * Set up a test.
    */
   @Before
@@ -100,7 +87,7 @@ public class PM1Test extends TestWithInjection {
    */
   @Test
   public void testEmbedExtract() {
-    PMSequence seq = new DummySequence();
+    PMSequence seq = new DummyPMSequence();
     PM1Embedder emb = embedderFactory.build(random, seq);
     JPEGImage stego = emb.embed(request, SEED);
     PM1Extractor ex = extractorFactory.build(random);
@@ -114,7 +101,7 @@ public class PM1Test extends TestWithInjection {
    */
   @Test
   public void testFakeEmbedImmutability() {
-    PM1Embedder emb = embedderFactory.build(random, new DummySequence());
+    PM1Embedder emb = embedderFactory.build(random, new DummyPMSequence());
     CoefficientAccessor acc = cover.getCoefficientAccessor();
     int[] expected = new int[acc.getLength()];
     for(int i = 0; i < acc.getLength(); i++) {
