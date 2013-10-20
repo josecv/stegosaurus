@@ -12,8 +12,16 @@ import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
 /**
- * Embeds a message into a JPEG Image.
- * Does only one pass, using a key, seed and PM sequence.
+ * Embeds a message into a JPEG Image, using a plus-minus sequence given.
+ * <p>The overall process of embedding is:<ul>
+ *    <li>create a permutation using the key given.</li>
+ *    <li>use the permutation to embed a given 16-bit seed into the image</li>
+ *    <li>create a new permutation from that seed</li>
+ *    <li>use that new permutation to embed the message into the image</li>
+ * </ul></p>
+ * <p>The plus-minus sequence is tied to an instance, but other than that
+ * multiple embeddings can be performed with different EmbedRequests and
+ * seeds</p>
  */
 public class PM1Embedder extends PM1Algorithm {
   /**
