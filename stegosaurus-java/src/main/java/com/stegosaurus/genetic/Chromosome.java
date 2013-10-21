@@ -116,6 +116,9 @@ public class Chromosome implements PMSequence {
    * @return the gene (true or false).
    */
   public boolean atIndex(int index) {
+    if(index >= size) {
+      throw new IndexOutOfBoundsException("Index " + index + " is too large");
+    }
     return set.get(index);
   }
 

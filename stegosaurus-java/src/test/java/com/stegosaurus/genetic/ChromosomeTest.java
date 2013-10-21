@@ -226,4 +226,13 @@ public class ChromosomeTest {
      */
     assertEquals(p, rate, 0.05);
   }
+
+  /**
+   * Test that the atIndex() method does bounds checking.
+   */
+  @Test(expected=IndexOutOfBoundsException.class)
+  public void testAtIndexBounds() {
+    Chromosome chromosome = new Chromosome(SIZE, random).randomize();
+    chromosome.atIndex(SIZE * 2);
+  }
 }
