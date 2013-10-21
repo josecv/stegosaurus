@@ -133,6 +133,12 @@ public class PM1Embedder extends PM1Algorithm {
     private int changes;
 
     /**
+     * The total number of bits we've dealt with (whether or not they
+     * required a change).
+     */
+    private int bits;
+
+    /**
      * Whether we are doing any changes to the image.
      */
     private boolean real;
@@ -170,12 +176,13 @@ public class PM1Embedder extends PM1Algorithm {
         if(!real) {
           return true;
         }
-        val += (seq.atIndex(index) ? 1 : -1);
+        val += (seq.atIndex(bits) ? 1 : -1);
         if(val == 0) {
           val = (m == 0 ? -1 : 1);
         }
         acc.setCoefficient(index, val);
       }
+      bits++;
       return true;
     }
   }
