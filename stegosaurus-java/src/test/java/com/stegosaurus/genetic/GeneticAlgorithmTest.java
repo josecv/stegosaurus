@@ -61,6 +61,12 @@ public class GeneticAlgorithmTest {
   private static final double MUTATION_RATE = 0.1;
 
   /**
+   * The parameters to use in the genetic algorithm.
+   */
+  private static final GAParameters PARAMS =
+    new GAParameters(POP_SIZE, CHROMOSOME_SIZE, ELITISM_RATE, MUTATION_RATE);
+
+  /**
    * The factor for the rank selection.
    */
   private static final double FACTOR = 20.0;
@@ -70,11 +76,11 @@ public class GeneticAlgorithmTest {
    */
   private IndividualFactory<DirectFitnessIndividual> fact;
 
-  /**
+    /**
    * An individual that acts as a function of the direct fitness individual so
-   * that its fitness is the distance from a constant, 0.5, to the fitness
-   * of the direct fitness individual with the corresponding chromosome.
-   * If that doesn't make sense, the code should hopefully be explanatory.
+   * that its fitness is the distance from a constant, 0.5, to the fitness of
+   * the direct fitness individual with the corresponding chromosome. If that
+   * doesn't make sense, the code should hopefully be explanatory.
    */
   private static class DeltaIndividual extends DirectFitnessIndividual {
 
@@ -114,9 +120,7 @@ public class GeneticAlgorithmTest {
     } catch(NoSuchMethodException e) {
       assumeNoException(e);
     }
-    algo = new GeneticAlgorithm<>(fact, s, random,
-                                  POP_SIZE, CHROMOSOME_SIZE, ELITISM_RATE,
-                                  MUTATION_RATE);
+    algo = new GeneticAlgorithm<>(fact, s, random, PARAMS);
 
   }
 

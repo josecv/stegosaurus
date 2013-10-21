@@ -1,15 +1,18 @@
 package com.stegosaurus.steganographers.genetic;
 
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.SEED_ELITISM_RATE;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.SEED_MUTATION_RATE;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.SEED_NUMBER_OF_GENERATIONS;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.SEED_POP_SIZE;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.SEED_SELECTION_GRADIENT;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_ELITISM_RATE;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_MUTATION_RATE;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_POP_SIZE;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_SELECTION_GRADIENT;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_NUMBER_OF_GENERATIONS;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_SELECTION_GRADIENT;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_PARAMS;
 
 import java.util.Random;
 
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.genetic.GAParameters;
 import com.stegosaurus.genetic.GeneticAlgorithm;
 import com.stegosaurus.genetic.Individual;
 import com.stegosaurus.genetic.RankSelection;
@@ -62,16 +65,14 @@ public class GeneticPM1 {
    */
   private short optimizeSeed(EmbedRequest request) {
     SelectionOperator<SeedChangeCountIndividual> o =
-      new RankSelection<>(SEED_SELECTION_GRADIENT);
+      new RankSelection<>(S_SELECTION_GRADIENT);
     SeedChangeCountIndividualFactory factory =
       new SeedChangeCountIndividualFactory(request, embedderFactory);
     GeneticAlgorithm<SeedChangeCountIndividual> algo =
-        new GeneticAlgorithm<>(factory, o, motherNature,
-                               SEED_POP_SIZE, Short.SIZE, SEED_ELITISM_RATE,
-                               SEED_MUTATION_RATE);
+        new GeneticAlgorithm<>(factory, o, motherNature, S_PARAMS);
     algo.init();
     Individual<SeedChangeCountIndividual> result =
-      algo.runNGenerations(SEED_NUMBER_OF_GENERATIONS);
+      algo.runNGenerations(S_NUMBER_OF_GENERATIONS);
     return result.getChromosome().asShort();
   }
 
@@ -83,16 +84,17 @@ public class GeneticPM1 {
    */
   private PMSequence optimizeSequence(EmbedRequest request, short seed) {
     SelectionOperator<BlockinessIndividual> o =
-      new RankSelection<>(SEED_SELECTION_GRADIENT);
+      new RankSelection<>(B_SELECTION_GRADIENT);
     BlockinessIndividualFactory factory =
       new BlockinessIndividualFactory(request, seed, embedderFactory);
+    GAParameters params = new GAParameters(B_POP_SIZE,
+      (request.getMessage().length * 8) + 16, B_ELITISM_RATE,
+      B_MUTATION_RATE);
     GeneticAlgorithm<BlockinessIndividual> algo =
-        new GeneticAlgorithm<>(factory, o, motherNature,
-                               SEED_POP_SIZE, Short.SIZE, SEED_ELITISM_RATE,
-                               SEED_MUTATION_RATE);
+        new GeneticAlgorithm<>(factory, o, motherNature, params);
     algo.init();
     Individual<BlockinessIndividual> result =
-      algo.runNGenerations(SEED_NUMBER_OF_GENERATIONS);
+      algo.runNGenerations(S_NUMBER_OF_GENERATIONS);
     return result.getChromosome();
   }
 
