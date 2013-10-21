@@ -2,11 +2,12 @@ package com.stegosaurus.steganographers.genetic;
 
 import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_ELITISM_RATE;
 import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_MUTATION_RATE;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_NUMBER_OF_GENERATIONS;
 import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_POP_SIZE;
 import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_SELECTION_GRADIENT;
 import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_NUMBER_OF_GENERATIONS;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_SELECTION_GRADIENT;
 import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_PARAMS;
+import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_SELECTION_GRADIENT;
 
 import java.util.Random;
 
@@ -15,6 +16,7 @@ import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.genetic.GAParameters;
 import com.stegosaurus.genetic.GeneticAlgorithm;
 import com.stegosaurus.genetic.Individual;
+import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.genetic.RankSelection;
 import com.stegosaurus.genetic.SelectionOperator;
 import com.stegosaurus.steganographers.EmbedRequest;
@@ -59,20 +61,35 @@ public class GeneticPM1 {
   }
 
   /**
+   * Run a GA to optimize some thing or another.
+   * @param <C> the specific individual type in use.
+   * @param request the embed request we're working with.
+   * @param gradient the gradient for the rank selection.
+   * @param factory the individual factory we want to use.
+   * @param params the GA parameters for this optimization.
+   * @param generations the number of generations to run.
+   * @return the fittest individual.
+   */
+  private <C extends Individual<C>> Individual<C> optimize(
+      EmbedRequest request, double gradient, int generations,
+      IndividualFactory<C> factory, GAParameters params) {
+    SelectionOperator<C> o = new RankSelection<>(gradient);
+    GeneticAlgorithm<C> algo = new GeneticAlgorithm<>(factory, o,
+      motherNature, params);
+    algo.init();
+    return algo.runNGenerations(generations);
+  }
+
+  /**
    * Optimize the seed for the embed request given.
    * @param request the embed request.
    * @return the best seed we could come up with.
    */
   private short optimizeSeed(EmbedRequest request) {
-    SelectionOperator<SeedChangeCountIndividual> o =
-      new RankSelection<>(S_SELECTION_GRADIENT);
     SeedChangeCountIndividualFactory factory =
       new SeedChangeCountIndividualFactory(request, embedderFactory);
-    GeneticAlgorithm<SeedChangeCountIndividual> algo =
-        new GeneticAlgorithm<>(factory, o, motherNature, S_PARAMS);
-    algo.init();
-    Individual<SeedChangeCountIndividual> result =
-      algo.runNGenerations(S_NUMBER_OF_GENERATIONS);
+    Individual<SeedChangeCountIndividual> result = optimize(request,
+        S_SELECTION_GRADIENT, S_NUMBER_OF_GENERATIONS, factory, S_PARAMS);
     return result.getChromosome().asShort();
   }
 
@@ -83,18 +100,13 @@ public class GeneticPM1 {
    * @return the best PM sequence we could find.
    */
   private PMSequence optimizeSequence(EmbedRequest request, short seed) {
-    SelectionOperator<BlockinessIndividual> o =
-      new RankSelection<>(B_SELECTION_GRADIENT);
     BlockinessIndividualFactory factory =
       new BlockinessIndividualFactory(request, seed, embedderFactory);
     GAParameters params = new GAParameters(B_POP_SIZE,
       (request.getMessage().length * 8) + 16, B_ELITISM_RATE,
       B_MUTATION_RATE);
-    GeneticAlgorithm<BlockinessIndividual> algo =
-        new GeneticAlgorithm<>(factory, o, motherNature, params);
-    algo.init();
-    Individual<BlockinessIndividual> result =
-      algo.runNGenerations(S_NUMBER_OF_GENERATIONS);
+    Individual<BlockinessIndividual> result = optimize(request,
+        B_SELECTION_GRADIENT, B_NUMBER_OF_GENERATIONS, factory, params);
     return result.getChromosome();
   }
 
