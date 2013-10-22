@@ -1,6 +1,8 @@
 package com.stegosaurus.stegosaurus;
 
 import com.google.inject.AbstractModule;
+import com.stegosaurus.genetic.DefaultGAFactory;
+import com.stegosaurus.genetic.GAFactory;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 import com.stegosaurus.stegutils.ByteBufferHelperImpl;
 
@@ -17,5 +19,6 @@ public class StegosaurusModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(ByteBufferHelper.class).to(ByteBufferHelperImpl.class);
+    bind(GAFactory.class).to(DefaultGAFactory.class);
   }
 }

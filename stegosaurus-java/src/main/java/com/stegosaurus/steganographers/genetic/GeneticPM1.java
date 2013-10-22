@@ -13,6 +13,7 @@ import java.util.Random;
 
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.genetic.GAFactory;
 import com.stegosaurus.genetic.GAParameters;
 import com.stegosaurus.genetic.GeneticAlgorithm;
 import com.stegosaurus.genetic.Individual;
@@ -52,12 +53,19 @@ public class GeneticPM1 {
   Random motherNature = new Random();
 
   /**
+   * The factory used to build parallel GAs.
+   */
+  private GAFactory gaFactory;
+
+  /**
    * Construct a new GeneticPM1 object. Ought to be invoked by Guava.
    * @param embedderFactory the embedder factory to use.
    */
   @Inject
-  public GeneticPM1(PM1Embedder.Factory embedderFactory) {
+  public GeneticPM1(PM1Embedder.Factory embedderFactory,
+                    GAFactory gaFactory) {
     this.embedderFactory = embedderFactory;
+    this.gaFactory = gaFactory;
   }
 
   /**
@@ -74,8 +82,8 @@ public class GeneticPM1 {
       EmbedRequest request, double gradient, int generations,
       IndividualFactory<C> factory, GAParameters params) {
     SelectionOperator<C> o = new RankSelection<>(gradient);
-    GeneticAlgorithm<C> algo = new GeneticAlgorithm<>(factory, o,
-      motherNature, params);
+    GeneticAlgorithm<C> algo = gaFactory.build(factory, o, motherNature,
+        params);
     algo.init();
     return algo.runNGenerations(generations);
   }
