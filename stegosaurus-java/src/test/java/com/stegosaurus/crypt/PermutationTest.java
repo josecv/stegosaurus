@@ -72,6 +72,16 @@ public class PermutationTest {
   }
 
   /**
+   * Test that we can't try to get permutation elements before calling init().
+   */
+  @Test(expected = IllegalStateException.class)
+  public void testGetBeforeInit() {
+    /* Set up calls init, so we actually have to build a new one... */
+    Permutation p = new Permutation(size, r);
+    p.get(0);
+  }
+
+  /**
    * Test that the Permutation satisfies the other tests in this class
    * regardless of how many times the init method is called.
    */

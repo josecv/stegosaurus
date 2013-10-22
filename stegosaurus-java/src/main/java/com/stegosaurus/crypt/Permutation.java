@@ -58,8 +58,12 @@ public class Permutation {
    * Get the element at the index given.
    * @param index the index.
    * @return the element located at the index given.
+   * @throws IllegalStateException if init() has not been called.
    */
   public int get(int index) {
+    if(permutation == null) {
+      throw new IllegalStateException("init() has not been called");
+    }
     return permutation[index];
   }
 
