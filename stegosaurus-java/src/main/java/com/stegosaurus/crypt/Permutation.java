@@ -2,6 +2,7 @@ package com.stegosaurus.crypt;
 
 import gnu.trove.iterator.TIntIterator;
 
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 /**
@@ -68,6 +69,9 @@ public class Permutation implements TIntIterator {
   public int next() {
     if(permutation == null) {
       throw new IllegalStateException("Permutation has not been initialized");
+    }
+    if(index >= permutation.length) {
+      throw new NoSuchElementException(Integer.toString(index));
     }
     int retval = permutation[index];
     index++;
