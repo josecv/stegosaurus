@@ -66,8 +66,8 @@ public class ImagePermuter {
    */
   public void walk(TIntIntProcedure proc) {
     boolean go = true;
-    while(go && permutation.hasNext()) {
-      int index = permutation.next();
+    for(int i = 0; i < permutation.getSize() && go; i++) {
+      int index = permutation.get(i);
       /* getCoefficient is a native call, so we want to avoid it if possible,
        * which is why we ensure the coefficient is not DC before going any
        * further */

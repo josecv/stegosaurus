@@ -1,18 +1,16 @@
 package com.stegosaurus.crypt;
 
-import gnu.trove.iterator.TIntIterator;
-
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 /**
  * Produces a random permutation of numbers.
  */
-public class Permutation implements TIntIterator {
+public class Permutation {
   /**
    * The size.
    */
   private int size;
+
   /**
    * The random number generator we use.
    */
@@ -22,11 +20,6 @@ public class Permutation implements TIntIterator {
    * The actual permutation.
    */
   private int[] permutation = null;
-
-  /**
-   * The current index.
-   */
-  private int index = 0;
 
   /**
    * Construct a new permutation. You should call init after constructing this.
@@ -59,38 +52,22 @@ public class Permutation implements TIntIterator {
       permutation[i] = permutation[j];
       permutation[j] = i;
     }
-    index = 0;
   }
 
   /**
-   * {@inheritDoc}
+   * Get the element at the index given.
+   * @param index the index.
+   * @return the element located at the index given.
    */
-  @Override
-  public int next() {
-    if(permutation == null) {
-      throw new IllegalStateException("Permutation has not been initialized");
-    }
-    if(index >= permutation.length) {
-      throw new NoSuchElementException(Integer.toString(index));
-    }
-    int retval = permutation[index];
-    index++;
-    return retval;
+  public int get(int index) {
+    return permutation[index];
   }
 
   /**
-   * {@inheritDoc}
+   * Get this permutation's size.
+   * @return the permutation's size.
    */
-  @Override
-  public void remove() {
-    throw new UnsupportedOperationException("Cannot remove from permutation");
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean hasNext() {
-    return index < size;
+  public int getSize() {
+    return size;
   }
 }

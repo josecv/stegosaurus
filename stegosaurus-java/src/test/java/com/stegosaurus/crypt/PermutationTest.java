@@ -49,13 +49,11 @@ public class PermutationTest {
    */
   @Test
   public void testNoRepetition() {
-    int i = 0;
-    while(permutation.hasNext()) {
-      int next = permutation.next();
-      String msg = "Repetition at " + next + ", iteration " + i;
-      assertFalse(msg, seen.get(next));
-      seen.set(next);
-      i++;
+    for(int i = 0; i < size; i++) {
+      int val = permutation.get(i);
+      String msg = "Repetition at " + val + ", index " + i;
+      assertFalse(msg, seen.get(val));
+      seen.set(val);
     }
   }
 
@@ -66,14 +64,11 @@ public class PermutationTest {
    */
   @Test
   public void testAllCovered() {
-    int i = 0;
-    while(permutation.hasNext()) {
-      int next = permutation.next();
-      seen.set(next);
-      i++;
+    for(int i = 0; i < size; i++) {
+      int val = permutation.get(i);
+      seen.set(val);
     }
     assertEquals("Not every number returned", size, seen.cardinality());
-    assertEquals("Iterating more than needed", size, i);
   }
 
   /**
