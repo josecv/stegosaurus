@@ -139,20 +139,10 @@ public class GeneticAlgorithm<T extends Individual<T>> {
   }
 
   /**
-   * Run a generation of this algorithm: run the simulation, and sort
-   * by fitness value.
-   */
-  protected void runGeneration() {
-    for(Individual<T> individual : population) {
-      individual.simulate();
-    }
-    sortPopulation(population);
-  }
-
-  /**
    * Sort the population given by fitness value.
    * This implies actually calculating the fitness for the entire population,
-   * something this class does not otherwise do explicitly.
+   * unless it has already been obtained, something this class does not
+   * otherwise do explicitly.
    * @param pop the population to sort.
    */
   protected void sortPopulation(List<Individual<T>> pop) {
@@ -160,11 +150,30 @@ public class GeneticAlgorithm<T extends Individual<T>> {
   }
 
   /**
+   * Run a simulation on the individual given.
+   * @param individual the individual to run the simulation on.
+   */
+  protected void simulateIndividual(Individual<T> individual) {
+    individual.simulate();
+  }
+
+  /**
+   * Run a generation of this algorithm: run the simulation, and sort
+   * by fitness value.
+   */
+  private void runGeneration() {
+    for(Individual<T> individual : population) {
+      simulateIndividual(individual);
+    }
+    sortPopulation(population);
+  }
+
+  /**
    * Generate the next generation, unless current is 0, in which case we
    * have no information whatsoever to do so, and so nothing is done.
    * @param current the index of the current generation (from 0).
    */
-  protected void nextGeneration(int current) {
+  private void nextGeneration(int current) {
     if(current == 0) {
       return;
     }
