@@ -3,7 +3,9 @@ package com.stegosaurus.crypt;
 import java.util.Random;
 
 /**
- * Produces a random permutation of numbers.
+ * Produces a (pseudo) random permutation of numbers.
+ * These are immutable objects, so that for any given random seed, permutation
+ * size and prng, two permutations will be identical.
  */
 public class Permutation {
   /**
@@ -33,19 +35,15 @@ public class Permutation {
 
 
   /**
-   * Initialize the permutation. This is a somewhat expensive operation, so
-   * it's separate from the constructor.
-   * Note that it can be called as many times as desired should you, for
-   * example, wish to reseed the random number generator.
+   * Initialize the permutation.
+   * This is a somewhat expensive operation, so it's separate from the
+   * constructor. You should only call this operation once.
    */
   public void init() {
-    /* No need to allocate a new array if we already have one: the
-     * permutation algorithm isn't dependent on an array's contents, so
-     * we're fine.
-     */
-    if(permutation == null) {
-      permutation = new int[size];
+    if(permutation != null) {
+      throw new IllegalStateException("Permutation has been initialized");
     }
+    permutation = new int[size];
     /* This stuff is just your basic Knuth permutation. */
     for(int i = 0; i < size; i++) {
       int j = random.nextInt(i + 1);

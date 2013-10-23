@@ -82,19 +82,11 @@ public class PermutationTest {
   }
 
   /**
-   * Test that the Permutation satisfies the other tests in this class
-   * regardless of how many times the init method is called.
+   * Test that the init() method can only be called once on a given
+   * permutation.
    */
-  @Test
+  @Test(expected = IllegalStateException.class)
   public void testMultipleInit() {
-    /* 5 times should be informative enough... */
-    for(int i = 0; i < 5; i++) {
-      /* Again, allCovered and noRepetition imply one another, so this
-       * should be fine. */
-      testAllCovered();
-      seen.clear();
-      r.setSeed(i * 1000);
-      permutation.init();
-    }
+    permutation.init();
   }
 }
