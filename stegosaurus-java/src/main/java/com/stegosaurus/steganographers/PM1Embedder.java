@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.crypt.Permutation;
+import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
@@ -29,14 +30,22 @@ public class PM1Embedder extends PM1Algorithm {
   private PMSequence sequence;
 
   /**
+   * An object that'll provide us with Permutation instances.
+   */
+  private PermutationProvider permutationProvider;
+
+  /**
    * CTOR.
    * @param random the random number generator; will be reseeded on embed.
    * @param seq the plus-minus sequence to direct this object's embedding.
    * @param helper an object that can provide us with ByteBuffers.
+   * @param permutationProvider an object to provide us with Permutations.
    */
   protected PM1Embedder(Random random, PMSequence seq,
-                        ByteBufferHelper helper) {
+                        ByteBufferHelper helper,
+                        PermutationProvider permutationProvider) {
     super(random, helper);
+    this.permutationProvider = permutationProvider;
     sequence = seq;
   }
 
@@ -75,13 +84,15 @@ public class PM1Embedder extends PM1Algorithm {
     String key = request.getKey();
     byte[] msg = request.getMessage();
     CoefficientAccessor acc = getAccessorForImage(cover);
-    Permutation p = buildPermutation(acc);
-    reseedPermutation(key.hashCode(), p);
+    int coverLen = acc.getLength();
+    Permutation p = permutationProvider.getPermutation(coverLen,
+        key.hashCode());
     ImagePermuter permuter = new ImagePermuter(acc, p);
     byte[] seedBytes = getClearedBuffer().putShort(seed).array();
     BitInputStream in = new BitInputStream(seedBytes);
     int changed = doEmbed(in, acc, permuter, real);
-    reseedPermutation(seed, p);
+    p = permutationProvider.getPermutation(coverLen, seed);
+    permuter.setPermutation(p);
     /* XXX */
     short len = (short) msg.length;
     byte[] lenBytes = getClearedBuffer().putShort(len).array();
@@ -117,11 +128,18 @@ public class PM1Embedder extends PM1Algorithm {
     private ByteBufferHelper helper;
 
     /**
+     * The PermutationProvider to inject into instances.
+     */
+    private PermutationProvider provider;
+
+    /**
      * CTOR; to be invoked by Guava.
      * @param helper the helper to be injected into instances.
+     * @param provider the PermutationProvider to hand out to created objects.
      */
     @Inject
-    public Factory(ByteBufferHelper helper) {
+    public Factory(ByteBufferHelper helper, PermutationProvider provider) {
+      this.provider = provider;
       this.helper = helper;
     }
 
@@ -131,7 +149,7 @@ public class PM1Embedder extends PM1Algorithm {
     * @param helper an object that can provide us with ByteBuffers.
     */
     public PM1Embedder build(Random r, PMSequence seq) {
-      return new PM1Embedder(r, seq, helper);
+      return new PM1Embedder(r, seq, helper, provider);
     }
   }
 }

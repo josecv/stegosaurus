@@ -1,6 +1,8 @@
 package com.stegosaurus.stegosaurus;
 
 import com.google.inject.AbstractModule;
+import com.stegosaurus.crypt.DefaultPermutationProvider;
+import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.genetic.DefaultGAFactory;
 import com.stegosaurus.genetic.GAFactory;
 import com.stegosaurus.stegutils.ByteBufferHelper;
@@ -20,5 +22,6 @@ public class StegosaurusModule extends AbstractModule {
   protected void configure() {
     bind(ByteBufferHelper.class).to(ByteBufferHelperImpl.class);
     bind(GAFactory.class).to(DefaultGAFactory.class);
+    bind(PermutationProvider.class).to(DefaultPermutationProvider.class);
   }
 }

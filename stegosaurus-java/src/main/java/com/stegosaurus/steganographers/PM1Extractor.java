@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.crypt.Permutation;
+import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
@@ -22,12 +23,20 @@ public class PM1Extractor extends PM1Algorithm {
   private final BitOutputStream os = new BitOutputStream();
 
   /**
+   * The permutation provider used to get our hands on Permutations.
+   */
+  private PermutationProvider permutationProvider;
+
+  /**
    * CTOR.
    * @param random the random object to use; will be reseeded on extract.
    * @param helper an object that can provide us with ByteBuffers.
+   * @param permutationProvider an object that can give us permutations.
    */
-  protected PM1Extractor(Random random, ByteBufferHelper helper) {
+  protected PM1Extractor(Random random, ByteBufferHelper helper,
+                         PermutationProvider permutationProvider) {
     super(random, helper);
+    this.permutationProvider = permutationProvider;
   }
 
   /**
@@ -38,12 +47,13 @@ public class PM1Extractor extends PM1Algorithm {
    */
   public byte[] extract(JPEGImage carrier, String key) {
     CoefficientAccessor acc = getAccessorForImage(carrier);
-    Permutation p = buildPermutation(acc);
-    reseedPermutation(key.hashCode(), p);
+    Permutation p = permutationProvider.getPermutation(acc.getLength(),
+      key.hashCode());
     ImagePermuter permuter = new ImagePermuter(acc, p);
     doExtract(permuter, Short.SIZE);
     short seed = getClearedBuffer().put(os.data()).getShort(0);
-    reseedPermutation(seed, p);
+    p = permutationProvider.getPermutation(acc.getLength(), seed);
+    permuter.setPermutation(p);
     doExtract(permuter, Short.SIZE);
     int len = getClearedBuffer().put(os.data()).getShort(0);
     doExtract(permuter, len * Byte.SIZE);
@@ -83,12 +93,20 @@ public class PM1Extractor extends PM1Algorithm {
     private ByteBufferHelper helper;
 
     /**
+     * The permutation provider to hand out to created instances.
+     */
+    private PermutationProvider provider;
+
+    /**
      * CTOR; should be called by Guava.
-     * @param helper the ByteBufferHelper that will be given to built objectws.
+     * @param helper the ByteBufferHelper that will be given to built objects.
+     * @param provider the permutation provider for built objects.
      */
     @Inject
-    public Factory(ByteBufferHelper helper) {
+    public Factory(ByteBufferHelper helper,
+                   PermutationProvider provider) {
       this.helper = helper;
+      this.provider = provider;
     }
 
     /**
@@ -96,7 +114,7 @@ public class PM1Extractor extends PM1Algorithm {
      * @param random the random object to use; will be reseeded on extract.
      */
     public PM1Extractor build(Random random) {
-      return new PM1Extractor(random, helper);
+      return new PM1Extractor(random, helper, provider);
     }
   }
 }
