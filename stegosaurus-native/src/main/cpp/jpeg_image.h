@@ -113,6 +113,13 @@ class JPEGImage : public JPEGCoefficientsProvider {
    */
   CoefficientAccessor* getCoefficientAccessor(void);
 
+  /**
+   * Calculate the blockiness for every one of the components in this image,
+   * add them up, and return them.
+   * @return the sum of this image's components' blockiness.
+   */
+  int calculateComponentBlockinessSum(void);
+
  private:
   /**
    * Request the DCT coefficients from libjpeg, and store a pointer to them

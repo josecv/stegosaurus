@@ -10,14 +10,16 @@ static const char* steg_filename =
   "stegosaurus-native/src/test/resources/cpp/lena-stego.jpeg";
 
 /**
- * Test the JPEGComponent class' calculateBlockiness method.
+ * Test the blockiness calculation methods.
+ * This includes the JPEGComponent's calculateBlockiness, and the JPEGImage's
+ * own version thereof.
  * The strategy involves comparing the lena-colour picture (via the
  * TestWithImage class) to another, lena-stego.jpeg.
  * The latter image is the end result of embedding the US declaration of
  * independence into the first image, using the stegosaurus java component,
  * and the dummy sequence declared in PM1Test.java.
  */
-class JPEGComponentBlockinessTest : public TestWithImage {
+class JPEGBlockinessTest : public TestWithImage {
  public:
   /**
    * Set up the test.
@@ -42,13 +44,25 @@ class JPEGComponentBlockinessTest : public TestWithImage {
   JPEGImage *stego;
 };
 
+/**
+ * Test that the JPEGImage's calculateComponentBlockinessSum method works as
+ * expected, and is indeed a sum of the other components' blockiness.
+ */
+TEST_F(JPEGBlockinessTest, testCalculateComponentBlockinessSum) {
+  int expected = 0, i;
+  int result = testImage->calculateComponentBlockinessSum();
+  for(i = 0; i < testImage->getComponentCount(); ++i) {
+    expected += testImage->getComponent(i)->calculateBlockiness();
+  }
+  ASSERT_EQ(expected, result);
+}
 
 /**
  * Try to calculate the blockiness for our image; then crop it and get the
  * ratio of cropped-to-original. Do the same for a stego image, and ensure
  * that the former is smaller than the latter.
  */
-TEST_F(JPEGComponentBlockinessTest, testCalculateBlockiness) {
+TEST_F(JPEGBlockinessTest, testCalculateBlockiness) {
   int i;
   double blockiness = 0, steg_blockiness = 0;
   int cropped_blockiness = 0;

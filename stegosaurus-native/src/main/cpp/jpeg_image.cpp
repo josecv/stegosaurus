@@ -137,6 +137,14 @@ CoefficientAccessor* JPEGImage::getCoefficientAccessor(void) {
   return accessor;
 }
 
+int JPEGImage::calculateComponentBlockinessSum(void) {
+  int retval = 0, i;
+  for(i = 0; i < component_count; ++i) {
+    retval += getComponent(i)->calculateBlockiness();
+  }
+  return retval;
+}
+
 void JPEGImage::reset(void) {
   int i;
   if(coeffs != NULL) {
