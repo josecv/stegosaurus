@@ -11,21 +11,24 @@ void crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
    * causes memory corruption, as you might expect)
    */
   JSAMPARRAY buffer, buffer2;
-  buffer2 = (JSAMPARRAY) malloc(sizeof(JSAMPROW));
+  buffer2 = (JSAMPARRAY) malloc(sizeof(JSAMPROW) * y_off);
   int row_stride, i;
   row_stride = srcinfo->output_width * srcinfo->output_components;
   buffer = (*srcinfo->mem->alloc_sarray)
-    ((j_common_ptr) srcinfo, JPOOL_IMAGE, row_stride, 1);
+    ((j_common_ptr) srcinfo, JPOOL_IMAGE, row_stride, y_off);
   for(i = 0; i < y_off; i++) {
     (void) jpeg_read_scanlines(srcinfo, buffer, 1);
   }
   while(srcinfo->output_scanline < srcinfo->output_height) {
-    if(!jpeg_read_scanlines(srcinfo, buffer, 1)) {
+    int scanlines_read;
+    if(!(scanlines_read = jpeg_read_scanlines(srcinfo, buffer, y_off))) {
       fprintf(stderr, "Read error\n");
       return;
     }
-    buffer2[0] = &(buffer[0][x_off * srcinfo->output_components]);
-    if(!jpeg_write_scanlines(dstinfo, buffer2, 1)) {
+    for(i = 0; i < scanlines_read; ++i) {
+      buffer2[i] = &(buffer[i][x_off * srcinfo->output_components]);
+    }
+    if(!jpeg_write_scanlines(dstinfo, buffer2, scanlines_read)) {
       fprintf(stderr, "Write error\n");
       return;
     }
