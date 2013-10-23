@@ -83,11 +83,8 @@ public class BlockinessIndividual
   @Override
   protected double calculateFitnessImpl() {
     JPEGImage expected = stego.doCrop(4, 4);
-    double expectedBlockiness = 0.0, stegoBlockiness = 0.0;
-    for(int c = 0; c < stego.getComponentCount(); c++) {
-      expectedBlockiness += expected.getComponent(c).calculateBlockiness();
-      stegoBlockiness += stego.getComponent(c).calculateBlockiness();
-    }
+    double expectedBlockiness = expected.calculateComponentBlockinessSum();
+    double stegoBlockiness = stego.calculateComponentBlockinessSum();
     /* We want to maximize this ratio; since the GeneticAlgorithm class
      * seeks to _minimize_ the fitness, and the ratio is guaranteed to be
      * between 0 and 1, we can just do this. */

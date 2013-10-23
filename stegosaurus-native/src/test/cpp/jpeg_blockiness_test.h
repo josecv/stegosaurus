@@ -65,23 +65,17 @@ TEST_F(JPEGBlockinessTest, testCalculateComponentBlockinessSum) {
 TEST_F(JPEGBlockinessTest, testCalculateBlockiness) {
   int i;
   double blockiness = 0, steg_blockiness = 0;
-  int cropped_blockiness = 0;
+
+  blockiness = testImage->calculateComponentBlockinessSum();
+  steg_blockiness = stego->calculateComponentBlockinessSum();
+  EXPECT_LE(blockiness, steg_blockiness);
 
   JPEGImage *cropped = testImage->doCrop(4, 4);
-  for(i = 0; i < testImage->getComponentCount(); ++i) {
-    blockiness += testImage->getComponent(i)->calculateBlockiness();
-    cropped_blockiness += cropped->getComponent(i)->calculateBlockiness();
-  }
+  blockiness = cropped->calculateComponentBlockinessSum() / blockiness;
   context->destroyImage(cropped);
-  blockiness = cropped_blockiness / blockiness;
-
   cropped = stego->doCrop(4, 4);
-  cropped_blockiness = 0;
-  for(i = 0; i < stego->getComponentCount(); ++i) {
-    steg_blockiness += stego->getComponent(i)->calculateBlockiness();
-    cropped_blockiness += cropped->getComponent(i)->calculateBlockiness();
-  }
-  steg_blockiness = cropped_blockiness / steg_blockiness;
+  steg_blockiness = cropped->calculateComponentBlockinessSum() /
+    steg_blockiness;
   context->destroyImage(cropped);
   EXPECT_LE(blockiness, steg_blockiness);
 }
