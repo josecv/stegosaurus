@@ -58,6 +58,19 @@ TEST_F(JPEGBlockinessTest, testCalculateComponentBlockinessSum) {
 }
 
 /**
+ * Test that the blockiness method is consistent with its previous
+ * implementations.
+ * This seems odd, but since we can't be 100% sure of a given implementation's
+ * correctness, it's about as good as we can get. It's especially important
+ * because we're talking about performance-critical method that's going to
+ * be implemented in many different ways over time.
+ */
+TEST_F(JPEGBlockinessTest, testConsistency) {
+  int expected = 1331855;
+  ASSERT_EQ(expected, testImage->calculateComponentBlockinessSum());
+}
+
+/**
  * Try to calculate the blockiness for our image; then crop it and get the
  * ratio of cropped-to-original. Do the same for a stego image, and ensure
  * that the former is smaller than the latter.
