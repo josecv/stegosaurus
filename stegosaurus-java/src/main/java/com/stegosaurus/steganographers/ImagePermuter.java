@@ -11,10 +11,12 @@ import com.stegosaurus.crypt.Permutation;
 /**
  * Given a coefficient accessor and a permutation for it, will walk through
  * the permutation and execute a callback for every value that is not a DC
- * coefficient and not a 0 or a 1.
- * The permuter keeps track of already accessed indices and ensures they're not
- * repeated, so that it is possible to walk more than one permutation of the
- * same image.
+ * coefficient and not a 0.
+ * <p>The permuter keeps track of already accessed indices and ensures they're
+ * not repeated, so that it is possible to walk more than one permutation of
+ * the same image.</p>
+ * <p>Note however that it will start walking every permutation from the
+ * very start.</p>
  */
 public class ImagePermuter {
 
@@ -58,8 +60,27 @@ public class ImagePermuter {
   }
 
   /**
+   * Change the permutation in use by this object; this does NOT reset the
+   * object: visited indices will remain visited.
+   * @param p the permutation to use from now on.
+   */
+  public void setPermutation(Permutation p) {
+    permutation = p;
+  }
+
+  /**
+   * Reset this permuter, thus allowing it to re-visit any previously visited
+   * indices.
+   */
+  public void reset() {
+    locked.clear();
+  }
+
+  /**
    * Walk the permuted image, running the procedure given on every good
-   * coefficient found (ie every non zero, non one, non DC, coefficient).
+   * coefficient found (ie every non zero, non DC, coefficient).
+   * Note that the permutation will be walked from its start, regardless
+   * of whether this method has already been invoked.
    * The procedure's first argument is the index, and its second argument is
    * the value.
    * @param proc the procedure to run.

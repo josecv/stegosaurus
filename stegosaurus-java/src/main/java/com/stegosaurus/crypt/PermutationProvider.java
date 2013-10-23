@@ -9,6 +9,7 @@ package com.stegosaurus.crypt;
 public interface PermutationProvider {
   /**
    * Get a permutation of the given size and seed.
+   * The permutation will have been init()'ed already.
    * @param size the number of elements in the desired permutation.
    * @param seed the seed that should be used to generate it.
    * @return the permutation.
