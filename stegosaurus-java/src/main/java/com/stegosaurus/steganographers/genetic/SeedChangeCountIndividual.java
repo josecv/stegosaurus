@@ -69,6 +69,6 @@ public class SeedChangeCountIndividual extends
    */
   @Override
   protected double calculateFitnessImpl() {
-    return ((double) changes) / message.length;
+    return ((double) changes) / ((message.length + Short.SIZE) * 8);
   }
 }
