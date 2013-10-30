@@ -48,12 +48,15 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    * {@inheritDoc}
    */
   @Override
-  public final double calculateFitness() {
+  public final synchronized double calculateFitness() {
     if(needsSimulation) {
       throw new IllegalStateException("Simulation needs to be run.");
     }
     if(fitness < 0) {
       fitness = calculateFitnessImpl();
+    }
+    if(fitness < 0 || fitness > 1) {
+      throw new IllegalStateException("Invalid fitness returned by type " + getClass());
     }
     return fitness;
   }
@@ -79,6 +82,11 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
   }
 
   /**
+   * Actually run the simulation.
+   */
+  protected abstract void simulateImpl();
+
+  /**
    * Force a simulation to take place the next time simulate() is called,
    * regardless of whether this class considers it necessary.
    * Note that this method does not run a simulation! It merely ensures
@@ -87,11 +95,6 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
   protected void forceNextSimulation() {
     needsSimulation = true;
   }
-
-  /**
-   * Actually run the simulation.
-   */
-  protected abstract void simulateImpl();
 
   /**
    * {@inheritDoc}
