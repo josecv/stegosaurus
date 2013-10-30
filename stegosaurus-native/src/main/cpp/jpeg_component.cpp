@@ -37,26 +37,6 @@ JBLOCKARRAY JPEGComponent::getCoefficients(void) {
   return coefficients;
 }
 
-int JPEGComponent::calculateBlockiness(void) {
-  int retval = 0;
-  unsigned int i, j;
-  /* We're interested in the block boundaries here, which is to say the
-   * boundary between say column 7 and column 8. Since our coordinates
-   * are zero indexed, we check 8i - 1 and 8i as opposed to 8i and 8i + 1.
-   */
-  for(i = 1; i < ((downsampled_width - 1) / 8); ++i) {
-    for(j = 0; j < downsampled_height; ++j) {
-      retval += abs(coefficientAt((8 * i) - 1, j) - coefficientAt(8 * i, j));
-    }
-  }
-  for(j = 1; j < ((downsampled_height - 1) / 8); ++j) {
-    for(i = 0; i < downsampled_width; ++i) {
-      retval += abs(coefficientAt(i, (8 * j) - 1) - coefficientAt(i, 8 * j));
-    }
-  }
-  return retval;
-}
-
 void JPEGComponent::forceCoefReloadOnNextAccess(void) {
   coefficients = NULL;
 }

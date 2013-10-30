@@ -114,13 +114,6 @@ class JPEGImage : public JPEGCoefficientsProvider {
   CoefficientAccessor* getCoefficientAccessor(void);
 
   /**
-   * Calculate the blockiness for every one of the components in this image,
-   * add them up, and return them.
-   * @return the sum of this image's components' blockiness.
-   */
-  int calculateComponentBlockinessSum(void);
-
-  /**
    * Calculate and return the reciprocal of the ratio from this image's spatial
    * blockiness to the spatial blockiness of an estimated image. In this case
    * the estimated image is obtained by cropping this image by 4 pixels

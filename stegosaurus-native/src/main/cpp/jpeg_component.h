@@ -93,27 +93,6 @@ class JPEGComponent {
   }
 
   /**
-   * Calculate the blockiness of this component.
-   * This result is never kept internally by the object, so it is in fact
-   * calculated from scratch every time.
-   * @return the blockiness.
-   */
-  int calculateBlockiness(void);
-
-  /**
-   * Get the DCT coefficient at the x, y coordinates given.
-   * For obvious reasons, if the coefficients are unrealized, they will
-   * be obtained.
-   * @param x the x coordinate
-   * @param y the y coordinate
-   * @return the coefficient.
-   */
-  int coefficientAt(int x, int y) {
-    return getCoefficients()[y / block_height][x / block_width]
-      [((y % block_height) * block_width) + (x % block_width)];
-  }
-
-  /**
    * Force this object to request coefficients from its provider the next
    * time it needs access to them, instead of using the ones previously
    * returned.
