@@ -120,6 +120,15 @@ class JPEGImage : public JPEGCoefficientsProvider {
    */
   int calculateComponentBlockinessSum(void);
 
+  /**
+   * Calculate and return the reciprocal of the ratio from this image's spatial
+   * blockiness to the spatial blockiness of an estimated image. In this case
+   * the estimated image is obtained by cropping this image by 4 pixels
+   * from the top and right.
+   * @return the reciprocal of the blockiness-to-estimated-blockiness ratio.
+   */
+  double calculateReciprocalROB(void);
+
  private:
   /**
    * Request the DCT coefficients from libjpeg, and store a pointer to them

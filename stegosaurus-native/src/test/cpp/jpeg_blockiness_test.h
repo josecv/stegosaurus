@@ -44,52 +44,8 @@ class JPEGBlockinessTest : public TestWithImage {
   JPEGImage *stego;
 };
 
-/**
- * Test that the JPEGImage's calculateComponentBlockinessSum method works as
- * expected, and is indeed a sum of the other components' blockiness.
- */
-TEST_F(JPEGBlockinessTest, testCalculateComponentBlockinessSum) {
-  int expected = 0, i;
-  int result = testImage->calculateComponentBlockinessSum();
-  for(i = 0; i < testImage->getComponentCount(); ++i) {
-    expected += testImage->getComponent(i)->calculateBlockiness();
-  }
-  ASSERT_EQ(expected, result);
+TEST_F(JPEGBlockinessTest, testReciprocalROB) {
+  double blockiness = testImage->calculateReciprocalROB();
+  double steg_blockiness = stego->calculateReciprocalROB();
+  EXPECT_GE(blockiness, steg_blockiness);
 }
-
-/**
- * Test that the blockiness method is consistent with its previous
- * implementations.
- * This seems odd, but since we can't be 100% sure of a given implementation's
- * correctness, it's about as good as we can get. It's especially important
- * because we're talking about performance-critical method that's going to
- * be implemented in many different ways over time.
- */
-TEST_F(JPEGBlockinessTest, testConsistency) {
-  int expected = 1331855;
-  ASSERT_EQ(expected, testImage->calculateComponentBlockinessSum());
-}
-
-/**
- * Try to calculate the blockiness for our image; then crop it and get the
- * ratio of cropped-to-original. Do the same for a stego image, and ensure
- * that the former is smaller than the latter.
- */
-TEST_F(JPEGBlockinessTest, testCalculateBlockiness) {
-  int i;
-  double blockiness = 0, steg_blockiness = 0;
-
-  blockiness = testImage->calculateComponentBlockinessSum();
-  steg_blockiness = stego->calculateComponentBlockinessSum();
-  EXPECT_LE(blockiness, steg_blockiness);
-
-  JPEGImage *cropped = testImage->doCrop(4, 4);
-  blockiness = cropped->calculateComponentBlockinessSum() / blockiness;
-  context->destroyImage(cropped);
-  cropped = stego->doCrop(4, 4);
-  steg_blockiness = cropped->calculateComponentBlockinessSum() /
-    steg_blockiness;
-  context->destroyImage(cropped);
-  EXPECT_LE(blockiness, steg_blockiness);
-}
-

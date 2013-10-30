@@ -2,6 +2,8 @@
 #include "../c/dest_mgr.h"
 #include "../c/src_mgr.h"
 #include "../c/crop.h"
+#include "../c/blockiness.h"
+#include <string.h>
 
 
 JPEGImage::JPEGImage(JOCTET *i, long imglen)
@@ -186,4 +188,72 @@ j_compress_ptr JPEGImage::buildCompressor() {
   retval->err = jpeg_std_error(new struct jpeg_error_mgr);
   jpeg_create_compress(retval);
   return retval;
+}
+
+/* TODO RETHINK ALL OF THE FOLLOWING. ALL OF IT */
+
+static void cropRow(j_decompress_ptr decomp, j_compress_ptr comp,
+                    JSAMPARRAY buffer, JSAMPARRAY buffer2, int off) {
+  if(comp == NULL) {
+    return;
+  }
+  buffer2[0] = &(buffer[0][off * decomp->output_components]);
+  (void) jpeg_write_scanlines(comp, buffer2, 1);
+}
+
+/**
+ * Calculate the spatial blockiness for the decompression object given.
+ * If requested (decomp != NULL), crop it by 4 pixels, top and right, and
+ * write them into the compression object given.
+ */
+static int calculateDecompBlockiness(j_decompress_ptr decomp,
+    j_compress_ptr comp) {
+  int value = 0;
+  const int off = 4;
+  int row = 0;
+  int j, row_stride;
+  JSAMPARRAY buffer;
+  JSAMPARRAY buffer2 = new JSAMPROW;
+  JSAMPROW   previous_row;
+  jpeg_start_decompress(decomp);
+  row_stride = decomp->output_width * decomp->output_components;
+  previous_row = new JSAMPLE[row_stride];
+  buffer = (*decomp->mem->alloc_sarray)
+    ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 1);
+  while(decomp->output_scanline < decomp->output_height) {
+    (void) jpeg_read_scanlines(decomp, buffer, 1);
+    if(row >= off) {
+      cropRow(decomp, comp, buffer, buffer2, off);
+    }
+    value += blockinessForRow(decomp->output_components, decomp->output_width,
+                              buffer[0], row, previous_row);
+    memcpy(previous_row, buffer[0], row_stride * sizeof(JSAMPLE));
+    ++row;
+  }
+  delete [] previous_row;
+  delete buffer2;
+  return value;
+}
+
+double JPEGImage::calculateReciprocalROB(void) {
+  /* XXX XXX XXX Blatant, horrible, repetition */
+  JOCTET *output = NULL;
+  long outlen = len;
+  reset();
+  jpeg_copy_critical_parameters(decomp, comp);
+  comp->in_color_space = decomp->out_color_space;
+  comp->image_width = decomp->image_width - 4;
+  comp->image_height = decomp->image_height - 4;
+  steg_dest_mgr_for(comp, &output, &outlen);
+  jpeg_start_compress(comp, 1);
+  double blockiness = calculateDecompBlockiness(decomp, comp);
+  jpeg_finish_compress(comp);
+  jpeg_finish_decompress(decomp);
+  steg_src_mgr_for(decomp, output, outlen);
+  jpeg_read_header(decomp, 1);
+  double cropped_blockiness = calculateDecompBlockiness(decomp, NULL);
+  jpeg_finish_decompress(decomp);
+  free(output);
+  steg_src_mgr_for(decomp, image, len);
+  return cropped_blockiness / blockiness;
 }
