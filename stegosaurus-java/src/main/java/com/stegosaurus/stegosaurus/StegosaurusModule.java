@@ -1,10 +1,12 @@
 package com.stegosaurus.stegosaurus;
 
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.AbstractModule;
+import com.stegosaurus.concurrent.ListeningExecutorServiceProvider;
 import com.stegosaurus.crypt.DefaultPermutationProvider;
 import com.stegosaurus.crypt.PermutationProvider;
-import com.stegosaurus.genetic.DefaultGAFactory;
 import com.stegosaurus.genetic.GAFactory;
+import com.stegosaurus.genetic.ParallelGAFactory;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 import com.stegosaurus.stegutils.ByteBufferHelperImpl;
 
@@ -21,7 +23,9 @@ public class StegosaurusModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(ByteBufferHelper.class).to(ByteBufferHelperImpl.class);
-    bind(GAFactory.class).to(DefaultGAFactory.class);
     bind(PermutationProvider.class).to(DefaultPermutationProvider.class);
+    bind(GAFactory.class).to(ParallelGAFactory.class);
+    bind(ListeningExecutorService.class)
+      .toProvider(ListeningExecutorServiceProvider.class);
   }
 }
