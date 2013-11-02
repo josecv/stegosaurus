@@ -16,7 +16,7 @@ void crop(j_decompress_ptr srcinfo, j_compress_ptr dstinfo,
   row_stride = srcinfo->output_width * srcinfo->output_components;
   buffer = (*srcinfo->mem->alloc_sarray)
     ((j_common_ptr) srcinfo, JPOOL_IMAGE, row_stride, y_off);
-  for(i = 0; i < y_off; i++) {
+  for(i = 0; i < y_off; ++i) {
     (void) jpeg_read_scanlines(srcinfo, buffer, 1);
   }
   while(srcinfo->output_scanline < srcinfo->output_height) {
