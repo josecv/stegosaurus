@@ -45,58 +45,72 @@ class JPEGBlockinessTest : public TestWithImage {
   JPEGImage *stego;
 
   /**
-   * The number of block boundaries to account for.
+   * Populate the 64-byte long JSAMPROW given with random values.
+   * Sample the values at indices present in the sample_indices array, and
+   * place them in the samples array.
+   * @param row the row to populte. Must be size bytes long.
+   * @param size the size of the row to populate.
    */
-  static const int number_of_boundaries = 14;
-
-  /**
-   * The sizes of the rows we'll deal with.
-   */
-  static const int row_size = 64;
-
-  /**
-   * Populate the 64-byte long JSAMPROW given with random values. Fill in
-   * the boundaries array with any values at the block boundaries (i.e. 7
-   * and 8, 15 and 16, etc).
-   * @param row the row to populte. Must be 64 bytes long.
-   * @param boundaries the values at the boundaries. Must be of size 14.
-   */
-  void populateSampRow(JSAMPROW row, int boundaries[number_of_boundaries]) {
-    int i, j = 0;
-    for(i = 0; i < row_size; ++i) {
+  void populateSampRow(JSAMPROW row, int size) {
+    int i;
+    for(i = 0; i < size; ++i) {
       row[i] = rand() % 100;
-      /* TODO Maybe don't hardcode these values...
-       * The reason these are hardcoded right now is that the size is known,
-       * and this way we are 100% sure that we'll nab the right values,
-       * without having to worry that a specific algorithm will work.
-       * Of course, this is equivalent to saying if(i && !(i % 8)) and then
-       * getting row[i] and row[i - 1].
-       */
-      if(i == 7  || i == 8  || i == 15 || i == 16 || i == 23 || i == 24 ||
-         i == 31 || i == 32 || i == 39 || i == 40 || i == 47 || i == 48 ||
-         i == 55 || i == 56) {
-        boundaries[j] = row[i];
-        ++j;
-      }
     }
   }
 };
 
 /**
- * Test the blockinessForRow function for a single row.
+ * Test the blockinessForRow function for a single row and a single
+ * component.
  */
 TEST_F(JPEGBlockinessTest, testBlockinessSingleRow) {
+  const int row_size = 64;
+  const int number_of_boundaries = 14;
   JSAMPROW row = new JSAMPLE[row_size];
-  int boundaries[number_of_boundaries];
+  int boundary_indices[number_of_boundaries] = {
+    7, 8, 15, 16, 23, 24, 31, 32, 39, 40, 47, 48, 55, 56
+  };
   int result, i, expected = 0;
-  populateSampRow(row, boundaries);
+  populateSampRow(row, row_size);
   for(i = 0; i < number_of_boundaries; i += 2) {
-    expected += abs(boundaries[i] - boundaries[i + 1]);
+    int index = boundary_indices[i];
+    int other = boundary_indices[i + 1];
+    expected += abs(row[index] - row[other]);
   }
   result = blockinessForRow(1, row_size, row, 0, NULL);
   ASSERT_EQ(expected, result);
   delete [] row;
 }
+
+
+/**
+ * Test the blockinessForRow function with a single row and three components.
+ */
+TEST_F(JPEGBlockinessTest, testBlockinessMultipleComponents) {
+  const int components = 3;
+  const int row_size = 64 * components;
+  const int number_of_boundaries = 14 * components;
+  int i, c, result;
+  int expected = 0;
+  JSAMPROW row = new JSAMPLE[row_size];
+  int boundary_indices[number_of_boundaries] = {
+    21,  22,  23,  24,  25,  26,  45,  46,  47,  48,  49,  50,  69,  70,  71,
+    72,  73,  74,  93,  94,  95,  96,  97,  98,  117, 118, 119, 120, 121, 122,
+    141, 142, 143, 144, 145, 146, 165, 166, 167, 168, 169, 170
+  };
+  populateSampRow(row, row_size);
+  for(i = 0; i < number_of_boundaries / components; i += 2) {
+    for(c = 0; c < components; ++c) {
+      int index = boundary_indices[(i * 3) + c];
+      int other_index = boundary_indices[((i + 1) * 3) + c];
+      expected += abs(row[index] - row[other_index]);
+    }
+  }
+  result = blockinessForRow(components, row_size / components, row, 0, NULL);
+  EXPECT_EQ(expected, result);
+  delete [] row;
+}
+
 
 /**
  * Ensure that the reciprocalROB function works as expected: this is verified

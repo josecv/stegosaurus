@@ -9,8 +9,8 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
     if(!(row_index % 8) && row_index) {
       retval += abs(samp_row[index] - previous_row[index]);
     }
-    if(!((index / components) % 8) && index) {
-      retval += abs(samp_row[index] - samp_row[index - 1]);
+    if(!((index / components) % 8) && (index / components)) {
+      retval += abs(samp_row[index] - samp_row[index - components]);
     }
   }
   return retval;
