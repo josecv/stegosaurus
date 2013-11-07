@@ -203,7 +203,7 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   int value = 0;
   const int off = 4;
   int row = 0;
-  int j, row_stride;
+  int row_stride;
   JSAMPARRAY buffer;
   JSAMPARRAY buffer2 = new JSAMPROW;
   JSAMPROW   previous_row;

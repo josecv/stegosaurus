@@ -2,7 +2,7 @@
 
 int blockinessForRow(int components, int width, JSAMPROW samp_row,
                      int row_index, JSAMPROW previous_row) {
-  int row, index;
+  int index;
   int retval = 0;
   int stride = width * components;
   for(index = 0; index < stride; ++index) {

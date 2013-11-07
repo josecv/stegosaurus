@@ -111,6 +111,38 @@ TEST_F(JPEGBlockinessTest, testBlockinessMultipleComponents) {
   delete [] row;
 }
 
+/**
+ * Test the blockinessForRow function with multiple rows and a single
+ * component.
+ */
+TEST_F(JPEGBlockinessTest, testBlockinessMultiRowSingleComponent) {
+  const int row_size = 64;
+  const int number_of_boundaries = 14;
+  int i;
+  int expected, result;
+  JSAMPROW prev = new JSAMPLE[row_size];
+  JSAMPROW row = new JSAMPLE[row_size];
+  populateSampRow(prev, row_size);
+  populateSampRow(row, row_size);
+  /* First ensure that no monkey business takes place when a previous row
+   * is given, but the current row is not a block boundary.
+   */
+  expected = blockinessForRow(1, row_size, row, 0, NULL);
+  for(i = 1; i < 8; ++i) {
+    result = blockinessForRow(1, row_size, row, i, prev);
+    EXPECT_EQ(expected, result);
+  }
+  /* Now ensure that everything works out when the current row _is_
+   * a block boundary.
+   */
+  for(i = 0; i < row_size; ++i) {
+    result += abs(row[i] - prev[i]);
+  }
+  expected = blockinessForRow(1, row_size, row, 8, prev);
+  EXPECT_EQ(expected, result);
+  delete [] row;
+  delete [] prev;
+}
 
 /**
  * Ensure that the reciprocalROB function works as expected: this is verified
