@@ -70,7 +70,7 @@ public class DefaultPermutationProvider implements PermutationProvider {
    * {@inheritDoc}
    */
   @Override
-  public synchronized Permutation getPermutation(int size, long seed) {
+  public Permutation getPermutation(int size, long seed) {
     return permutations.getUnchecked(size).getUnchecked(seed);
   }
 }
