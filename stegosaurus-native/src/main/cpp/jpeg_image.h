@@ -9,6 +9,7 @@
 #include "jpeglib.h"
 #include "jpeg_component.h"
 #include "coefficient_accessor.h"
+#include "jpeg_lib_exception.h"
 
 /**
  * Represents a jpeg image in use by stegosaurus. Should be constructed by
@@ -51,7 +52,7 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * coefficients.
    * @return the new image
    */
-  JPEGImage* writeNew();
+  JPEGImage* writeNew() throw(JPEGLibException);
 
   /**
    * Crop this image to start at the offsets given, and return the new image.
@@ -120,7 +121,7 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * from the top and right.
    * @return the reciprocal of the blockiness-to-estimated-blockiness ratio.
    */
-  double calculateReciprocalROB(void);
+  double calculateReciprocalROB(void) throw(JPEGLibException);
 
  private:
   /**
@@ -139,6 +140,16 @@ class JPEGImage : public JPEGCoefficientsProvider {
    * Delete all the JBLOCKARRAYs that have been requested from this image.
    */
   void deleteCoefficients(void);
+
+  /**
+   * Prepare a crop operation by readying the compressor and decompressor.
+   * @param outlen pointer to the length of the resulting buffer
+   * @param output pointer to the output image buffer
+   * @param x_off the x offset for the crop.
+   * @param y_off the y offset for the crop.
+   */
+  void prepareCrop(long *outlen, JOCTET **output,
+                   int x_off, int y_off);
 
   /**
    * Construct a jpeg_decompression_struct.

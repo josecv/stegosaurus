@@ -82,7 +82,7 @@ JBLOCKARRAY JPEGImage::getCoefficients(int component_index) {
   return retval;
 }
 
-JPEGImage* JPEGImage::writeNew() {
+JPEGImage* JPEGImage::writeNew() throw(JPEGLibException) {
   readCoefficients();
   JOCTET *output = NULL;
   long outlen = len;
@@ -99,13 +99,7 @@ JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
   reset();
   JOCTET *output = NULL;
   long outlen = len;
-  jpeg_copy_critical_parameters(decomp, comp);
-  comp->in_color_space = decomp->out_color_space;
-  comp->image_width = decomp->image_width - x_off;
-  comp->image_height = decomp->image_height - y_off;
-  steg_dest_mgr_for(comp, &output, &outlen);
-  jpeg_start_compress(comp, 1);
-  jpeg_start_decompress(decomp);
+  prepareCrop(&outlen, &output, x_off, y_off);
   crop(decomp, comp, x_off, y_off);
   jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
@@ -138,6 +132,17 @@ CoefficientAccessor* JPEGImage::getCoefficientAccessor(void) {
     accessor = new CoefficientAccessor(components, component_count);
   }
   return accessor;
+}
+
+void JPEGImage::prepareCrop(long *outlen, JOCTET **output,
+                            int x_off, int y_off) {
+  jpeg_copy_critical_parameters(decomp, comp);
+  comp->in_color_space = decomp->out_color_space;
+  comp->image_width = decomp->image_width - x_off;
+  comp->image_height = decomp->image_height - y_off;
+  steg_dest_mgr_for(comp, output, outlen);
+  jpeg_start_compress(comp, 1);
+  jpeg_start_decompress(decomp);
 }
 
 void JPEGImage::reset(void) {
@@ -208,7 +213,6 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   JSAMPARRAY buffer;
   JSAMPARRAY buffer2 = new JSAMPROW;
   JSAMPROW   previous_row;
-  jpeg_start_decompress(decomp);
   row_stride = decomp->output_width * decomp->output_components;
   previous_row = new JSAMPLE[row_stride];
   buffer = (*decomp->mem->alloc_sarray)
@@ -228,22 +232,17 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   return value;
 }
 
-double JPEGImage::calculateReciprocalROB(void) {
-  /* XXX XXX XXX Blatant, horrible, repetition */
+double JPEGImage::calculateReciprocalROB(void) throw (JPEGLibException) {
   JOCTET *output = NULL;
   long outlen = len;
   reset();
-  jpeg_copy_critical_parameters(decomp, comp);
-  comp->in_color_space = decomp->out_color_space;
-  comp->image_width = decomp->image_width - 4;
-  comp->image_height = decomp->image_height - 4;
-  steg_dest_mgr_for(comp, &output, &outlen);
-  jpeg_start_compress(comp, 1);
+  prepareCrop(&outlen, &output, 4, 4);
   double blockiness = calculateDecompBlockiness(decomp, comp);
   jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
   steg_src_mgr_for(decomp, output, outlen);
   jpeg_read_header(decomp, 1);
+  jpeg_start_decompress(decomp);
   double cropped_blockiness = calculateDecompBlockiness(decomp, NULL);
   jpeg_finish_decompress(decomp);
   free(output);
