@@ -14,7 +14,8 @@ CXXTEST=$(TESTROOT)/cpp
 LDFLAGS=-ljpeg
 OBJECTS=build/crop.o build/dest_mgr.o build/src_mgr.o build/jpeg_image.o \
 	build/jpeg_context.o build/jpeg_component.o build/coefficient_accessor.o \
-	build/steg_utils.o build/blockiness.o
+	build/steg_utils.o build/blockiness.o build/jpeg_lib_exception.o \
+	build/stegosaurus_error_manager.o
 SWIGDIR=stegosaurus-java/src/main/java/com/stegosaurus/cpp
 SWIGPACKAGE=com.stegosaurus.cpp
 SWIGFLAGS=-package com.stegosaurus.cpp -outdir $(SWIGDIR)
