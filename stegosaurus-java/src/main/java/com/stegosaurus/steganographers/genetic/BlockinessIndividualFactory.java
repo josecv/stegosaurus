@@ -52,6 +52,13 @@ public class BlockinessIndividualFactory
    */
   @Override
   public BlockinessIndividual build(Chromosome c) {
-    return new BlockinessIndividual(c, request, prng, seed, embedderFactory);
+    /* We have to hand out a copy of the image to the individual, so as to
+     * be able to parallelize some operations. Happily, because the JPEGImage
+     * has not been manipulated in any significant way, writeNew is a pretty
+     * fast operation here.
+     */
+    EmbedRequest r = new EmbedRequest(request.getCover().writeNew(),
+        request.getMessage(), request.getKey());
+    return new BlockinessIndividual(c, r, prng, seed, embedderFactory);
   }
 }
