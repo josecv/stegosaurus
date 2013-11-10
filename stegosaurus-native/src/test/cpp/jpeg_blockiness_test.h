@@ -117,7 +117,6 @@ TEST_F(JPEGBlockinessTest, testBlockinessMultipleComponents) {
  */
 TEST_F(JPEGBlockinessTest, testBlockinessMultiRowSingleComponent) {
   const int row_size = 64;
-  const int number_of_boundaries = 14;
   int i;
   int expected, result;
   JSAMPROW prev = new JSAMPLE[row_size];
