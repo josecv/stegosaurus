@@ -4,6 +4,7 @@
 #include "jpeg_image_test.h"
 #include "jpeg_component_test.h"
 #include "jpeg_blockiness_test.h"
+#include "error_mgr_test.h"
 
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

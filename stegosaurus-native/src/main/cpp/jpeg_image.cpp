@@ -3,6 +3,7 @@
 #include "../c/src_mgr.h"
 #include "../c/crop.h"
 #include "../c/blockiness.h"
+#include "stegosaurus_error_manager.h"
 #include <string.h>
 
 
@@ -170,14 +171,14 @@ void JPEGImage::deleteCoefficients(void) {
 j_decompress_ptr JPEGImage::buildDecompressor() {
   j_decompress_ptr retval =
     (j_decompress_ptr) new struct jpeg_decompress_struct;
-  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
+  retval->err = stegosaurus_error_mgr(new struct jpeg_error_mgr);
   jpeg_create_decompress(retval);
   return retval;
 }
 
 j_compress_ptr JPEGImage::buildCompressor() {
   j_compress_ptr retval = (j_compress_ptr) new struct jpeg_compress_struct;
-  retval->err = jpeg_std_error(new struct jpeg_error_mgr);
+  retval->err = stegosaurus_error_mgr(new struct jpeg_error_mgr);
   jpeg_create_compress(retval);
   return retval;
 }

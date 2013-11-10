@@ -62,7 +62,22 @@ TEST_F(JPEGImageTest, testWriteNew) {
       EXPECT_EQ(0, arr[0][0][j]) << "Index " << j;
     }
   }
-  context->destroyImage(other);
+  delete other;
+}
+
+/**
+ * Test that the writeNew method can be used to copy an image.
+ */
+TEST_F(JPEGImageTest, testCopy) {
+  JPEGImage *copyImage = testImage->writeNew();
+  CoefficientAccessor *test_acc = testImage->getCoefficientAccessor(),
+                      *copy_acc = copyImage->getCoefficientAccessor();
+  int i;
+  EXPECT_EQ(test_acc->getLength(), copy_acc->getLength());
+  for(i = 0; i < test_acc->getLength(); ++i) {
+    EXPECT_EQ(test_acc->getCoefficient(i), copy_acc->getCoefficient(i));
+  }
+  delete copyImage;
 }
 
 /**
