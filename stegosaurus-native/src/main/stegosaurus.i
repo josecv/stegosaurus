@@ -20,12 +20,32 @@
 
 %include "cpp/jpeg_component.h"
 
+/* JPEGLibException has to be properly mapped to a java exception. */
+
+%typemap(javabase) JPEGLibException "java.lang.RuntimeException"
+%typemap(javacode) JPEGLibException %{
+  public String getMessage() {
+    return what();
+  }
+%}
+
+%include "cpp/jpeg_lib_exception.h"
+
 /* We need to ensure that the JPEGImages returned by other JPEGImages are
  * garbage collected apropriately.
  * In other words, any images constructed by writeNew or doCrop must be
  * freed by the Java side (since no pointer is kept on the native side)*/
+
 %newobject JPEGImage::writeNew();
 %newobject JPEGImage::doCrop(int, int);
+
+%typemap(throws, throws="JPEGLibException") JPEGLibException {
+  jclass excep = jenv->FindClass("stegosaurus/cpp/JPEGLibException");
+  if(excep) {
+    jenv->ThrowNew(excep, $1.what());
+  }
+  return $null;
+}
 
 %include "cpp/jpeg_image.h"
 
