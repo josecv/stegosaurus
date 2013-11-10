@@ -1,6 +1,8 @@
 package com.stegosaurus.genetic;
 
+import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
 
@@ -51,5 +53,13 @@ public class ParallelGA<T extends Individual<T>>
         individual.calculateFitness();
       }
     });
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected List<Individual<T>> buildEmptyPopulation(int size) {
+    return new Vector<>(size);
   }
 }

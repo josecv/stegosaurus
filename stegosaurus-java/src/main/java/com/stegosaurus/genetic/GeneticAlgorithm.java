@@ -91,7 +91,6 @@ public class GeneticAlgorithm<T extends Individual<T>> {
     this.factory = factory;
     this.selection = selection;
     this.random = random;
-    this.population = new ArrayList<>(popSize);
   }
 
   /**
@@ -99,6 +98,7 @@ public class GeneticAlgorithm<T extends Individual<T>> {
    * corresponding random chromosomes.
    */
   public void init() {
+    this.population = buildEmptyPopulation(popSize);
     for(int i = 0; i < popSize; i++) {
       Chromosome c = new Chromosome(chromosomeSize, random);
       c.randomize();
@@ -155,6 +155,16 @@ public class GeneticAlgorithm<T extends Individual<T>> {
    */
   protected void simulateIndividual(Individual<T> individual) {
     individual.simulate();
+  }
+
+  /**
+   * Build a list of the size given, to be used for population;
+   * this method should _only_ build the list: not actually populate it.
+   * @param size the size of the eventual population
+   * @return the empty list.
+   */
+  protected List<Individual<T>> buildEmptyPopulation(int size) {
+    return new ArrayList<>(size);
   }
 
   /**
