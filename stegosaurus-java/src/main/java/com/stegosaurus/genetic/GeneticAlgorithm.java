@@ -158,6 +158,16 @@ public class GeneticAlgorithm<T extends Individual<T>> {
   }
 
   /**
+   * Run any tasks that must be executed before a generation can be simulated
+   * and sorted.
+   * By default this doesn't do anything.
+   * @param population the population.
+   */
+  protected void prepareGeneration(List<Individual<T>> population) {
+
+  }
+
+  /**
    * Build a list of the size given, to be used for population;
    * this method should _only_ build the list: not actually populate it.
    * @param size the size of the eventual population
@@ -172,6 +182,7 @@ public class GeneticAlgorithm<T extends Individual<T>> {
    * by fitness value.
    */
   private void runGeneration() {
+    prepareGeneration(population);
     for(Individual<T> individual : population) {
       simulateIndividual(individual);
     }

@@ -56,7 +56,8 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
       fitness = calculateFitnessImpl();
     }
     if(fitness < 0 || fitness > 1) {
-      throw new IllegalStateException("Invalid fitness returned by type " + getClass());
+      throw new IllegalStateException("Invalid fitness returned by type " +
+        getClass());
     }
     return fitness;
   }
@@ -72,7 +73,7 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
    * {@inheritDoc}
    */
   @Override
-  public final Individual<T> simulate() {
+  public synchronized final Individual<T> simulate() {
     if(needsSimulation) {
       simulateImpl();
       needsSimulation = false;

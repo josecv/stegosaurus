@@ -42,6 +42,8 @@ public class SeedChangeCountIndividualFactory
    */
   @Override
   public SeedChangeCountIndividual build(Chromosome c) {
-    return new SeedChangeCountIndividual(c, request, embedder);
+    EmbedRequest r = new EmbedRequest(request.getCover().writeNew(),
+        request.getMessage(), request.getKey());
+    return new SeedChangeCountIndividual(c, r, embedder);
   }
 }
