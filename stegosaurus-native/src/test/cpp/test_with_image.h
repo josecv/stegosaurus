@@ -9,13 +9,6 @@
 #include "../../main/c/src_mgr.h"
 
 /**
- * The name of the image file used for testing
- * TODO THIS SUCKS!
- */
-static const char* filename =
-  "stegosaurus-native/src/test/resources/cpp/lena-colour.jpeg";
-
-/**
  * A base class for C++ tests that need access to a JPEGImage.
  * Any test class that'll make use of a test image should derive from
  * this one.
@@ -39,6 +32,11 @@ class TestWithImage : public ::testing::Test {
     context->destroyImage(testImage);
     delete context;
   }
+
+  /**
+   * The name of the image file used for testing
+   */
+  static const char* filename;
 
  protected:
 
@@ -68,5 +66,8 @@ class TestWithImage : public ::testing::Test {
    */
   JPEGImage *testImage;
 };
+
+const char* TestWithImage::filename =
+  "stegosaurus-native/src/test/resources/cpp/lena-colour.jpeg";
 
 #endif
