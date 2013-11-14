@@ -1,6 +1,7 @@
 #include "test_with_image.h"
 #include "gtest/gtest.h"
 #include "../../main/c/blockiness.h"
+#include <math.h>
 
 /**
  * The stego file we'll be testing with.
@@ -154,4 +155,17 @@ TEST_F(JPEGBlockinessTest, testReciprocalROB) {
   EXPECT_LE(blockiness, 1.0);
   EXPECT_LE(steg_blockiness, 1.0);
   EXPECT_GE(blockiness, steg_blockiness);
+}
+
+/**
+ * A rather odd test: ensures that the value returned by the reciprocalROB
+ * remains the same (or within a tolerable interval) as the one calculated
+ * as of commit 32017c088770866a
+ */
+TEST_F(JPEGBlockinessTest, testConsistency) {
+  const double permissible_distance = 0.01;
+  const double expected = 0.972323;
+  double result = testImage->calculateReciprocalROB();
+  double distance = fabs(result - expected);
+  EXPECT_LE(distance, permissible_distance);
 }
