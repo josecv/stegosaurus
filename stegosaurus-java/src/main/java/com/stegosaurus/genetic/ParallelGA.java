@@ -52,6 +52,9 @@ public class ParallelGA<T extends Individual<T>>
     this.executorService = executorService;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected void prepareGeneration(List<Individual<T>> population) {
     if(futures == null) {

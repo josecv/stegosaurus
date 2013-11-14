@@ -188,17 +188,6 @@ j_compress_ptr JPEGImage::buildCompressor() {
   return retval;
 }
 
-/* TODO RETHINK ALL OF THE FOLLOWING. ALL OF IT */
-
-static void cropRow(j_decompress_ptr decomp, j_compress_ptr comp,
-                    JSAMPARRAY buffer, JSAMPARRAY buffer2, int off) {
-  if(comp == NULL) {
-    return;
-  }
-  buffer2[0] = &(buffer[0][off * decomp->output_components]);
-  (void) jpeg_write_scanlines(comp, buffer2, 1);
-}
-
 /**
  * Calculate the spatial blockiness for the decompression object given.
  * If requested (decomp != NULL), crop it by 4 pixels, top and right, and
@@ -210,21 +199,30 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   const int off = 4;
   int row = 0;
   int row_stride;
+  /* This is the num value for the memcpy that takes place below. */
+  int size_of_copy;
+  /* The total number of samples to crop, from the left. */
+  int samples_cropped;
   JSAMPARRAY buffer;
+  /* This second buffer merely exists to prevent memory re-allocation in
+   * when cropping. It's messy, but it works */
   JSAMPARRAY buffer2 = new JSAMPROW;
   JSAMPROW   previous_row;
   row_stride = decomp->output_width * decomp->output_components;
+  size_of_copy = row_stride * sizeof(JSAMPLE);
   previous_row = new JSAMPLE[row_stride];
   buffer = (*decomp->mem->alloc_sarray)
     ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 1);
+  samples_cropped = off * decomp->output_components;
   while(decomp->output_scanline < decomp->output_height) {
     (void) jpeg_read_scanlines(decomp, buffer, 1);
-    if(row >= off) {
-      cropRow(decomp, comp, buffer, buffer2, off);
+    if(row >= off && comp != NULL) {
+      buffer2[0] = &(buffer[0][samples_cropped]);
+      (void) jpeg_write_scanlines(comp, buffer2, 1);
     }
     value += blockinessForRow(decomp->output_components, decomp->output_width,
                               buffer[0], row, previous_row);
-    memcpy(previous_row, buffer[0], row_stride * sizeof(JSAMPLE));
+    memcpy(previous_row, buffer[0], size_of_copy);
     ++row;
   }
   delete [] previous_row;
