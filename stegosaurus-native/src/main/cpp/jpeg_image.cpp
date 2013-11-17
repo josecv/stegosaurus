@@ -198,22 +198,19 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   int value = 0;
   const int off = 4;
   int row = 0;
-  int row_stride;
-  /* This is the num value for the memcpy that takes place below. */
-  int size_of_copy;
-  /* The total number of samples to crop, from the left. */
-  int samples_cropped;
   JSAMPARRAY buffer;
   /* This second buffer merely exists to prevent memory re-allocation in
    * when cropping. It's messy, but it works */
   JSAMPARRAY buffer2 = new JSAMPROW;
   JSAMPROW   previous_row;
-  row_stride = decomp->output_width * decomp->output_components;
-  size_of_copy = row_stride * sizeof(JSAMPLE);
+  const int row_stride = decomp->output_width * decomp->output_components;
+  /* This is the num value for the memcpy that takes place below. */
+  const int size_of_copy = row_stride * sizeof(JSAMPLE);
   previous_row = new JSAMPLE[row_stride];
   buffer = (*decomp->mem->alloc_sarray)
     ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 1);
-  samples_cropped = off * decomp->output_components;
+  /* The total number of samples to crop, from the left. */
+  const int samples_cropped = off * decomp->output_components;
   while(decomp->output_scanline < decomp->output_height) {
     (void) jpeg_read_scanlines(decomp, buffer, 1);
     if(row >= off && comp != NULL) {
@@ -222,8 +219,12 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     }
     value += blockinessForRow(decomp->output_components, decomp->output_width,
                               buffer[0], row, previous_row);
-    memcpy(previous_row, buffer[0], size_of_copy);
     ++row;
+    /* The previous_row won't be used unless we're at a vertical boundary,
+     * so we don't copy it unless it's absolutely required. */
+    if(!(row % 8)) {
+      memcpy(previous_row, buffer[0], size_of_copy);
+    }
   }
   delete [] previous_row;
   delete buffer2;
