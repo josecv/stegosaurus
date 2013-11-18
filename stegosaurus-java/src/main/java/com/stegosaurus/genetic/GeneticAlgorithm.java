@@ -12,43 +12,6 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
   protected final int popSize;
 
   /**
-   * Run any tasks that must be executed before a generation can be simulated
-   * and sorted.
-   * 
-   * @param population the population.
-   */
-  protected abstract void prepareGeneration(List<Individual<T>> population);
-
-  /**
-   * Run a simulation on the individual given.
-   * 
-   * @param individual the individual to run the simulation on.
-   */
-  protected abstract void simulateIndividual(Individual<T> individual);
-
-  /**
-   * Sort the population given by fitness value. This implies actually
-   * calculating the fitness for the entire population, unless it has already
-   * been obtained, something this class does not otherwise do explicitly.
-   * 
-   * @param pop the population to sort.
-   */
-  protected abstract void sortPopulation(List<Individual<T>> pop);
-
-  /**
-   * Get the population for this genetic algorithm.
-   * 
-   * @return the population
-   */
-  protected abstract List<Individual<T>> getPopulation();
-
-  /**
-   * Initialize this object, by constructing a bunch of individuals with
-   * corresponding random chromosomes.
-   */
-  public abstract void init();
-
-  /**
    * The elitism rate.
    */
   protected final double elitismRate;
@@ -75,6 +38,14 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    */
   protected SelectionOperator<T> selection;
 
+  /**
+   * Construct a new Genetic Algorithm.
+   * @param factory the IndividualFactory that'll build Individuals.
+   * @param selection the Selection operator to use for crossover selection.
+   * @param random the random number generator to use.
+   * @param params the GAParameters for this algorithm.
+   * @see GAParameters
+   */
   public GeneticAlgorithm(IndividualFactory<T> factory,
       SelectionOperator<T> selection, Random random, GAParameters params) {
     this.popSize = params.getPopSize();
@@ -92,9 +63,8 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
   /**
    * Run this algorithm, until one of the individuals' fitness is less than a
    * given threshold.
-   * 
-   * @param threshold
-   *            the threshold.
+   *
+   * @param threshold the threshold.
    * @return the fittest individual.
    */
   public Individual<T> runWithThreshold(double threshold) {
@@ -113,9 +83,8 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
   /**
    * Run this algorithm for a fixed number of generations; return the fittest
    * individual produced.
-   * 
-   * @param n
-   *            the number of generations.
+   *
+   * @param n the number of generations.
    * @return the fittest individual.
    */
   public Individual<T> runNGenerations(int n) {
@@ -125,6 +94,53 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
     }
     return getPopulation().get(0);
   }
+
+  /**
+   * Construct a new individual, with a randomized chromosome.
+   * @return the new individual.
+   */
+  protected Individual<T> buildIndividual() {
+    Chromosome c = new Chromosome(chromosomeSize, random);
+    c.randomize();
+    return factory.build(c);
+  }
+
+  /**
+   * Run any tasks that must be executed before a generation can be simulated
+   * and sorted.
+   *
+   * @param population the population.
+   */
+  protected abstract void prepareGeneration(List<Individual<T>> population);
+
+  /**
+   * Run a simulation on the individual given.
+   *
+   * @param individual the individual to run the simulation on.
+   */
+  protected abstract void simulateIndividual(Individual<T> individual);
+
+  /**
+   * Sort the population given by fitness value. This implies actually
+   * calculating the fitness for the entire population, unless it has already
+   * been obtained, something this class does not otherwise do explicitly.
+   *
+   * @param pop the population to sort.
+   */
+  protected abstract void sortPopulation(List<Individual<T>> pop);
+
+  /**
+   * Get the population for this genetic algorithm.
+   *
+   * @return the population
+   */
+  protected abstract List<Individual<T>> getPopulation();
+
+  /**
+   * Initialize this object, by constructing a bunch of individuals with
+   * corresponding random chromosomes.
+   */
+  public abstract void init();
 
   /**
    * Run a generation of this algorithm: run the simulation, and sort by

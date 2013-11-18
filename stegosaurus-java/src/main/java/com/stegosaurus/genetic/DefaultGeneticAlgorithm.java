@@ -64,9 +64,7 @@ public class DefaultGeneticAlgorithm<T extends Individual<T>> extends
   public void init() {
     this.population = buildEmptyPopulation(popSize);
     for (int i = 0; i < popSize; i++) {
-      Chromosome c = new Chromosome(chromosomeSize, random);
-      c.randomize();
-      population.add(factory.build(c));
+      population.add(buildIndividual());
     }
   }
 

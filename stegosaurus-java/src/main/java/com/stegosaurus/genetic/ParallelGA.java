@@ -1,5 +1,6 @@
 package com.stegosaurus.genetic;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
@@ -22,7 +23,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  * do you no good.</p>
  */
 public class ParallelGA<T extends Individual<T>>
-  extends DefaultGeneticAlgorithm<T> {
+  extends GeneticAlgorithm<T> {
 
   /**
    * The ExecutorService we're using for concurrently-run tasks.
@@ -35,6 +36,11 @@ public class ParallelGA<T extends Individual<T>>
    * particular generation. There is one future per individual.
    */
   private List<ListenableFuture<Void>> futures = null;
+
+  /**
+   * The population.
+   */
+  private Vector<Individual<T>> population;
 
   /**
    * Construct a new ParallelGeneticAlgorithm instance. Should be invoked
@@ -89,14 +95,25 @@ public class ParallelGA<T extends Individual<T>>
     } catch(InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
-    super.sortPopulation(pop);
+    Collections.sort(pop);
   }
 
   /**
    * {@inheritDoc}
    */
   @Override
-  protected List<Individual<T>> buildEmptyPopulation(int size) {
-    return new Vector<>(size);
+  public void init() {
+    population = new Vector<>(popSize);
+    for(int i = 0; i < popSize; i++) {
+      population.add(buildIndividual());
+    }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  protected List<Individual<T>> getPopulation() {
+    return population;
   }
 }
