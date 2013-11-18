@@ -63,7 +63,7 @@ public class GAParameters {
   /**
    * Get the elitism rate.
    * @return the elitism rate
-   * @see GeneticAlgorithm for a discussion of what this is.
+   * @see DefaultGeneticAlgorithm for a discussion of what this is.
    */
   public double getElitismRate() {
     return elitismRate;
@@ -72,7 +72,7 @@ public class GAParameters {
   /**
    * Get the mutation rate.
    * @return the mutation rate
-   * @see GeneticAlgorithm for a discussion of what this is.
+   * @see DefaultGeneticAlgorithm for a discussion of what this is.
    */
   public double getMutationRate() {
     return mutationRate;

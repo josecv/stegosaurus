@@ -17,7 +17,7 @@ public interface GAFactory {
 	 * @param chromosomeSize the number of genes in individuals' chromosomes.
 	 * @param elitismRate the rate of population elites that should be left be.
 	 * @param mutationRate the rate of mutation amongst individuals.
-	 * @see GeneticAlgorithm
+	 * @see DefaultGeneticAlgorithm
 	 */
 	<C extends Individual<C>> GeneticAlgorithm<C> build(
 			IndividualFactory<C> factory, SelectionOperator<C> selection,

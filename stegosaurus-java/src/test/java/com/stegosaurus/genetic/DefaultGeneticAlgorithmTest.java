@@ -14,7 +14,7 @@ import org.junit.Test;
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.genetic.DirectFitnessIndividual;
 import com.stegosaurus.genetic.GenericIndividualFactory;
-import com.stegosaurus.genetic.GeneticAlgorithm;
+import com.stegosaurus.genetic.DefaultGeneticAlgorithm;
 import com.stegosaurus.genetic.Individual;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.genetic.RankSelection;
@@ -23,7 +23,7 @@ import com.stegosaurus.genetic.SelectionOperator;
 /**
  * Test the GeneticAlgorithm class.
  */
-public class GeneticAlgorithmTest {
+public class DefaultGeneticAlgorithmTest {
   /**
    * The seed for the pseudo random number generator.
    */
@@ -120,7 +120,7 @@ public class GeneticAlgorithmTest {
     } catch(NoSuchMethodException e) {
       assumeNoException(e);
     }
-    algo = new GeneticAlgorithm<>(fact, s, random, PARAMS);
+    algo = new DefaultGeneticAlgorithm<>(fact, s, random, PARAMS);
 
   }
 

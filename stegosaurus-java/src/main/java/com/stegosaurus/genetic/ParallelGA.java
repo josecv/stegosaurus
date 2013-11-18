@@ -22,7 +22,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  * do you no good.</p>
  */
 public class ParallelGA<T extends Individual<T>>
-  extends GeneticAlgorithm<T> {
+  extends DefaultGeneticAlgorithm<T> {
 
   /**
    * The ExecutorService we're using for concurrently-run tasks.

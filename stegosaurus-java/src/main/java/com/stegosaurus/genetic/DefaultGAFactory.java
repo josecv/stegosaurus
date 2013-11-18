@@ -14,6 +14,6 @@ public class DefaultGAFactory implements GAFactory {
         IndividualFactory<C> factory,
         SelectionOperator<C> selection, Random random,
         GAParameters params) {
-    return new GeneticAlgorithm<C>(factory, selection, random, params);
+    return new DefaultGeneticAlgorithm<C>(factory, selection, random, params);
   }
 }
