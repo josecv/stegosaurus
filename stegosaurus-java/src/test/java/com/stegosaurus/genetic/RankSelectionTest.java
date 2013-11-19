@@ -93,8 +93,8 @@ public class RankSelectionTest {
     }
     final int runs = 10000;
     for(int i = 0; i < runs; i++) {
-      List<Individual<DummyIndividual>> popCopy = new ArrayList<>(population);
-      Individual<DummyIndividual> selected = selector.select(popCopy, random);
+      Individual<DummyIndividual> selected =
+        population.get(selector.select(population, random));
       counts.increment(selected);
     }
     for(int i = 0; i < popSize; i++) {

@@ -29,10 +29,10 @@ public class RankSelection<T extends Individual<T>>
    * {@inheritDoc}
    */
   @Override
-  public Individual<T> select(List<Individual<T>> population, Random random) {
+  public int select(List<Individual<T>> population, Random random) {
     int n = population.size();
     if(n == 1) {
-      return population.remove(0);
+      return 0;
     }
     double nm = 2 / (factor + 1);
     double np = (2 * factor) / (factor + 1);
@@ -46,7 +46,7 @@ public class RankSelection<T extends Individual<T>>
         double p = (1 / (double) n) * (nm + (np - nm) * ((rank - 1) / (n - 1)));
         double next = random.nextDouble();
         if(next < p) {
-          return population.remove(i);
+          return i;
         }
       }
     }

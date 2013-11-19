@@ -180,8 +180,10 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
         elites, population.size()));
     population = new ArrayList<>(population.subList(0, elites));
     while (nonElites.size() > 0) {
-      Individual<T> first = selection.select(nonElites, random);
-      Individual<T> second = selection.select(nonElites, random);
+      Individual<T> first =
+        nonElites.remove(selection.select(nonElites, random));
+      Individual<T> second =
+        nonElites.remove(selection.select(nonElites, random));
       first.crossover(second);
       first.mutate(mutationRate);
       second.mutate(mutationRate);
