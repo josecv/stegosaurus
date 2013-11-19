@@ -159,8 +159,7 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    * Generate the next generation, unless current is 0, in which case we have
    * no information whatsoever to do so, and so nothing is done.
    * 
-   * @param current
-   *            the index of the current generation (from 0).
+   * @param current the index of the current generation (from 0).
    */
   private void nextGeneration(int current) {
     if (current == 0) {
@@ -177,7 +176,6 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
     if (elites % 2 != 0) {
       elites--;
     }
-    /* XXX This looks like it's slow as all hells. */
     List<Individual<T>> nonElites = new ArrayList<>(population.subList(
         elites, population.size()));
     population = new ArrayList<>(population.subList(0, elites));

@@ -40,7 +40,7 @@ public class ParallelGA<T extends Individual<T>>
   /**
    * The population.
    */
-  private Vector<Individual<T>> population;
+  private List<Individual<T>> population;
 
   /**
    * Construct a new ParallelGeneticAlgorithm instance. Should be invoked
