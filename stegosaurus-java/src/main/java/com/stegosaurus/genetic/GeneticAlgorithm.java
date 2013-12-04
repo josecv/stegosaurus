@@ -1,6 +1,5 @@
 package com.stegosaurus.genetic;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -101,7 +100,7 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    */
   public Individual<T> runWithThreshold(double threshold) {
     double best;
-    List<Individual<T>> population = getPopulation();
+    List<? extends Individual<T>> population = getPopulation();
     int i = 0;
     do {
       nextGeneration(i);
@@ -143,7 +142,8 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    *
    * @param population the population.
    */
-  protected abstract void prepareGeneration(List<Individual<T>> population);
+  protected abstract void
+  prepareGeneration(List<? extends Individual<T>> population);
 
   /**
    * Run a simulation on the individual given.
@@ -159,14 +159,14 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    *
    * @param pop the population to sort.
    */
-  protected abstract void sortPopulation(List<Individual<T>> pop);
+  protected abstract void sortPopulation(List<? extends Individual<T>> pop);
 
   /**
    * Get the population for this genetic algorithm.
    *
    * @return the population
    */
-  protected abstract List<Individual<T>> getPopulation();
+  protected abstract List<? extends Individual<T>> getPopulation();
 
   /**
    * Initialize this object, by constructing a bunch of individuals with
@@ -179,7 +179,7 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    * fitness value.
    */
   private void runGeneration() {
-    List<Individual<T>> population = getPopulation();
+    List<? extends Individual<T>> population = getPopulation();
     prepareGeneration(population);
     for (Individual<T> individual : population) {
       simulateIndividual(individual);
@@ -197,7 +197,7 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
     if (current == 0) {
       return;
     }
-    List<Individual<T>> population = getPopulation();
+    List<? extends Individual<T>> population = getPopulation();
     int elites = (int) Math.floor(popSize * elitismRate);
     /*
      * We need to have an even amount of non-elites, for obvious

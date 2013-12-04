@@ -29,7 +29,7 @@ public class RankSelection<T extends Individual<T>>
    * {@inheritDoc}
    */
   @Override
-  public int select(List<Individual<T>> population, Random random) {
+  public int select(List<? extends Individual<T>> population, Random random) {
     int n = population.size();
     if(n == 1) {
       return 0;

@@ -18,5 +18,5 @@ public interface SelectionOperator<T extends Individual<T>> {
    * @param random the random  number generator to use.
    * @return the index selected individual.
    */
-  int select(List<Individual<T>> population, Random random);
+  int select(List<? extends Individual<T>> population, Random random);
 }

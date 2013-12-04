@@ -53,7 +53,7 @@ public class DefaultGeneticAlgorithm<T extends Individual<T>> extends
    * {@inheritDoc}
    */
   @Override
-  protected void sortPopulation(List<Individual<T>> pop) {
+  protected void sortPopulation(List<? extends Individual<T>> pop) {
     Collections.sort(pop);
   }
 
@@ -70,7 +70,7 @@ public class DefaultGeneticAlgorithm<T extends Individual<T>> extends
    * This particular variant does not do anything.
    */
   @Override
-  protected void prepareGeneration(List<Individual<T>> population) {
+  protected void prepareGeneration(List<? extends Individual<T>> population) {
 
   }
 

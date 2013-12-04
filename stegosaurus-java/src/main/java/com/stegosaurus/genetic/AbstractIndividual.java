@@ -103,10 +103,9 @@ public abstract class AbstractIndividual<T extends AbstractIndividual<T>>
   @Override
   public final void crossover(Individual<T> other) {
     needsSimulation = true;
-    /* This is terrible style, but is guaranteed to work, unless the caller
-     * ignores the generic parameter entirely, or typecasts in a crazy manner
-     */
-    ((AbstractIndividual<T>) other).needsSimulation = true;
+    if(other instanceof AbstractIndividual) {
+      ((AbstractIndividual<T>) other).needsSimulation = true;
+    }
     crossoverImpl(other);
   }
 

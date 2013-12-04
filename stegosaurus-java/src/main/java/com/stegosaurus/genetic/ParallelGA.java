@@ -40,7 +40,7 @@ public class ParallelGA<T extends Individual<T>>
   /**
    * The population.
    */
-  private List<Individual<T>> population;
+  private List<ParallelIndividual<T>> population;
 
   /**
    * Construct a new ParallelGeneticAlgorithm instance. Should be invoked
@@ -62,7 +62,7 @@ public class ParallelGA<T extends Individual<T>>
    * {@inheritDoc}
    */
   @Override
-  protected void prepareGeneration(List<Individual<T>> population) {
+  protected void prepareGeneration(List<? extends Individual<T>> population) {
     if(futures == null) {
       futures = new Vector<>(population.size());
     } else {
@@ -88,7 +88,7 @@ public class ParallelGA<T extends Individual<T>>
    * {@inheritDoc}
    */
   @Override
-  protected void sortPopulation(List<Individual<T>> pop) {
+  protected void sortPopulation(List<? extends Individual<T>> pop) {
     ListenableFuture<List<Void>> asList = Futures.allAsList(futures);
     try {
       asList.get();
@@ -105,7 +105,7 @@ public class ParallelGA<T extends Individual<T>>
   public void init() {
     population = new Vector<>(popSize);
     for(int i = 0; i < popSize; i++) {
-      population.add(buildIndividual());
+      population.add(new ParallelIndividual<T>(buildIndividual()));
     }
   }
 
@@ -113,7 +113,7 @@ public class ParallelGA<T extends Individual<T>>
    * {@inheritDoc}
    */
   @Override
-  protected List<Individual<T>> getPopulation() {
+  protected List<? extends Individual<T>> getPopulation() {
     return population;
   }
 }
