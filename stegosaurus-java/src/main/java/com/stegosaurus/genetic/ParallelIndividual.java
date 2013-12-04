@@ -37,7 +37,18 @@ public class ParallelIndividual<T extends Individual<T>>
    * {@inheritDoc}
    */
   public void crossover(Individual<T> other) {
-    decorated.crossover(other);
+    /* The AbstractIndividual class does some funny stuff to its mates when
+     * they're also of type AbstractIndividual, and it's theoretically
+     * possible for other classes to do much of the same stuff, so we're well
+     * served by being as specific as possible here. In other words,
+     * we send the decorated object for crossover when we detect that we're
+     * crossing over with another ParallelIndividual.
+     */
+    if(other instanceof ParallelIndividual) {
+      decorated.crossover(((ParallelIndividual<T>) other).decorated);
+    } else {
+      decorated.crossover(other);
+    }
   }
 
   /**
