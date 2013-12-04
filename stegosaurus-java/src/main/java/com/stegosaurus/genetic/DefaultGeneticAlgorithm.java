@@ -6,35 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Any genetic algorithm: attempts to find the optimal solution to a problem
- * using a rip-off of natural selection.
- * <p>
- * Makes use of some specific parameters, importantly the elitism and mutation
- * rates, explained below.
- * </p>
- * <p>
- * The specific algorithm implemented by this class uses elitism, which is to
- * say that the fittest members of the population are not crossed over with
- * other members, and do not suffer mutation in any given generation. Note that
- * no non-elite individuals will be allowed to survive; i.e. the crossover rate
- * for non-elite individuals is 1.0.
- * </p>
- * 
- * <p>
- * The elitism rate is the rate of elites to general population, where the
- * elites are those members that will not be crossed over or mutated. Thus, if
- * the elitism rate is of 1/3, the best third of the population will not produce
- * offspring and will not be genetically altered.
- * </p>
- * 
- * <p>
- * The mutation rate is the rate of mutant genes to chromosome size, for any
- * particular individual, at the end of any given generation. It can also be
- * conceptualized as the probability that any given gene in a chromosome will be
- * mutated.
- * </p>
- * 
- * @param <T> the <em>Individual</em> type used in this particular algorithm.
+ * A sensible default for a genetic algorithm; operates in a straightforward,
+ * single-threaded manner.
  */
 public class DefaultGeneticAlgorithm<T extends Individual<T>> extends
     GeneticAlgorithm<T> {

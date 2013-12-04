@@ -22,6 +22,11 @@ import com.stegosaurus.genetic.SelectionOperator;
 
 /**
  * Test the GeneticAlgorithm class.
+ * The strategy here is comparable to a proof by induction: we run a single
+ * generation to ensure we're getting the fittest indiviual, then two
+ * generations to check that the crossover and mutation operations are working
+ * right, and finally we run the algorithm with a threshold to see it work
+ * over many many generations.
  */
 public class DefaultGeneticAlgorithmTest {
   /**
@@ -30,7 +35,8 @@ public class DefaultGeneticAlgorithmTest {
   private final static long SEED = 8909821348789L;
 
   /**
-   * The prng.
+   * An exact copy of the PRNG provided to the algorithm, but not actually
+   * the same object as the one provided.
    */
   private Random random;
 
@@ -42,7 +48,12 @@ public class DefaultGeneticAlgorithmTest {
   /**
    * The size of the population for our genetic algorithm.
    */
-  private static final int POP_SIZE = 10;
+  private static final int POP_SIZE = 6;
+
+  /**
+   * The number of elites.
+   */
+  private static final int ELITE_COUNT = 2;
 
   /**
    * The size of the chromosomes used by the genetic algorithm.
@@ -75,6 +86,11 @@ public class DefaultGeneticAlgorithmTest {
    * The factory for individual instances.
    */
   private IndividualFactory<DirectFitnessIndividual> fact;
+
+  /**
+   * The selection operator in use for the algorithm.
+   */
+  private SelectionOperator<DirectFitnessIndividual> selector;
 
     /**
    * An individual that acts as a function of the direct fitness individual so
@@ -113,15 +129,15 @@ public class DefaultGeneticAlgorithmTest {
   @Before
   public void setUp() {
     random = new Random(SEED);
-    SelectionOperator<DirectFitnessIndividual> s = new RankSelection<>(FACTOR);
+    Random otherRandom = new Random(SEED);
+    selector = new RankSelection<>(FACTOR);
     try {
       fact =
         new GenericIndividualFactory<DirectFitnessIndividual>(DeltaIndividual.class);
     } catch(NoSuchMethodException e) {
       assumeNoException(e);
     }
-    algo = new DefaultGeneticAlgorithm<>(fact, s, random, PARAMS);
-
+    algo = new DefaultGeneticAlgorithm<>(fact, selector, otherRandom, PARAMS);
   }
 
   /**
@@ -132,10 +148,6 @@ public class DefaultGeneticAlgorithmTest {
   @Test
   public void testSingleGeneration() {
     algo.init();
-    /* By reseeding the prng, we can ensure that we'll get our hands on the
-     * exact chromosomes that the GeneticAlgorithm instance has, after which
-     * it's just a matter of figuring out which one's the fittest. */
-    random.setSeed(SEED);
     List<DirectFitnessIndividual> pop = new ArrayList<>(POP_SIZE);
     for(int i = 0; i < POP_SIZE; i++) {
       Chromosome c = new Chromosome(CHROMOSOME_SIZE, random).randomize();
@@ -148,6 +160,46 @@ public class DefaultGeneticAlgorithmTest {
     Individual<DirectFitnessIndividual> expected = pop.get(0);
     Individual<DirectFitnessIndividual> result = algo.runNGenerations(1);
     assertEquals(result.getChromosome(), expected.getChromosome());
+  }
+
+  /**
+   * Run exactly two generations of the algorithm. There will be one single
+   * instance of crossover and of mutation, so that we can ensure that those
+   * are working properly.
+   */
+  @Test
+  public void testTwoGenerations() {
+    algo.init();
+    List<Individual<DirectFitnessIndividual>> pop = new ArrayList<>(POP_SIZE);
+    for(int i = 0; i < POP_SIZE; i++) {
+      Chromosome c = new Chromosome(CHROMOSOME_SIZE, random).randomize();
+      DirectFitnessIndividual ind = fact.build(c);
+      pop.add(ind);
+      ind.simulate();
+    }
+    Collections.sort(pop);
+    List<Individual<DirectFitnessIndividual>> nonElites = pop.subList(ELITE_COUNT,
+      POP_SIZE);
+    pop = new ArrayList<>(pop.subList(0, ELITE_COUNT));
+    while(nonElites.size() > 0) {
+      Individual<DirectFitnessIndividual> first =
+        nonElites.remove(selector.select(nonElites, random));
+      Individual<DirectFitnessIndividual> second =
+        nonElites.remove(selector.select(nonElites, random));
+      first.crossover(second);
+      first.mutate(MUTATION_RATE);
+      second.mutate(MUTATION_RATE);
+      pop.add(first);
+      pop.add(second);
+    }
+    for(Individual<DirectFitnessIndividual> i : pop) {
+      i.simulate();
+    }
+    Collections.sort(pop);
+    Individual<DirectFitnessIndividual> expected = pop.get(0);
+    Individual<DirectFitnessIndividual> result = algo.runNGenerations(2);
+    assertEquals(expected.getChromosome(), result.getChromosome());
+    assertFalse(expected.getChromosome() == result.getChromosome());
   }
 
   /**

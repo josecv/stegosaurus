@@ -1,9 +1,41 @@
 package com.stegosaurus.genetic;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Any genetic algorithm: attempts to find the optimal solution to a problem
+ * using a rip-off of natural selection.
+ * <p>
+ * Makes use of some specific parameters, importantly the elitism and mutation
+ * rates, explained below.
+ * </p>
+ * <p>
+ * The specific algorithm implemented by this class uses elitism, which is to
+ * say that the fittest members of the population are not crossed over with
+ * other members, and do not suffer mutation in any given generation. Note that
+ * no non-elite individuals will be allowed to survive; i.e. the crossover rate
+ * for non-elite individuals is 1.0.
+ * </p>
+ * 
+ * <p>
+ * The elitism rate is the rate of elites to general population, where the
+ * elites are those members that will not be crossed over or mutated. Thus, if
+ * the elitism rate is of 1/3, the best third of the population will not produce
+ * offspring and will not be genetically altered.
+ * </p>
+ * 
+ * <p>
+ * The mutation rate is the rate of mutant genes to chromosome size, for any
+ * particular individual, at the end of any given generation. It can also be
+ * conceptualized as the probability that any given gene in a chromosome will be
+ * mutated.
+ * </p>
+ * 
+ * @param <T> the <em>Individual</em> type used in this particular algorithm.
+ */
 public abstract class GeneticAlgorithm<T extends Individual<T>> {
 
   /**
@@ -171,25 +203,24 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
      * We need to have an even amount of non-elites, for obvious
      * reproductive reasons. In addition, the population size is guaranteed
      * to be even. Thus, if we have an odd amount of elites, we have an odd
-     * amount of non-elites.
+     * amount of non-elites, and we need to correct that.
      */
     if (elites % 2 != 0) {
       elites--;
     }
-    List<Individual<T>> nonElites = new ArrayList<>(population.subList(
-        elites, population.size()));
-    population = new ArrayList<>(population.subList(0, elites));
-    while (nonElites.size() > 0) {
-      Individual<T> first =
-        nonElites.remove(selection.select(nonElites, random));
-      Individual<T> second =
-        nonElites.remove(selection.select(nonElites, random));
-      first.crossover(second);
-      first.mutate(mutationRate);
-      second.mutate(mutationRate);
-      population.add(first);
-      population.add(second);
+    int i = elites;
+    while(i < population.size()) {
+      int firstIndex = selection.select(population.subList(i,
+        population.size()), random) + i;
+      Collections.swap(population, i, firstIndex);
+      int secondIndex =
+        selection.select(population.subList(i + 1, population.size()),
+                         random) + i + 1;
+      Collections.swap(population, i + 1, secondIndex);
+      population.get(i).crossover(population.get(i + 1));
+      population.get(i).mutate(mutationRate);
+      population.get(i + 1).mutate(mutationRate);
+      i += 2;
     }
   }
-
 }
