@@ -1,5 +1,11 @@
 package com.stegosaurus.genetic;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+
 /**
  * Wraps around Individual instances to provided concurrent behaviour.
  */
@@ -12,6 +18,14 @@ public class ParallelIndividual<T extends Individual<T>>
   private final Individual<T> decorated;
 
   /**
+   * A future for the simulation and calculation of a fitness function.
+   * If this is set at some point, its return value will be provided whenever
+   * calculateFitness() is called, unless a call to simulate() is issued,
+   * in which case the future is invalidated.
+   */
+  private ListenableFuture<Double> fitnessFuture = null;
+
+  /**
    * CTOR.
    * @param decorated the individual to wrap around.
    */
@@ -22,15 +36,41 @@ public class ParallelIndividual<T extends Individual<T>>
   /**
    * {@inheritDoc}
    */
-  public Individual<T> simulate() {
+  public synchronized Individual<T> simulate() {
+    fitnessFuture = null;
     return decorated.simulate();
   }
 
   /**
    * {@inheritDoc}
    */
-  public double calculateFitness() {
-    return decorated.calculateFitness();
+  public synchronized double calculateFitness() {
+    if(fitnessFuture != null) {
+      try {
+        return fitnessFuture.get();
+      } catch(InterruptedException | ExecutionException e) {
+        /* XXX */
+        throw new RuntimeException(e);
+      }
+    } else {
+      return decorated.calculateFitness();
+    }
+  }
+
+  /**
+   * Start to run simulate and calculateFitness for this individual, on
+   * another thread.
+   * The result may be later retreived via the calculateFitness() function.
+   * @param executorService the service to use to start up the calculation.
+   */
+  public synchronized void
+  startFitnessCalculation(ListeningExecutorService executorService) {
+    fitnessFuture = executorService.submit(new Callable<Double>() {
+      public Double call() {
+        decorated.simulate();
+        return decorated.calculateFitness();
+      }
+    });
   }
 
   /**
@@ -69,6 +109,6 @@ public class ParallelIndividual<T extends Individual<T>>
    * {@inheritDoc}
    */
   public int compareTo(Individual<T> other) {
-    return decorated.compareTo(other);
+    return Double.compare(calculateFitness(), other.calculateFitness());
   }
 }

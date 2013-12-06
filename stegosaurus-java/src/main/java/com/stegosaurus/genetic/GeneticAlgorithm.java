@@ -147,10 +147,9 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
 
   /**
    * Run a simulation on the individual given.
-   *
-   * @param individual the individual to run the simulation on.
+   * @param individual the index of the individual to run the simulation on.
    */
-  protected abstract void simulateIndividual(Individual<T> individual);
+  protected abstract void simulateIndividual(int individual);
 
   /**
    * Sort the population given by fitness value. This implies actually
@@ -181,8 +180,8 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
   private void runGeneration() {
     List<? extends Individual<T>> population = getPopulation();
     prepareGeneration(population);
-    for (Individual<T> individual : population) {
-      simulateIndividual(individual);
+    for(int i = 0; i < population.size(); i++) {
+      simulateIndividual(i);
     }
     sortPopulation(population);
   }

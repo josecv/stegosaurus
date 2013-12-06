@@ -61,8 +61,8 @@ public class DefaultGeneticAlgorithm<T extends Individual<T>> extends
    * {@inheritDoc}
    */
   @Override
-  protected void simulateIndividual(Individual<T> individual) {
-    individual.simulate();
+  protected void simulateIndividual(int individual) {
+    population.get(individual).simulate();
   }
 
   /**
