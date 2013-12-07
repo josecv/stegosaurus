@@ -52,7 +52,8 @@ class CoefficientAccessor {
    * @param the index of the coefficient in question.
    * @return 1 if it's a DC coefficient, 0 otherwise.
    */
-  int isDC(unsigned int index);
+  bool isDC(unsigned int index);
+
  private:
   /**
    * The array of components that can be used by this accessor.

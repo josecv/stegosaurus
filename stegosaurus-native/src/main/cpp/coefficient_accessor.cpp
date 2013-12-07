@@ -57,7 +57,7 @@ int CoefficientAccessor::getLength(void) {
   return retval;
 }
 
-int CoefficientAccessor::isDC(unsigned int index) {
+bool CoefficientAccessor::isDC(unsigned int index) {
   int size;
   JPEGComponent *comp = findComponent(&index);
   size = comp->getBlockWidth() * comp->getBlockHeight();

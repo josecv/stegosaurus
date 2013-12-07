@@ -92,7 +92,7 @@ public class ImagePermuter {
       /* getCoefficient is a native call, so we want to avoid it if possible,
        * which is why we ensure the coefficient is not DC before going any
        * further */
-      if(!locked.get(index) && accessor.isDC(index) == 0) {
+      if(!locked.get(index) && !accessor.isDC(index)) {
         int value = accessor.getCoefficient(index);
         if(value != 0) {
           locked.set(index);
