@@ -219,7 +219,7 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     }
     value += blockinessForRow(decomp->output_components, decomp->output_width,
                               buffer[0], row, previous_row);
-    ++row;
+    row++;
     /* The previous_row won't be used unless we're at a vertical boundary,
      * so we don't copy it unless it's absolutely required. */
     if(!(row % 8)) {

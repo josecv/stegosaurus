@@ -93,6 +93,7 @@ public class PM1Embedder extends PM1Algorithm {
     int changed = doEmbed(in, acc, permuter, real);
     p = permutationProvider.getPermutation(coverLen, seed);
     permuter.setPermutation(p);
+    /* TODO THIS IS AWFUL! */
     /* XXX */
     short len = (short) msg.length;
     byte[] lenBytes = getClearedBuffer().putShort(len).array();

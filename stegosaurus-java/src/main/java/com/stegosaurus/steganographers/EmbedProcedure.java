@@ -35,7 +35,7 @@ class EmbedProcedure implements TIntIntProcedure {
    * The total number of bits we've dealt with (whether or not they
    * required a change).
    */
-  private int bits;
+  private int bitsSeen;
 
   /**
    * Whether we are doing any changes to the image.
@@ -59,8 +59,8 @@ class EmbedProcedure implements TIntIntProcedure {
 
   @Override
   public boolean execute(int index, int val) {
-    int m = in.read();
-    if(m < 0) {
+    int bit = in.read();
+    if(bit < 0) {
       return false;
     }
     /*
@@ -70,18 +70,18 @@ class EmbedProcedure implements TIntIntProcedure {
      * Hence the following if statement to determine whether something
      * needs to be changed in the carrier.
      */
-    if((val < 0 && -(val % 2) == m) || (val > 0 && (val % 2) != m)) {
+    if(((val < 0 ? ~val : val) & 1) != bit) {
       changes++;
       if(!real) {
         return true;
       }
-      val += (seq.atIndex(bits) ? 1 : -1);
+      val += (seq.atIndex(bitsSeen) ? 1 : -1);
       if(val == 0) {
-        val = (m == 0 ? -1 : 1);
+        val = (bit == 0 ? -1 : 1);
       }
       acc.setCoefficient(index, val);
     }
-    bits++;
+    bitsSeen++;
     return true;
   }
 

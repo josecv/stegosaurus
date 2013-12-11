@@ -20,10 +20,10 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
    * the calculation.
    */
   if(vertical_boundary) {
-    for(index = 0; index < stride; ++index) {
+    for(index = 0; index < stride; index++) {
       retval += abs(samp_row[index] - previous_row[index]);
       index_in_component = index / components;
-      if(!(index_in_component % 8) && index_in_component) {
+      if(index_in_component && !(index_in_component % 8)) {
         retval += abs(samp_row[index] - samp_row[index - components]);
       }
     }
@@ -31,7 +31,7 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
     int current_comp;
     int block;
     for(block = block_width; block < stride; block += block_width) {
-      for(current_comp = 0; current_comp < components; ++current_comp) {
+      for(current_comp = 0; current_comp < components; current_comp++) {
         index = block + current_comp;
         retval += abs(samp_row[index] - samp_row[index - components]);
       }

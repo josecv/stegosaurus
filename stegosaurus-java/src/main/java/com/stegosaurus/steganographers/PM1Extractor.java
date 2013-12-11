@@ -72,11 +72,7 @@ public class PM1Extractor extends PM1Algorithm {
     permuter.walk(new TIntIntProcedure() {
       private int count;
       public boolean execute(int index, int value) {
-        if(value < 0) {
-          os.write((~value) & 1);
-        } else {
-          os.write(value % 2);
-        }
+        os.write((value < 0 ? ~value : value) & 1);
         count++;
         return count < len;
       }
