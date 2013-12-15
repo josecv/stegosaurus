@@ -47,7 +47,9 @@ public class Permutation {
     /* This stuff is just your basic Knuth permutation. */
     for(int i = 0; i < size; i++) {
       int j = random.nextInt(i + 1);
-      permutation[i] = permutation[j];
+      if(j != i) {
+        permutation[i] = permutation[j];
+      }
       permutation[j] = i;
     }
   }
