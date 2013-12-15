@@ -16,25 +16,52 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
    * have to take into account the horizontal boundaries. On the other hand,
    * if we only have to worry about the horizontal boundaries, we can
    * feel free to skip ahead to relevant blocks.
-   * Thus, this function is divided in two, as it were, so as to speed up
-   * the calculation.
+   * If we do decide to skip ahead, we then branch out for some common
+   * component configurations (i.e. 1 component or 3 components), so as to
+   * not have to use a loop and hardcode the logic of calculation.
+   * Thus, this function is divided in four, as it were, hopefully to make
+   * it as fast as we can.
    */
   if(vertical_boundary) {
+    int val;
     for(index = 0; index < stride; index++) {
-      retval += abs(samp_row[index] - previous_row[index]);
+      val = samp_row[index];
+      retval += abs(val - previous_row[index]);
       index_in_component = index / components;
       if(index_in_component && !(index_in_component % 8)) {
-        retval += abs(samp_row[index] - samp_row[index - components]);
+        retval += abs(val - samp_row[index - components]);
       }
     }
   } else {
-    int current_comp;
-    int block;
-    for(block = block_width; block < stride; block += block_width) {
-      for(current_comp = 0; current_comp < components; current_comp++) {
-        index = block + current_comp;
-        retval += abs(samp_row[index] - samp_row[index - components]);
-      }
+    int tmp0 = 0, tmp1 = 0, tmp2 = 0;
+    switch(components) {
+      case 3:
+        /* We'd like to make use of parallelization of operation streams here, so
+         * we split up the calculation into three different variables, which are
+         * then added up in the end.
+         * TODO Examine the compiled code to figure out whether this has a
+         * meaningful effect.
+         */
+        for(index = block_width; index < stride; index += block_width) {
+          tmp0 += abs(samp_row[index] - samp_row[index - 3]);
+          tmp1 += abs(samp_row[index + 1] - samp_row[index - 2]);
+          tmp2 += abs(samp_row[index + 2] - samp_row[index - 1]);
+        }
+        return tmp0 + tmp1 + tmp2;
+      case 1:
+        for(index = block_width; index < stride; index += block_width) {
+          retval += abs(samp_row[index] - samp_row[index - 1]);
+        }
+        break;
+      default:
+        int current_comp;
+        int block;
+        for(block = block_width; block < stride; block += block_width) {
+          for(current_comp = 0; current_comp < components; current_comp++) {
+            index = block + current_comp;
+            retval += abs(samp_row[index] - samp_row[index - components]);
+          }
+        }
     }
   }
   return retval;
