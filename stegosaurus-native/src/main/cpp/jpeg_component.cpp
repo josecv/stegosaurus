@@ -12,6 +12,7 @@ JPEGComponent::JPEGComponent(const jpeg_component_info *info,
   /* I believe the docs specify that the blocks are always 64 bytes long */
   block_width = 8;
   block_height = 8;
+  block_size = block_width * block_height;
 }
 
 
@@ -28,6 +29,7 @@ JPEGComponent::JPEGComponent(JDIMENSION w_blocks, JDIMENSION h_blocks,
     index(ind) {
   block_width = 8;
   block_height = 8;
+  block_size = block_width * block_height;
 }
 
 JBLOCKARRAY JPEGComponent::getCoefficients(void) {
@@ -63,6 +65,10 @@ JDIMENSION JPEGComponent::getBlockWidth(void) const {
 
 JDIMENSION JPEGComponent::getBlockHeight(void) const {
   return this->block_height;
+}
+
+JDIMENSION JPEGComponent::getBlockSize(void) const {
+  return this->block_size;
 }
 
 int JPEGComponent::getIndex(void) const {

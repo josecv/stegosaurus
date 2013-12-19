@@ -1,17 +1,23 @@
 #include "coefficient_accessor.h"
 /* For memcpy */
 #include <string.h>
+#include <assert.h>
 
 CoefficientAccessor::CoefficientAccessor(JPEGComponent **componentArray,
                                          int total)
     : components(NULL),
-      totalComponents(total) {
+      totalComponents(total),
+      length(-1),
+      usables(NULL) {
   components = new JPEGComponent*[total];
   memcpy(components, componentArray, sizeof(JPEGComponent *) * total);
 }
 
 CoefficientAccessor::~CoefficientAccessor(void) {
   delete [] components;
+  if(usables) {
+    free(usables);
+  }
 }
 
 JPEGComponent* CoefficientAccessor::findComponent(unsigned int *index) {
@@ -29,7 +35,7 @@ JPEGComponent* CoefficientAccessor::findComponent(unsigned int *index) {
 JCOEF* CoefficientAccessor::getInComponent(unsigned int index,
                                            JPEGComponent *comp) {
   int row, row_local, col, coef_index;
-  const int block_size = comp->getBlockHeight() * comp->getBlockWidth();
+  const int block_size = comp->getBlockSize();
   const int width = comp->getWidthInBlocks();
   row_local = index % (width * block_size);
   row = index / (width * block_size);
@@ -49,17 +55,39 @@ void CoefficientAccessor::setCoefficient(unsigned int index, JCOEF value) {
 }
 
 int CoefficientAccessor::getLength(void) {
-  int retval = 0;
-  unsigned int c;
-  for(c = 0; c < totalComponents; c++) {
-    retval += (components[c])->getTotalNumberOfCoefficients();
+  if(length > 0) {
+    return length;
   }
-  return retval;
+  unsigned int c;
+  length = 0;
+  for(c = 0; c < totalComponents; c++) {
+    length += (components[c])->getTotalNumberOfCoefficients();
+  }
+  return length;
 }
 
 bool CoefficientAccessor::isDC(unsigned int index) {
   int size;
   JPEGComponent *comp = findComponent(&index);
-  size = comp->getBlockWidth() * comp->getBlockHeight();
+  size = comp->getBlockSize();
   return ((index % size) == 0);
+}
+
+unsigned int* CoefficientAccessor::getUsableCoefficients(void) {
+  if(usables) {
+    return usables;
+  }
+  usables = (unsigned int *) malloc(sizeof(unsigned int) * getLength());
+  unsigned int i, j = 0;
+  /* length has been set for sure now, since we just called getLength() */
+  for(i = 0; i < length; ++i) {
+    unsigned int index = i;
+    JPEGComponent *comp = findComponent(&index);
+    if((index % comp->getBlockSize()) && (*getInComponent(index, comp))) {
+      usables[j] = i;
+      ++j;
+    }
+  }
+  usables = (unsigned int *) realloc(usables, sizeof(unsigned int) * j);
+  return usables;
 }

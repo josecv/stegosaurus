@@ -227,6 +227,20 @@ TEST_P(CoefficientAccessorTest, TestSetCoefficient) {
   }
 }
 
+/**
+ * Test the getUsableCoefficients method.
+ */
+TEST_P(CoefficientAccessorTest, TestGetUsableCoefficients) {
+  unsigned int *usables = acc->getUsableCoefficients();
+  unsigned int i, j = 0;
+  for(i = 0; i < acc->getLength(); ++i) {
+    if(!acc->isDC(i) && acc->getCoefficient(i)) {
+      EXPECT_EQ(usables[j], i);
+      ++j;
+    }
+  }
+}
+
 INSTANTIATE_TEST_CASE_P(CoefficientInstantiation, CoefficientAccessorTest,
   ::testing::Values(1, 3));
 

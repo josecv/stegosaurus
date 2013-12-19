@@ -54,6 +54,15 @@ class CoefficientAccessor {
    */
   bool isDC(unsigned int index);
 
+  /**
+   * Get an array, u, so that u[i] is the index of the ith coefficient in this
+   * accessor that can be used for embedding purposes. A coefficient is
+   * considered usable when it is a non-zero AC coefficient.
+   * The array will be sorted.
+   * @return the vector with the indices of usable coefficients.
+   */
+  unsigned int *getUsableCoefficients(void);
+
  private:
   /**
    * The array of components that can be used by this accessor.
@@ -63,6 +72,18 @@ class CoefficientAccessor {
    * The total number of components available.
    */
   unsigned int totalComponents;
+
+  /**
+   * The length of this accessor; lazily evaluated, so use the getLength()
+   * method always.
+   */
+  int length;
+
+  /**
+   * The usable coefficients: an array as described in the getUsables()
+   * documentation.
+   */
+  unsigned int *usables;
 
   /**
    * Find the component where a given index belongs; alter the index to

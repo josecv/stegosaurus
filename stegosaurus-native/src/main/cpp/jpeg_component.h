@@ -79,6 +79,13 @@ class JPEGComponent {
   JDIMENSION getBlockHeight(void) const;
 
   /**
+   * Get the number of coefficients in a single block inside of this
+   * component.
+   * @return the block size.
+   */
+  JDIMENSION getBlockSize(void) const;
+
+  /**
    * Get the component's index.
    * @return the index.
    */
@@ -103,22 +110,27 @@ class JPEGComponent {
    * The DCT coefficients. Unrealized at construction.
    */
   JBLOCKARRAY coefficients;
+
   /**
    * The Coefficients provider.
    */
   JPEGCoefficientsProvider *provider;
+
   /**
    * Dimensions in blocks of this component.
    */
   JDIMENSION width_in_blocks, height_in_blocks;
+
   /**
    * Downsampled pixel dimensions of this component.
    */
   JDIMENSION downsampled_width, downsampled_height;
+
   /**
    * The dimensions of an individual block.
    */
-  JDIMENSION block_width, block_height;
+  JDIMENSION block_width, block_height, block_size;
+
   /**
    * The component's index.
    */
