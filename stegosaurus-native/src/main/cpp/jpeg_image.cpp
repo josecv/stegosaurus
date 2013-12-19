@@ -95,18 +95,6 @@ JPEGImage* JPEGImage::writeNew() throw(JPEGLibException) {
   return new JPEGImage(output, outlen);
 }
 
-JPEGImage* JPEGImage::doCrop(int x_off, int y_off) {
-  reset();
-  JOCTET *output = NULL;
-  long outlen = len;
-  prepareCrop(&outlen, &output, x_off, y_off);
-  crop(decomp, comp, x_off, y_off);
-  jpeg_finish_compress(comp);
-  jpeg_finish_decompress(decomp);
-  headers_read = false;
-  return new JPEGImage(output, outlen);
-}
-
 JPEGComponent* JPEGImage::getComponent(int index) {
   if(!headers_read) {
     reset();

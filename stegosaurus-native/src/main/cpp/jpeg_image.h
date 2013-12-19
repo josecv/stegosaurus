@@ -55,13 +55,6 @@ class JPEGImage : public JPEGCoefficientsProvider {
   JPEGImage* writeNew() throw(JPEGLibException);
 
   /**
-   * Crop this image to start at the offsets given, and return the new image.
-   * @param x_off the offset from the left where the new image should start.
-   * @param y_off the offset from the top where the new image should start.
-   */
-  JPEGImage* doCrop(int x_off, int y_off);
-
-  /**
    * Get the total number of components in the image.
    * @return the number of components.
    */

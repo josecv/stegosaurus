@@ -31,17 +31,6 @@ class JPEGImageTest : public TestWithImage {
 };
 
 /**
- * Test the crop method. Since it's a lossy crop, there is just about nothing
- * we can do to ensure that it's accurate other than making sure it doesn't
- * throw any exceptions.
- */
-TEST_F(JPEGImageTest, testCrop) {
-  JPEGImage *croppedImage = testImage->doCrop(4, 4);
-  EXPECT_EQ(testImage->getComponentCount(), croppedImage->getComponentCount());
-  context->destroyImage(croppedImage);
-}
-
-/**
  * Test the writeNew method.
  * Done by requesting a bunch of coefficients, turning them all into zeroes,
  * writing to a new image, and seeing if that works.
@@ -134,37 +123,6 @@ TEST_F(JPEGImageTest, testCoefficientAccess) {
  * You'll be surprised to hear that the policy is to ensure that they always
  * pass.
  */
-
-/**
- * Test that an image can be used for multiple operations, such as cropping
- * it and then reading its coefficients.
- * There's no real assertions going on in here, but libjpeg will positively
- * kill a process when we do something it doesn't like, such as re-use a
- * decompression object in an improper state. This test ensures our code
- * doesn't cause that.
- */
-TEST_F(JPEGImageTest, testImageReusability) {
-  int i;
-  CoefficientAccessor* acc = testImage->getCoefficientAccessor();
-  /* Force coefficients to be read */
-  for(i = 0; i < acc->getLength(); ++i) {
-    acc->getCoefficient(i);
-  }
-  /* Get coefficients, write them out, and crop */
-  JPEGImage *other = testImage->writeNew();
-  context->destroyImage(other);
-  JPEGImage *cropped = testImage->doCrop(4, 4);
-  context->destroyImage(cropped);
-
-  /* Get coefficients after crop, and then write them out. */
-  cropped = testImage->doCrop(4, 4);
-  for(i = 0; i < acc->getLength(); ++i) {
-    acc->getCoefficient(i);
-  }
-  context->destroyImage(cropped);
-  other = testImage->writeNew();
-  context->destroyImage(other);
-}
 
 /**
  * Try building two coefficient accessors from this image, and ensure they all
