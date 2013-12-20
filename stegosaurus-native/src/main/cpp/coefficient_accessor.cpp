@@ -101,3 +101,10 @@ int CoefficientAccessor::getUsableCoefficientCount(void) {
   }
   return usableCount;
 }
+
+void CoefficientAccessor::cannibalizeUsables(CoefficientAccessor *other) {
+  usableCount = other->getUsableCoefficientCount();
+  usables = (int *) malloc(sizeof(int) * usableCount);
+  usables = (int *) memcpy(usables, other->getUsableCoefficients(),
+    sizeof(int) * usableCount);
+}

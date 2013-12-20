@@ -70,6 +70,15 @@ class CoefficientAccessor {
    */
   int getUsableCoefficientCount(void);
 
+  /**
+   * Take the array of usable coefficients from the accessor given, copy it
+   * over to this one and use it as our own. Prevents recalculation when the
+   * accessors represent the same underlying image.
+   * TODO SAFETY HERE, SAFETY!
+   * TODO Bad access rules here!
+   */
+  void cannibalizeUsables(CoefficientAccessor *other);
+
  private:
   /**
    * The array of components that can be used by this accessor.

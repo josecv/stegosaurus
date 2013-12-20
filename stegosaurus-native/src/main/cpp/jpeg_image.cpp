@@ -92,7 +92,9 @@ JPEGImage* JPEGImage::writeNew() throw(JPEGLibException) {
   jpeg_write_coefficients(comp, coeffs);
   jpeg_finish_compress(comp);
   reset();
-  return new JPEGImage(output, outlen);
+  JPEGImage *r = new JPEGImage(output, outlen);
+  r->getCoefficientAccessor()->cannibalizeUsables(getCoefficientAccessor());
+  return r;
 }
 
 JPEGComponent* JPEGImage::getComponent(int index) {
