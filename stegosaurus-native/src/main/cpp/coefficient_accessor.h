@@ -61,7 +61,14 @@ class CoefficientAccessor {
    * The array will be sorted.
    * @return the vector with the indices of usable coefficients.
    */
-  unsigned int *getUsableCoefficients(void);
+  int *getUsableCoefficients(void);
+
+  /**
+   * Get the number of usable coefficients.
+   * @return the number of usable coefficients this accessor contains.
+   * @see getUsableCoefficients
+   */
+  int getUsableCoefficientCount(void);
 
  private:
   /**
@@ -83,7 +90,12 @@ class CoefficientAccessor {
    * The usable coefficients: an array as described in the getUsables()
    * documentation.
    */
-  unsigned int *usables;
+  int *usables;
+
+  /**
+   * The number of usable coefficients we have on hand.
+   */
+  int usableCount;
 
   /**
    * Find the component where a given index belongs; alter the index to

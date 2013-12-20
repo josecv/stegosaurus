@@ -73,12 +73,13 @@ bool CoefficientAccessor::isDC(unsigned int index) {
   return ((index % size) == 0);
 }
 
-unsigned int* CoefficientAccessor::getUsableCoefficients(void) {
+int* CoefficientAccessor::getUsableCoefficients(void) {
   if(usables) {
     return usables;
   }
-  usables = (unsigned int *) malloc(sizeof(unsigned int) * getLength());
-  unsigned int i, j = 0;
+  usables = (int *) malloc(sizeof(int) * getLength());
+  int i;
+  int j = 0;
   /* length has been set for sure now, since we just called getLength() */
   for(i = 0; i < length; ++i) {
     unsigned int index = i;
@@ -88,6 +89,15 @@ unsigned int* CoefficientAccessor::getUsableCoefficients(void) {
       ++j;
     }
   }
-  usables = (unsigned int *) realloc(usables, sizeof(unsigned int) * j);
+  usables = (int *) realloc(usables, sizeof(int) * j);
+  usableCount = j;
   return usables;
+}
+
+int CoefficientAccessor::getUsableCoefficientCount(void) {
+  /* Ensure we've actually loaded the count. */
+  if(!usables) {
+    getUsableCoefficients();
+  }
+  return usableCount;
 }

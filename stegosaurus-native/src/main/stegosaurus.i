@@ -15,6 +15,7 @@
 %apply unsigned short {JCOEF};
 %include "carrays.i"
 %array_class(JOCTET, JoctetArray);
+%array_class(int, cppIntArray);
 
 /* Now bring in our classes */
 

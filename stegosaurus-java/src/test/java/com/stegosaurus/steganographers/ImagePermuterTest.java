@@ -74,7 +74,10 @@ public class ImagePermuterTest {
       assumeNoException(ioe);
     }
     accessor = cover.getCoefficientAccessor();
-    permutation = provider.getPermutation(accessor.getLength(), SEED);
+    /*permutation = provider.getPermutation(accessor.getUsableCoefficientCount(),
+      SEED);*/
+    permutation = provider.getPermutation(accessor.getUsableCoefficientCount(),
+      SEED);
     permuter = new ImagePermuter(accessor, permutation);
   }
 

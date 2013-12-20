@@ -84,7 +84,7 @@ public class PM1Embedder extends PM1Algorithm {
     String key = request.getKey();
     byte[] msg = request.getMessage();
     CoefficientAccessor acc = getAccessorForImage(cover);
-    int coverLen = acc.getLength();
+    int coverLen = acc.getUsableCoefficientCount();
     Permutation p = permutationProvider.getPermutation(coverLen,
         key.hashCode());
     ImagePermuter permuter = new ImagePermuter(acc, p);

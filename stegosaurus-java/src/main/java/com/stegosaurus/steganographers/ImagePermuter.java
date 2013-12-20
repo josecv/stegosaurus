@@ -6,6 +6,7 @@ import java.util.BitSet;
 import java.util.Random;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
+import com.stegosaurus.cpp.cppIntArray;
 import com.stegosaurus.crypt.Permutation;
 
 /**
@@ -36,6 +37,11 @@ public class ImagePermuter {
   private BitSet locked;
 
   /**
+   * The array of usable coefficients, as given to us by our accessor.
+   */
+  private cppIntArray usables;
+
+  /**
    * Given a coefficient accessor, build a Permutation of its indices,
    * suitable to be used in an ImagePermuter instance.
    * It is returned uninitialized.
@@ -45,7 +51,7 @@ public class ImagePermuter {
    */
   public static Permutation buildPermutation(Random r,
       CoefficientAccessor acc) {
-    return new Permutation(acc.getLength(), r);
+    return new Permutation(acc.getUsableCoefficientCount(), r);
   }
 
   /**
@@ -56,7 +62,8 @@ public class ImagePermuter {
   public ImagePermuter(CoefficientAccessor acc, Permutation p) {
     accessor = acc;
     permutation = p;
-    locked = new BitSet(acc.getLength());
+    locked = new BitSet(permutation.getSize());
+    usables = cppIntArray.frompointer(acc.getUsableCoefficients());
   }
 
   /**
@@ -92,12 +99,12 @@ public class ImagePermuter {
       /* getCoefficient is a native call, so we want to avoid it if possible,
        * which is why we ensure the coefficient is not DC before going any
        * further */
-      if(!locked.get(index) && !accessor.isDC(index)) {
-        int value = accessor.getCoefficient(index);
-        if(value != 0) {
-          locked.set(index);
-          go = proc.execute(index, value);
-        }
+      if(!locked.get(index)) {
+        assert index < accessor.getUsableCoefficientCount();
+        int trueIndex = usables.getitem(index);
+        int value = accessor.getCoefficient(trueIndex);
+        locked.set(index);
+        go = proc.execute(trueIndex, value);
       }
     }
   }
