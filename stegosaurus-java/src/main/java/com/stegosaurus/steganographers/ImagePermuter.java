@@ -3,7 +3,6 @@ package com.stegosaurus.steganographers;
 import gnu.trove.procedure.TIntIntProcedure;
 
 import java.util.BitSet;
-import java.util.Random;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.cppIntArray;
@@ -40,19 +39,6 @@ public class ImagePermuter {
    * The array of usable coefficients, as given to us by our accessor.
    */
   private cppIntArray usables;
-
-  /**
-   * Given a coefficient accessor, build a Permutation of its indices,
-   * suitable to be used in an ImagePermuter instance.
-   * It is returned uninitialized.
-   * @param r the random number generator for the permutation.
-   * @param acc the accessor.
-   * @return a permutation of the indices in it.
-   */
-  public static Permutation buildPermutation(Random r,
-      CoefficientAccessor acc) {
-    return new Permutation(acc.getUsableCoefficientCount(), r);
-  }
 
   /**
    * CTOR.
