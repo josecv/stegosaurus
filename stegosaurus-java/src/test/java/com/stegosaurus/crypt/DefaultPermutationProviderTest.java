@@ -3,8 +3,6 @@ package com.stegosaurus.crypt;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Random;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -57,8 +55,7 @@ public class DefaultPermutationProviderTest {
   public void testCorrectPermutation() {
     final long seed = 0xDEADBEEF;
     final int length = 1000;
-    Random r = new Random(seed);
-    Permutation expected = new Permutation(length, r);
+    Permutation expected = new Permutation(length, seed);
     expected.init();
     Permutation returned = provider.getPermutation(length, seed);
     for(int i = 0; i < expected.getSize(); i++)  {

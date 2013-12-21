@@ -18,6 +18,8 @@ public class Permutation {
    */
   private Random random;
 
+  private long seed;
+
   /**
    * The actual permutation.
    */
@@ -26,11 +28,11 @@ public class Permutation {
   /**
    * Construct a new permutation. You should call init after constructing this.
    * @param size the number of elements in the permutations.
-   * @param random a random number generator.
+   * @param seed the seed that will be used to generate this permutation.
    */
-  public Permutation(int size, Random random) {
+  public Permutation(int size, long seed) {
     this.size = size;
-    this.random = random;
+    this.seed = seed;
   }
 
 
@@ -40,6 +42,7 @@ public class Permutation {
    * constructor. You should only call this operation once.
    */
   public void init() {
+    this.random = new Random(seed);
     if(permutation != null) {
       throw new IllegalStateException("Permutation has been initialized");
     }

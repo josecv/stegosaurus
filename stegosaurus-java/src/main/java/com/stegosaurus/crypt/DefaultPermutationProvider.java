@@ -1,7 +1,5 @@
 package com.stegosaurus.crypt;
 
-import java.util.Random;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -15,18 +13,6 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class DefaultPermutationProvider implements PermutationProvider {
-  /**
-   * The random number generators used to generate the permutations.
-   * We don't want any crazy stuff going on here, and we want
-   * the permutations to be deterministic, so these are thread local.
-   */
-  private ThreadLocal<Random> random =
-    new ThreadLocal<Random>() {
-      protected Random initialValue() {
-        return new Random();
-      }
-  };
-
   /**
    * The actual permutations to return, as a loading cache mapping from
    * permutation size, to the caches mapping from permutation seed to
@@ -54,9 +40,7 @@ public class DefaultPermutationProvider implements PermutationProvider {
               .build(
                 new CacheLoader<Long, Permutation>() {
                   public Permutation load(Long seed) {
-                    Random r = random.get();
-                    r.setSeed(seed);
-                    Permutation retval = new Permutation(size, r);
+                    Permutation retval = new Permutation(size, seed);
                     retval.init();
                     return retval;
                   }

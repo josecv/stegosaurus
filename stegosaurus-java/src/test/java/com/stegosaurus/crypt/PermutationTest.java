@@ -39,7 +39,7 @@ public class PermutationTest {
   @Before
   public void setUp() {
     r = new Random();
-    permutation = new Permutation(size, r);
+    permutation = new Permutation(size, r.nextLong());
     permutation.init();
     seen = new BitSet(size);
   }
@@ -77,7 +77,7 @@ public class PermutationTest {
   @Test(expected = IllegalStateException.class)
   public void testGetBeforeInit() {
     /* Set up calls init, so we actually have to build a new one... */
-    Permutation p = new Permutation(size, r);
+    Permutation p = new Permutation(size, r.nextLong());
     p.get(0);
   }
 
