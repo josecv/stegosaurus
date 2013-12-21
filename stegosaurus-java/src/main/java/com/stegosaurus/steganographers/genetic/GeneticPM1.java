@@ -125,7 +125,7 @@ public class GeneticPM1 {
   public JPEGImage embed(EmbedRequest request) {
     short seed = optimizeSeed(request);
     PMSequence sequence = optimizeSequence(request, seed);
-    PM1Embedder embedder = embedderFactory.build(new Random(), sequence);
+    PM1Embedder embedder = embedderFactory.build(sequence);
     return embedder.embed(request, seed);
   }
 }

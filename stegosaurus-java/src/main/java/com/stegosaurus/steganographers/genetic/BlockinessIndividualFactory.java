@@ -1,7 +1,5 @@
 package com.stegosaurus.steganographers.genetic;
 
-import java.util.Random;
-
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.steganographers.EmbedRequest;
@@ -12,11 +10,6 @@ import com.stegosaurus.steganographers.PM1Embedder;
  */
 public class BlockinessIndividualFactory
   implements IndividualFactory<BlockinessIndividual> {
-
-  /**
-   * The pseudo-random number generator to use.
-   */
-  private Random prng;
 
   /**
    * The seed.
@@ -44,7 +37,6 @@ public class BlockinessIndividualFactory
     this.request = request;
     this.seed = seed;
     this.embedderFactory = embedderFactory;
-    prng = new Random();
   }
 
   /**
@@ -59,6 +51,6 @@ public class BlockinessIndividualFactory
      */
     EmbedRequest r = new EmbedRequest(request.getCover().writeNew(),
         request.getMessage(), request.getKey());
-    return new BlockinessIndividual(c, r, prng, seed, embedderFactory);
+    return new BlockinessIndividual(c, r, seed, embedderFactory);
   }
 }

@@ -1,7 +1,5 @@
 package com.stegosaurus.steganographers.genetic;
 
-import java.util.Random;
-
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.steganographers.EmbedRequest;
@@ -33,7 +31,7 @@ public class SeedChangeCountIndividualFactory
    */
   public SeedChangeCountIndividualFactory(EmbedRequest request,
                                           PM1Embedder.Factory factory) {
-    this.embedder = factory.build(new Random(), new DummyPMSequence());
+    this.embedder = factory.build(new DummyPMSequence());
     this.request = request;
   }
 

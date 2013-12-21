@@ -1,8 +1,6 @@
 package com.stegosaurus.steganographers;
 
 
-import java.util.Random;
-
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
@@ -36,15 +34,14 @@ public class PM1Embedder extends PM1Algorithm {
 
   /**
    * CTOR.
-   * @param random the random number generator; will be reseeded on embed.
    * @param seq the plus-minus sequence to direct this object's embedding.
    * @param helper an object that can provide us with ByteBuffers.
    * @param permutationProvider an object to provide us with Permutations.
    */
-  protected PM1Embedder(Random random, PMSequence seq,
+  protected PM1Embedder(PMSequence seq,
                         ByteBufferHelper helper,
                         PermutationProvider permutationProvider) {
-    super(random, helper);
+    super(helper);
     this.permutationProvider = permutationProvider;
     sequence = seq;
   }
@@ -149,8 +146,8 @@ public class PM1Embedder extends PM1Algorithm {
     * @param seq the plus-minus sequence to direct this object's embedding.
     * @param helper an object that can provide us with ByteBuffers.
     */
-    public PM1Embedder build(Random r, PMSequence seq) {
-      return new PM1Embedder(r, seq, helper, provider);
+    public PM1Embedder build(PMSequence seq) {
+      return new PM1Embedder(seq, helper, provider);
     }
   }
 }

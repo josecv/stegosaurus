@@ -5,7 +5,6 @@ import static org.junit.Assume.assumeNoException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,11 +35,6 @@ public class PM1Test extends TestWithInjection {
   private PM1Embedder.Factory embedderFactory;
 
   /**
-   * A random number generator.
-   */
-  private Random random;
-
-  /**
    * The stego key.
    */
   protected static final String KEY = "Fluttershy";
@@ -66,7 +60,6 @@ public class PM1Test extends TestWithInjection {
   @Before
   public void setUp() {
     super.setUp();
-    random = new Random();
     extractorFactory = injector.getInstance(PM1Extractor.Factory.class);
     embedderFactory = injector.getInstance(PM1Embedder.Factory.class);
     InputStream in = PM1Test.class.getResourceAsStream("lena-colour.jpeg");
@@ -90,7 +83,7 @@ public class PM1Test extends TestWithInjection {
    */
   protected void assertImageContainsMessage(String msg,
       JPEGImage image, String key, byte[] expected) {
-    PM1Extractor ex = extractorFactory.build(random);
+    PM1Extractor ex = extractorFactory.build();
     byte[] out = ex.extract(image, key);
     assertArrayEquals(msg, expected, out);
   }
@@ -102,7 +95,7 @@ public class PM1Test extends TestWithInjection {
   @Test
   public void testEmbedExtract() {
     PMSequence seq = new DummyPMSequence();
-    PM1Embedder emb = embedderFactory.build(random, seq);
+    PM1Embedder emb = embedderFactory.build(seq);
     JPEGImage stego = emb.embed(request, SEED);
     assertImageContainsMessage("Stego image lacks message",
         stego, KEY, MSG.getBytes());
@@ -113,7 +106,7 @@ public class PM1Test extends TestWithInjection {
    */
   @Test
   public void testFakeEmbedImmutability() {
-    PM1Embedder emb = embedderFactory.build(random, new DummyPMSequence());
+    PM1Embedder emb = embedderFactory.build(new DummyPMSequence());
     CoefficientAccessor acc = cover.getCoefficientAccessor();
     int[] expected = new int[acc.getLength()];
     for(int i = 0; i < acc.getLength(); i++) {

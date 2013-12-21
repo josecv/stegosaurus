@@ -36,11 +36,6 @@ public class BlockinessIndividual
   private short seed;
 
   /**
-   * A pseudo random number generator.
-   */
-  private Random random;
-
-  /**
    * The embed request we're optimizing for.
    */
   private EmbedRequest request;
@@ -49,15 +44,13 @@ public class BlockinessIndividual
    * CTOR.
    * @param c the chromosome for this object.
    * @param request the EmbedRequest we want to optimize for.
-   * @param random a prng.
    * @param seed the seed used to re-seed the embedding algorithm.
    * @param embedderFactory a factory to construct PM1Embedders.
    */
   public BlockinessIndividual(Chromosome c, EmbedRequest request,
-                              Random random, short seed,
+                              short seed,
                               PM1Embedder.Factory embedderFactory) {
     super(c);
-    this.random = random;
     this.seed = seed;
     this.embedderFactory = embedderFactory;
     this.request = request;
@@ -68,7 +61,7 @@ public class BlockinessIndividual
    */
   @Override
   protected void simulateImpl() {
-    PM1Embedder embedder = embedderFactory.build(random, chromosome);
+    PM1Embedder embedder = embedderFactory.build(chromosome);
     /* Can't hurt to make sure the stego image has been deleted. */
     /* TODO Do we _really_ need to, though? */
     if(stego != null) {

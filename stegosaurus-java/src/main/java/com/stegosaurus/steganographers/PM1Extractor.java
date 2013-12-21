@@ -2,8 +2,6 @@ package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
-import java.util.Random;
-
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
@@ -29,13 +27,12 @@ public class PM1Extractor extends PM1Algorithm {
 
   /**
    * CTOR.
-   * @param random the random object to use; will be reseeded on extract.
    * @param helper an object that can provide us with ByteBuffers.
    * @param permutationProvider an object that can give us permutations.
    */
-  protected PM1Extractor(Random random, ByteBufferHelper helper,
+  protected PM1Extractor(ByteBufferHelper helper,
                          PermutationProvider permutationProvider) {
-    super(random, helper);
+    super(helper);
     this.permutationProvider = permutationProvider;
   }
 
@@ -109,10 +106,9 @@ public class PM1Extractor extends PM1Algorithm {
 
     /**
      * Construct a new PM1Extractor.
-     * @param random the random object to use; will be reseeded on extract.
      */
-    public PM1Extractor build(Random random) {
-      return new PM1Extractor(random, helper, provider);
+    public PM1Extractor build() {
+      return new PM1Extractor(helper, provider);
     }
   }
 }
