@@ -4,9 +4,11 @@ import gnu.trove.procedure.TIntIntProcedure;
 
 import java.util.BitSet;
 
+import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.cppIntArray;
 import com.stegosaurus.crypt.Permutation;
+import com.stegosaurus.crypt.PermutationProvider;
 
 /**
  * Given a coefficient accessor and a permutation for it, will walk through
@@ -41,13 +43,28 @@ public class ImagePermuter {
   private cppIntArray usables;
 
   /**
+   * The permutation provider to acquire the permutation objects that will
+   * underlie this object.
+   */
+  private PermutationProvider permutationProvider;
+
+  /**
+   * The number of coefficients we're permuting.
+   */
+  private int length;
+
+  /**
    * CTOR.
    * @param acc the coefficient accessor to use.
+   * @param seed the seed to use for the permutation.
    * @param p the permutation of its indices.
    */
-  public ImagePermuter(CoefficientAccessor acc, Permutation p) {
+  protected ImagePermuter(CoefficientAccessor acc, long seed,
+                          PermutationProvider permutationProvider) {
     accessor = acc;
-    permutation = p;
+    this.permutationProvider = permutationProvider;
+    length = acc.getUsableCoefficientCount();
+    this.permutation = permutationProvider.getPermutation(length, seed);
     locked = new BitSet(permutation.getSize());
     usables = cppIntArray.frompointer(acc.getUsableCoefficients());
   }
@@ -55,10 +72,10 @@ public class ImagePermuter {
   /**
    * Change the permutation in use by this object; this does NOT reset the
    * object: visited indices will remain visited.
-   * @param p the permutation to use from now on.
+   * @param seed the seed for the permutation to change to.
    */
-  public void setPermutation(Permutation p) {
-    permutation = p;
+  public void setSeed(long seed) {
+    permutation = permutationProvider.getPermutation(length, seed);
   }
 
   /**
@@ -92,6 +109,35 @@ public class ImagePermuter {
         locked.set(index);
         go = proc.execute(trueIndex, value);
       }
+    }
+  }
+
+  /**
+   * A factory capable of building ImagePermuter instances.
+   * Will inject some required objects into the built instances.
+   */
+  public static class Factory {
+    /**
+     * The permutation provider that will be injected to built instances.
+     */
+    PermutationProvider provider;
+
+    /**
+     * Build a new ImagePermuter Factory; should only be invoked via Guice.
+     * @param provider the permutation provider to use for built permuters.
+     */
+    @Inject
+    public Factory(PermutationProvider provider) {
+      this.provider = provider;
+    }
+
+    /**
+     * Build a new ImagePermuter to permute the CoefficientAccessor given.
+     * @param accessor the accessor whose coefficients will be permuted.
+     * @param seed the seed to generate the actual permutation.
+     */
+    public ImagePermuter build(CoefficientAccessor acc, long seed) {
+      return new ImagePermuter(acc, seed, provider);
     }
   }
 }

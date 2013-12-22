@@ -5,8 +5,6 @@ import gnu.trove.procedure.TIntIntProcedure;
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
-import com.stegosaurus.crypt.Permutation;
-import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
@@ -21,19 +19,20 @@ public class PM1Extractor extends PM1Algorithm {
   private final BitOutputStream os = new BitOutputStream();
 
   /**
-   * The permutation provider used to get our hands on Permutations.
+   * A factory to construct image permuters.
    */
-  private PermutationProvider permutationProvider;
+  private ImagePermuter.Factory permFactory;
 
   /**
    * CTOR.
    * @param helper an object that can provide us with ByteBuffers.
+   * @param permFactory a factory to construct image permuters.
    * @param permutationProvider an object that can give us permutations.
    */
   protected PM1Extractor(ByteBufferHelper helper,
-                         PermutationProvider permutationProvider) {
+                         ImagePermuter.Factory permFactory) {
     super(helper);
-    this.permutationProvider = permutationProvider;
+    this.permFactory = permFactory;
   }
 
   /**
@@ -44,15 +43,10 @@ public class PM1Extractor extends PM1Algorithm {
    */
   public byte[] extract(JPEGImage carrier, String key) {
     CoefficientAccessor acc = getAccessorForImage(carrier);
-    Permutation p =
-      permutationProvider.getPermutation(acc.getUsableCoefficientCount(),
-      key.hashCode());
-    ImagePermuter permuter = new ImagePermuter(acc, p);
+    ImagePermuter permuter = permFactory.build(acc, key.hashCode());
     doExtract(permuter, Short.SIZE);
     short seed = getClearedBuffer().put(os.data()).getShort(0);
-    p = permutationProvider.getPermutation(acc.getUsableCoefficientCount(),
-      seed);
-    permuter.setPermutation(p);
+    permuter.setSeed(seed);
     doExtract(permuter, Short.SIZE);
     int len = getClearedBuffer().put(os.data()).getShort(0);
     doExtract(permuter, len * Byte.SIZE);
@@ -88,27 +82,28 @@ public class PM1Extractor extends PM1Algorithm {
     private ByteBufferHelper helper;
 
     /**
-     * The permutation provider to hand out to created instances.
+     * The image permuter factory to give to created instances.
      */
-    private PermutationProvider provider;
+    private ImagePermuter.Factory permFactory;
 
     /**
      * CTOR; should be called by Guava.
      * @param helper the ByteBufferHelper that will be given to built objects.
+     * @param permFactory the permuter factory to inject into instances.
      * @param provider the permutation provider for built objects.
      */
     @Inject
     public Factory(ByteBufferHelper helper,
-                   PermutationProvider provider) {
+                   ImagePermuter.Factory permFactory) {
       this.helper = helper;
-      this.provider = provider;
+      this.permFactory = permFactory;
     }
 
     /**
      * Construct a new PM1Extractor.
      */
     public PM1Extractor build() {
-      return new PM1Extractor(helper, provider);
+      return new PM1Extractor(helper, permFactory);
     }
   }
 }

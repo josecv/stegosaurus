@@ -14,10 +14,8 @@ public class Permutation {
   private int size;
 
   /**
-   * The random number generator we use.
+   * The seed used to generate this permutation.
    */
-  private Random random;
-
   private long seed;
 
   /**
@@ -42,7 +40,7 @@ public class Permutation {
    * constructor. You should only call this operation once.
    */
   public void init() {
-    this.random = new Random(seed);
+    Random random = new Random(seed);
     if(permutation != null) {
       throw new IllegalStateException("Permutation has been initialized");
     }

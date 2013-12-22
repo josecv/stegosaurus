@@ -17,16 +17,14 @@ import org.junit.Test;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
-import com.stegosaurus.crypt.DefaultPermutationProvider;
-import com.stegosaurus.crypt.Permutation;
-import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.stegutils.NativeUtils;
+import com.stegosaurus.testing.TestWithInjection;
 
 /**
  * Test the image permuter class.
  * TODO Need a different way to build up JPEGImage instances in tests.
  */
-public class ImagePermuterTest {
+public class ImagePermuterTest extends TestWithInjection {
   /**
    * The cover image.
    */
@@ -38,21 +36,9 @@ public class ImagePermuterTest {
   private static final long SEED = 0xDEADBEEF;
 
   /**
-   * A permutation provider to get permutations quickly.
-   * Not used for any fancy stuff; it's just a quicker way to get our hands
-   * on Permutation instances.
-   */
-  private PermutationProvider provider;
-
-  /**
    * The coefficient accessor for our image.
    */
   private CoefficientAccessor accessor;
-
-  /**
-   * The permutation we'll use.
-   */
-  private Permutation permutation;
 
   /**
    * The image permuter under test.
@@ -64,7 +50,7 @@ public class ImagePermuterTest {
    */
   @Before
   public void setUp() {
-    provider = new DefaultPermutationProvider();
+    super.setUp();
     InputStream in = getClass().getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
@@ -74,11 +60,8 @@ public class ImagePermuterTest {
       assumeNoException(ioe);
     }
     accessor = cover.getCoefficientAccessor();
-    /*permutation = provider.getPermutation(accessor.getUsableCoefficientCount(),
-      SEED);*/
-    permutation = provider.getPermutation(accessor.getUsableCoefficientCount(),
-      SEED);
-    permuter = new ImagePermuter(accessor, permutation);
+    permuter = injector.getInstance(ImagePermuter.Factory.class)
+      .build(accessor, SEED);
   }
 
   /**
@@ -102,15 +85,15 @@ public class ImagePermuterTest {
   }
 
   /**
-   * Test that changing the permutation behaves as expected.
+   * Test that changing the underlying permutation behaves as expected.
    */
   @Test
-  public void testChangePermutation() {
+  public void testChangeSeed() {
     final int elements = 1000;
+    final long otherSeed = 200;
     TIntSet set = new TIntHashSet();
     walk(set, permuter, elements, true);
-    Permutation other = provider.getPermutation(permutation.getSize(), 200);
-    permuter.setPermutation(other);
+    permuter.setSeed(otherSeed);
     permuter.reset();
     TIntSet otherSet = new TIntHashSet();
     walk(otherSet, permuter, elements, true);
@@ -119,7 +102,7 @@ public class ImagePermuterTest {
      * This can be verified simply by going back to the first one and checking
      * that we don't get the same thing again; if we don't then visited
      * elements from the second one have been successfully locked away. */
-    permuter.setPermutation(permutation);
+    permuter.setSeed(SEED);
     otherSet.clear();
     walk(otherSet, permuter, elements, true);
     assertNotEquals("setPermutation did implicit reset", set, otherSet);

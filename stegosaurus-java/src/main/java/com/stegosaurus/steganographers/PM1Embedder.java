@@ -4,8 +4,6 @@ package com.stegosaurus.steganographers;
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
-import com.stegosaurus.crypt.Permutation;
-import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
@@ -28,9 +26,9 @@ public class PM1Embedder extends PM1Algorithm {
   private PMSequence sequence;
 
   /**
-   * An object that'll provide us with Permutation instances.
+   * A factory to construct image permuters.
    */
-  private PermutationProvider permutationProvider;
+  private ImagePermuter.Factory permuterFactory;
 
   /**
    * CTOR.
@@ -40,9 +38,9 @@ public class PM1Embedder extends PM1Algorithm {
    */
   protected PM1Embedder(PMSequence seq,
                         ByteBufferHelper helper,
-                        PermutationProvider permutationProvider) {
+                        ImagePermuter.Factory permuterFactory) {
     super(helper);
-    this.permutationProvider = permutationProvider;
+    this.permuterFactory = permuterFactory;
     sequence = seq;
   }
 
@@ -81,15 +79,11 @@ public class PM1Embedder extends PM1Algorithm {
     String key = request.getKey();
     byte[] msg = request.getMessage();
     CoefficientAccessor acc = getAccessorForImage(cover);
-    int coverLen = acc.getUsableCoefficientCount();
-    Permutation p = permutationProvider.getPermutation(coverLen,
-        key.hashCode());
-    ImagePermuter permuter = new ImagePermuter(acc, p);
+    ImagePermuter permuter = permuterFactory.build(acc, key.hashCode());
     byte[] seedBytes = getClearedBuffer().putShort(seed).array();
     BitInputStream in = new BitInputStream(seedBytes);
     int changed = doEmbed(in, acc, permuter, real);
-    p = permutationProvider.getPermutation(coverLen, seed);
-    permuter.setPermutation(p);
+    permuter.setSeed(seed);
     /* TODO THIS IS AWFUL! */
     /* XXX */
     short len = (short) msg.length;
@@ -126,18 +120,20 @@ public class PM1Embedder extends PM1Algorithm {
     private ByteBufferHelper helper;
 
     /**
-     * The PermutationProvider to inject into instances.
+     * The ImagePermuter factory that will be injected into created instances.
      */
-    private PermutationProvider provider;
+    private ImagePermuter.Factory permuterFactory;
 
     /**
      * CTOR; to be invoked by Guava.
      * @param helper the helper to be injected into instances.
+     * @param permuterFactory the image permuter factory to inject to objects.
      * @param provider the PermutationProvider to hand out to created objects.
      */
     @Inject
-    public Factory(ByteBufferHelper helper, PermutationProvider provider) {
-      this.provider = provider;
+    public Factory(ByteBufferHelper helper,
+                   ImagePermuter.Factory permuterFactory) {
+      this.permuterFactory = permuterFactory;
       this.helper = helper;
     }
 
@@ -147,7 +143,7 @@ public class PM1Embedder extends PM1Algorithm {
     * @param helper an object that can provide us with ByteBuffers.
     */
     public PM1Embedder build(PMSequence seq) {
-      return new PM1Embedder(seq, helper, provider);
+      return new PM1Embedder(seq, helper, permuterFactory);
     }
   }
 }
