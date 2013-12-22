@@ -131,7 +131,7 @@ void JPEGImage::prepareCrop(long *outlen, JOCTET **output,
   comp->image_width = decomp->image_width - x_off;
   comp->image_height = decomp->image_height - y_off;
   steg_dest_mgr_for(comp, output, outlen);
-  jpeg_start_compress(comp, 1);
+  jpeg_start_compress(comp, 0);
   jpeg_start_decompress(decomp);
 }
 

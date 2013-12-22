@@ -33,12 +33,13 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
       }
     }
   } else {
-    int tmp0 = 0, tmp1 = 0, tmp2 = 0;
+    int tmp0, tmp1, tmp2;
     switch(components) {
       case 3:
-        /* We'd like to make use of parallelization of operation streams here, so
-         * we split up the calculation into three different variables, which are
-         * then added up in the end.
+        tmp0 = tmp1 = tmp2 = 0;
+        /* We'd like to make use of parallelization of operation streams here,
+         * so we split up the calculation into three different variables, which
+         * are then added up in the end.
          * TODO Examine the compiled code to figure out whether this has a
          * meaningful effect.
          */
