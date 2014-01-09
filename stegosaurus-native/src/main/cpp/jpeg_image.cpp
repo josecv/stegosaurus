@@ -234,6 +234,7 @@ double JPEGImage::calculateReciprocalROB(void) throw (JPEGLibException) {
   jpeg_start_decompress(decomp);
   double cropped_blockiness = calculateDecompBlockiness(decomp, NULL);
   jpeg_finish_decompress(decomp);
+  headers_read = false;
   free(output);
   steg_src_mgr_for(decomp, image, len);
   return cropped_blockiness / blockiness;
