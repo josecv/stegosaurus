@@ -178,6 +178,17 @@ j_compress_ptr JPEGImage::buildCompressor() {
   return retval;
 }
 
+static int readNRows(int n, JSAMPARRAY buffer, j_decompress_ptr decomp) {
+  int total = 0;
+  int read;
+  while(n && (decomp->output_scanline < decomp->output_height)) {
+    read = jpeg_read_scanlines(decomp, &(buffer[total]), n);
+    total += read;
+    n -= read;
+  }
+  return total;
+}
+
 /**
  * Calculate the spatial blockiness for the decompression object given.
  * If requested (decomp != NULL), crop it by 4 pixels, top and right, and
@@ -187,8 +198,9 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     j_compress_ptr comp) {
   int value = 0;
   const int off = 4;
-  int row = 0;
+  int read;
   JSAMPARRAY buffer;
+  int i;
   /* This second buffer merely exists to prevent memory re-allocation in
    * when cropping. It's messy, but it works */
   JSAMPARRAY buffer2 = new JSAMPROW;
@@ -198,22 +210,33 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   const int size_of_copy = row_stride * sizeof(JSAMPLE);
   previous_row = new JSAMPLE[row_stride];
   buffer = (*decomp->mem->alloc_sarray)
-    ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 1);
+    ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 8);
   /* The total number of samples to crop, from the left. */
   const int samples_cropped = off * decomp->output_components;
+  /* We have to deal with the first 8 rows in a special manner, and we're
+   * somewhat better served by hardcoding that than placing it in the loop.
+   */
+  read = readNRows(8, buffer, decomp);
+  int start = read - off;
+  for(i = start; comp && (i < read); i++) {
+    buffer2[0] = &(buffer[i][samples_cropped]);
+    (void) jpeg_write_scanlines(comp, buffer2, 1);
+  }
+  value += blockinessForRows(decomp->output_components, decomp->output_width,
+                             buffer, read, NULL);
+  if(read == 8) {
+    memcpy(previous_row, buffer[7], size_of_copy);
+  }
   while(decomp->output_scanline < decomp->output_height) {
-    (void) jpeg_read_scanlines(decomp, buffer, 1);
-    if(row >= off && comp != NULL) {
-      buffer2[0] = &(buffer[0][samples_cropped]);
+    read = readNRows(8, buffer, decomp);
+    for(i = 0; comp && (i < read); i++) {
+      buffer2[0] = &(buffer[i][samples_cropped]);
       (void) jpeg_write_scanlines(comp, buffer2, 1);
     }
-    value += blockinessForRow(decomp->output_components, decomp->output_width,
-                              buffer[0], row, previous_row);
-    row++;
-    /* The previous_row won't be used unless we're at a vertical boundary,
-     * so we don't copy it unless it's absolutely required. */
-    if(!(row % 8)) {
-      memcpy(previous_row, buffer[0], size_of_copy);
+    value += blockinessForRows(decomp->output_components, decomp->output_width,
+                               buffer, read, previous_row);
+    if(read == 8) {
+      memcpy(previous_row, buffer[7], size_of_copy);
     }
   }
   delete [] previous_row;

@@ -67,3 +67,35 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
   }
   return retval;
 }
+
+int blockinessForRows(int components, int width, JSAMPARRAY buffer,
+                      int row_count, JSAMPROW previous_block_last_row) {
+  int i;
+  int result = 0;
+  const int stride = width * components;
+  const int block_width = components * 8;
+  int index, index_in_component, row;
+  if(previous_block_last_row) {
+    int val;
+    for(index = 0; index < stride; index++) {
+      val = buffer[0][index];
+      result += abs(val - previous_block_last_row[index]);
+      index_in_component = index / components;
+      if(index_in_component && !(index_in_component % 8)) {
+        result += abs(val - buffer[0][index - components]);
+      }
+    }
+  }
+  for(row = (previous_block_last_row ? 1 : 0); row < row_count; row++) {
+    int current_comp;
+    int block;
+    JSAMPROW samp_row = buffer[row];
+    for(block = block_width; block < stride; block += block_width) {
+      for(current_comp = 0; current_comp < components; current_comp++) {
+        index = block + current_comp;
+        result += abs(samp_row[index] - samp_row[index - components]);
+      }
+    }
+  }
+  return result;
+}

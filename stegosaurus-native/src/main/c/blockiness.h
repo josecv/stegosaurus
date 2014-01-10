@@ -27,4 +27,8 @@
 int blockinessForRow(int components, int width, JSAMPROW samp_row,
                      int row_index, JSAMPROW previous_row);
 
+
+int blockinessForRows(int components, int width, JSAMPARRAY buffer,
+                      int row_count, JSAMPROW previous_block_last_row);
+
 #endif /* STEGOSAURUS_BLOCKINESS */
