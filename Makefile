@@ -3,7 +3,7 @@
 CC=gcc
 CXX=g++
 # Compile with debug symbols for now.
-FLAGS=-Wall -Wextra -g -fPIC -pedantic -Wsign-compare -O2 -lprofiler
+FLAGS=-Wall -Wextra -g -fPIC -pedantic -Wsign-compare -O2
 CFLAGS=$(FLAGS)
 CXXFLAGS=$(FLAGS)
 SRCROOT=stegosaurus-native/src/main

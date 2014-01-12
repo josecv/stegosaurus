@@ -181,7 +181,7 @@ TEST_F(JPEGBlockinessTest, testConsistency) {
  * many, many times, so as to simplify it being profiled.
  */
 TEST_F(JPEGBlockinessTest, profileROB) {
-  const int runs = 5000;
+  const int runs = 5/*000*/;
   int i;
   for(i = 0; i < runs; i++) {
     testImage->calculateReciprocalROB();

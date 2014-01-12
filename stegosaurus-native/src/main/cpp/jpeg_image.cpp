@@ -5,6 +5,7 @@
 #include "../c/blockiness.h"
 #include "stegosaurus_error_manager.h"
 #include <string.h>
+#include <assert.h>
 
 
 JPEGImage::JPEGImage(JOCTET *i, long imglen)
@@ -203,7 +204,7 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   int i;
   /* This second buffer merely exists to prevent memory re-allocation in
    * when cropping. It's messy, but it works */
-  JSAMPARRAY buffer2 = new JSAMPROW;
+  JSAMPARRAY buffer2 = new JSAMPROW[8];
   JSAMPROW   previous_row;
   const int row_stride = decomp->output_width * decomp->output_components;
   /* This is the num value for the memcpy that takes place below. */
@@ -230,8 +231,10 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   while(decomp->output_scanline < decomp->output_height) {
     read = readNRows(8, buffer, decomp);
     for(i = 0; comp && (i < read); i++) {
-      buffer2[0] = &(buffer[i][samples_cropped]);
-      (void) jpeg_write_scanlines(comp, buffer2, 1);
+      buffer2[i] = &(buffer[i][samples_cropped]);
+    }
+    if(comp) {
+      jpeg_write_scanlines(comp, buffer2, read);
     }
     value += blockinessForRows(decomp->output_components, decomp->output_width,
                                buffer, read, previous_row);
@@ -240,7 +243,7 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     }
   }
   delete [] previous_row;
-  delete buffer2;
+  delete [] buffer2;
   return value;
 }
 

@@ -75,6 +75,8 @@ int blockinessForRows(int components, int width, JSAMPARRAY buffer,
   const int stride = width * components;
   const int block_width = components * 8;
   int index, index_in_component, row;
+  int current_comp;
+  int block;
   if(previous_block_last_row) {
     int val;
     for(index = 0; index < stride; index++) {
@@ -85,15 +87,92 @@ int blockinessForRows(int components, int width, JSAMPARRAY buffer,
         result += abs(val - buffer[0][index - components]);
       }
     }
-  }
-  for(row = (previous_block_last_row ? 1 : 0); row < row_count; row++) {
-    int current_comp;
-    int block;
-    JSAMPROW samp_row = buffer[row];
+  } else {
     for(block = block_width; block < stride; block += block_width) {
       for(current_comp = 0; current_comp < components; current_comp++) {
         index = block + current_comp;
-        result += abs(samp_row[index] - samp_row[index - components]);
+        result += abs(buffer[0][index] - buffer[0][index - components]);
+      }
+    }
+  }
+  if(row_count == 8) {
+    int prev;
+    int tmp1 = 0, tmp2 = 0, tmp3 = 0, tmp4 = 0, tmp5 = 0, tmp6 = 0, tmp7 = 0;
+    JSAMPROW buf1 = buffer[1], buf2 = buffer[2], buf3 = buffer[3],
+             buf4 = buffer[4], buf5 = buffer[5], buf6 = buffer[6],
+             buf7 = buffer[7];
+    switch(components) {
+      case 1:
+        for(index = block_width; index < stride; index += block_width) {
+          prev = index - 1;
+          tmp1 += abs(buf1[index] - buf1[prev]);
+          tmp2 += abs(buf2[index] - buf2[prev]);
+          tmp3 += abs(buf3[index] - buf3[prev]);
+          tmp4 += abs(buf4[index] - buf4[prev]);
+          tmp5 += abs(buf5[index] - buf5[prev]);
+          tmp6 += abs(buf6[index] - buf6[prev]);
+          tmp7 += abs(buf7[index] - buf7[prev]);
+        }
+        break;
+      case 3:
+        for(index = block_width; index < stride; index += block_width) {
+          int index_m_1 = index - 1;
+          int index_m_2 = index - 2;
+          int index_m_3 = index - 3;
+          int index_p_1 = index + 1;
+          int index_p_2 = index + 2;
+
+          tmp1 += abs(buf1[index] - buf1[index_m_3]);
+          tmp2 += abs(buf2[index] - buf2[index_m_3]);
+          tmp3 += abs(buf3[index] - buf3[index_m_3]);
+          tmp4 += abs(buf4[index] - buf4[index_m_3]);
+          tmp5 += abs(buf5[index] - buf5[index_m_3]);
+          tmp6 += abs(buf6[index] - buf6[index_m_3]);
+          tmp7 += abs(buf7[index] - buf7[index_m_3]);
+
+          tmp1 += abs(buf1[index_p_1] - buf1[index_m_2]);
+          tmp2 += abs(buf2[index_p_1] - buf2[index_m_2]);
+          tmp3 += abs(buf3[index_p_1] - buf3[index_m_2]);
+          tmp4 += abs(buf4[index_p_1] - buf4[index_m_2]);
+          tmp5 += abs(buf5[index_p_1] - buf5[index_m_2]);
+          tmp6 += abs(buf6[index_p_1] - buf6[index_m_2]);
+          tmp7 += abs(buf7[index_p_1] - buf7[index_m_2]);
+
+          tmp1 += abs(buf1[index_p_2] - buf1[index_m_1]);
+          tmp2 += abs(buf2[index_p_2] - buf2[index_m_1]);
+          tmp3 += abs(buf3[index_p_2] - buf3[index_m_1]);
+          tmp4 += abs(buf4[index_p_2] - buf4[index_m_1]);
+          tmp5 += abs(buf5[index_p_2] - buf5[index_m_1]);
+          tmp6 += abs(buf6[index_p_2] - buf6[index_m_1]);
+          tmp7 += abs(buf7[index_p_2] - buf7[index_m_1]);
+        }
+        break;
+      default:
+        for(block = block_width; block < stride; block += block_width) {
+          for(current_comp = 0; current_comp < components; current_comp++) {
+            index = block + current_comp;
+            prev = index - components;
+            tmp1 += abs(buf1[index] - buf1[prev]);
+            tmp2 += abs(buf2[index] - buf2[prev]);
+            tmp3 += abs(buf3[index] - buf3[prev]);
+            tmp4 += abs(buf4[index] - buf4[prev]);
+            tmp5 += abs(buf5[index] - buf5[prev]);
+            tmp6 += abs(buf6[index] - buf6[prev]);
+            tmp7 += abs(buf7[index] - buf7[prev]);
+          }
+        }
+    }
+    result += tmp1 + tmp2 + tmp3 + tmp4 + tmp5 + tmp6 + tmp7;
+  } else {
+    for(row = (previous_block_last_row ? 1 : 0); row < row_count; row++) {
+      int current_comp;
+      int block;
+      JSAMPROW samp_row = buffer[row];
+      for(block = block_width; block < stride; block += block_width) {
+        for(current_comp = 0; current_comp < components; current_comp++) {
+          index = block + current_comp;
+          result += abs(samp_row[index] - samp_row[index - components]);
+        }
       }
     }
   }
