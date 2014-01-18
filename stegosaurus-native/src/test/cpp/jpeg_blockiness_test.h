@@ -175,15 +175,3 @@ TEST_F(JPEGBlockinessTest, testConsistency) {
   EXPECT_LE(distance, permissible_distance) << "Expected ROB of "
     << expected << " got " << result;
 }
-
-/**
- * Not a true test, instead this will run the reciprocalROB calculation
- * many, many times, so as to simplify it being profiled.
- */
-TEST_F(JPEGBlockinessTest, profileROB) {
-  const int runs = 5/*000*/;
-  int i;
-  for(i = 0; i < runs; i++) {
-    testImage->calculateReciprocalROB();
-  }
-}

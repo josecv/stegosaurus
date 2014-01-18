@@ -190,24 +190,55 @@ static int readNRows(int n, JSAMPARRAY buffer, j_decompress_ptr decomp) {
   return total;
 }
 
+static void writeRows(JSAMPARRAY buffer, JSAMPARRAY buffer2, int row_count,
+                      int samples_cropped, j_compress_ptr dest) {
+  int i;
+  for(i = 0; i < row_count; i++) {
+    buffer2[i] = &(buffer[i][samples_cropped]);
+  }
+  jpeg_write_scanlines(dest, buffer2, row_count);
+}
+
+static int processRows(int components, int stride, JSAMPARRAY buffer,
+                       JSAMPROW previous_row, int size_of_copy, int *rows_read,
+                       j_decompress_ptr decomp,
+                       blockinessCalcSafe blockinessCalculator) {
+  *rows_read = readNRows(8, buffer, decomp);
+  int retval = blockinessCalculator(components, stride, buffer, *rows_read,
+                                    previous_row);
+  if(*rows_read == 8) {
+    memcpy(previous_row, buffer[7], size_of_copy);
+  }
+  return retval;
+}
+
+static int processRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
+                             JSAMPROW previous_row, int size_of_copy,
+                             int *rows_read, j_decompress_ptr decomp,
+                             blockinessCalcUnsafe blockinessCalculator) {
+  *rows_read = readNRows(8, buffer, decomp);
+  int retval = blockinessCalculator(components, stride, buffer, previous_row);
+  memcpy(previous_row, buffer[7], size_of_copy);
+  return retval;
+}
+
 /**
  * Calculate the spatial blockiness for the decompression object given.
  * If requested (decomp != NULL), crop it by 4 pixels, top and right, and
  * write them into the compression object given.
  */
 static int calculateDecompBlockiness(j_decompress_ptr decomp,
-    j_compress_ptr comp) {
+                                     j_compress_ptr comp) {
   int value = 0;
   const int off = 4;
   int read;
   JSAMPARRAY buffer;
-  int i;
   /* This second buffer merely exists to prevent memory re-allocation in
    * when cropping. It's messy, but it works */
   JSAMPARRAY buffer2 = new JSAMPROW[8];
   JSAMPROW   previous_row;
   const int row_stride = decomp->output_width * decomp->output_components;
-  /* This is the num value for the memcpy that takes place below. */
+  /* This is for the processRows calls that take place below */
   const int size_of_copy = row_stride * sizeof(JSAMPLE);
   previous_row = new JSAMPLE[row_stride];
   buffer = (*decomp->mem->alloc_sarray)
@@ -215,32 +246,36 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
   /* The total number of samples to crop, from the left. */
   const int samples_cropped = off * decomp->output_components;
   /* We have to deal with the first 8 rows in a special manner, and we're
-   * somewhat better served by hardcoding that than placing it in the loop.
+   * somewhat better served by hardcoding it than by placing it in the loop.
    */
   read = readNRows(8, buffer, decomp);
-  int start = read - off;
-  for(i = start; comp && (i < read); i++) {
-    buffer2[0] = &(buffer[i][samples_cropped]);
-    (void) jpeg_write_scanlines(comp, buffer2, 1);
-  }
-  value += blockinessForRows(decomp->output_components, decomp->output_width,
+  value += blockinessForRows(decomp->output_components, row_stride,
                              buffer, read, NULL);
   if(read == 8) {
     memcpy(previous_row, buffer[7], size_of_copy);
   }
-  while(decomp->output_scanline < decomp->output_height) {
-    read = readNRows(8, buffer, decomp);
-    for(i = 0; comp && (i < read); i++) {
-      buffer2[i] = &(buffer[i][samples_cropped]);
+  if(comp) {
+    int start = read - off;
+    writeRows(&(buffer[start]), buffer2, read - start, samples_cropped, comp);
+    while(decomp->output_scanline < (decomp->output_height - 8)) {
+      value += processRowsUnsafe(decomp->output_components, row_stride,
+                                 buffer, previous_row, size_of_copy, &read,
+                                 decomp, &blockinessForRowsUnsafe);
+      writeRows(buffer, buffer2, read, samples_cropped, comp);
     }
-    if(comp) {
-      jpeg_write_scanlines(comp, buffer2, read);
+    value += processRows(decomp->output_components, row_stride, buffer,
+                         previous_row, size_of_copy, &read, decomp,
+                         &blockinessForRows);
+    writeRows(buffer, buffer2, read, samples_cropped, comp);
+  } else {
+    while(decomp->output_scanline < (decomp->output_height - 8)) {
+      value += processRowsUnsafe(decomp->output_components, row_stride, buffer,
+                                 previous_row, size_of_copy, &read, decomp,
+                                 &blockinessForRowsUnsafe);
     }
-    value += blockinessForRows(decomp->output_components, decomp->output_width,
-                               buffer, read, previous_row);
-    if(read == 8) {
-      memcpy(previous_row, buffer[7], size_of_copy);
-    }
+    value += processRows(decomp->output_components, row_stride, buffer,
+                         previous_row, size_of_copy, &read, decomp,
+                         &blockinessForRows);
   }
   delete [] previous_row;
   delete [] buffer2;
