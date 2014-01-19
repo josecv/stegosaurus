@@ -82,6 +82,7 @@ int* CoefficientAccessor::getUsableCoefficients(void) {
   int j = 0;
   /* length has been set for sure now, since we just called getLength() */
   for(i = 0; i < length; ++i) {
+    /* We get a new variable, so as to not mess with i */
     unsigned int index = i;
     JPEGComponent *comp = findComponent(&index);
     if((index % comp->getBlockSize()) && (*getInComponent(index, comp))) {
