@@ -52,6 +52,7 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
  * @param buffer the buffer with the rows
  * @param row_count the number of rows in the buffer
  * @param previous_block_last_row the last row of the previous block
+ * @return the blockiness for these rows.
  */
 int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
                       int row_count, JSAMPROW previous_block_last_row);
@@ -66,6 +67,7 @@ int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
  * @param stride the row stride of the image i.e. width * components
  * @param buffer the buffer containing the rows
  * @param previous_block_last_row the last row of the previous block; non NULL
+ * @return the blockiness for these rows.
  */
 int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
                             JSAMPROW previous_block_last_row);
@@ -84,6 +86,7 @@ int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
  * @param buffer the image buffer containing the rows to process
  * @param row_count the number of rows in the buffer given
  * @param previous_block_last_row the last row of the previous block
+ * @return the blockiness for these rows.
  */
 int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
                            int row_count, JSAMPROW previous_block_last_row);
@@ -96,6 +99,7 @@ int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
  * @param stride the row stride of the image (width * 3)
  * @param buffer the image buffer containing the rows to process
  * @param previous_block_last_row the last row of the previous block; non NULL
+ * @return the blockiness for these rows.
  */
 int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
                                  JSAMPROW previous_block_last_row);
@@ -111,6 +115,7 @@ int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
  * @param buffer the buffer containing the rows to process
  * @param row_count the number of rows to process
  * @param previous_block_last_row the last row of the previous block
+ * @return the blockiness for these rows.
  */
 int blockinessForRows1Comp(int components, int stride, JSAMPARRAY buffer,
                            int row_count, JSAMPROW previous_block_last_row);
@@ -123,8 +128,9 @@ int blockinessForRows1Comp(int components, int stride, JSAMPARRAY buffer,
  * @param stride the row stride of the image; equal to the width
  * @param buffer the buffer containing the rows to process
  * @param previous_block_last_row the last row of the previous block; non NULL
+ * @return the blockiness for these rows.
  */
-int blockinessForRows1CompUnsafe(int components, int width, JSAMPARRAY buffer,
+int blockinessForRows1CompUnsafe(int components, int stride, JSAMPARRAY buffer,
                                  JSAMPROW previous_block_last_row);
 
 #endif /* STEGOSAURUS_BLOCKINESS */

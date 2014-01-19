@@ -222,6 +222,23 @@ static int processRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
   return retval;
 }
 
+static void chooseBlockinessCalc(int comp_count, blockinessCalcSafe *safe,
+                                 blockinessCalcUnsafe *unsafe) {
+  switch(comp_count) {
+    case 3:
+      *safe = &blockinessForRows3Comp;
+      *unsafe = &blockinessForRows3CompUnsafe;
+      break;
+    case 1:
+      *safe = &blockinessForRows1Comp;
+      *unsafe = &blockinessForRows1CompUnsafe;
+      break;
+    default:
+      *safe = &blockinessForRows;
+      *unsafe = &blockinessForRowsUnsafe;
+  }
+}
+
 /**
  * Calculate the spatial blockiness for the decompression object given.
  * If requested (decomp != NULL), crop it by 4 pixels, top and right, and
@@ -245,6 +262,9 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 8);
   /* The total number of samples to crop, from the left. */
   const int samples_cropped = off * decomp->output_components;
+  blockinessCalcSafe safe;
+  blockinessCalcUnsafe unsafe;
+  chooseBlockinessCalc(decomp->output_components, &safe, &unsafe);
   /* We have to deal with the first 8 rows in a special manner, and we're
    * somewhat better served by hardcoding it than by placing it in the loop.
    */
@@ -260,22 +280,21 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     while(decomp->output_scanline < (decomp->output_height - 8)) {
       value += processRowsUnsafe(decomp->output_components, row_stride,
                                  buffer, previous_row, size_of_copy, &read,
-                                 decomp, &blockinessForRowsUnsafe);
+                                 decomp, unsafe);
       writeRows(buffer, buffer2, read, samples_cropped, comp);
     }
     value += processRows(decomp->output_components, row_stride, buffer,
                          previous_row, size_of_copy, &read, decomp,
-                         &blockinessForRows);
+                         safe);
     writeRows(buffer, buffer2, read, samples_cropped, comp);
   } else {
     while(decomp->output_scanline < (decomp->output_height - 8)) {
       value += processRowsUnsafe(decomp->output_components, row_stride, buffer,
                                  previous_row, size_of_copy, &read, decomp,
-                                 &blockinessForRowsUnsafe);
+                                 unsafe);
     }
     value += processRows(decomp->output_components, row_stride, buffer,
-                         previous_row, size_of_copy, &read, decomp,
-                         &blockinessForRows);
+                         previous_row, size_of_copy, &read, decomp, safe);
   }
   delete [] previous_row;
   delete [] buffer2;
