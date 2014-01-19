@@ -269,8 +269,8 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
    * somewhat better served by hardcoding it than by placing it in the loop.
    */
   read = readNRows(8, buffer, decomp);
-  value += blockinessForRows(decomp->output_components, row_stride,
-                             buffer, read, NULL);
+  value += safe(decomp->output_components, row_stride,
+                buffer, read, NULL);
   if(read == 8) {
     memcpy(previous_row, buffer[7], size_of_copy);
   }

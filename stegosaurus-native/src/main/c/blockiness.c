@@ -1,4 +1,5 @@
 #include "blockiness.h"
+#include <assert.h>
 
 int blockinessForRow(int components, int width, JSAMPROW samp_row,
                      int row_index, JSAMPROW previous_row) {
@@ -16,11 +17,7 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
    * have to take into account the horizontal boundaries. On the other hand,
    * if we only have to worry about the horizontal boundaries, we can
    * feel free to skip ahead to relevant blocks.
-   * If we do decide to skip ahead, we then branch out for some common
-   * component configurations (i.e. 1 component or 3 components), so as to
-   * not have to use a loop and hardcode the logic of calculation.
-   * Thus, this function is divided in four, as it were, hopefully to make
-   * it as fast as we can.
+   * Thus, this function is divided in two.
    */
   if(vertical_boundary) {
     int val;
@@ -33,60 +30,33 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
       }
     }
   } else {
-    int tmp0, tmp1, tmp2;
-    switch(components) {
-      case 3:
-        tmp0 = tmp1 = tmp2 = 0;
-        /* We'd like to make use of parallelization of operation streams here,
-         * so we split up the calculation into three different variables, which
-         * are then added up in the end.
-         * TODO Examine the compiled code to figure out whether this has a
-         * meaningful effect.
-         */
-        for(index = block_width; index < stride; index += block_width) {
-          tmp0 += abs(samp_row[index] - samp_row[index - 3]);
-          tmp1 += abs(samp_row[index + 1] - samp_row[index - 2]);
-          tmp2 += abs(samp_row[index + 2] - samp_row[index - 1]);
-        }
-        return tmp0 + tmp1 + tmp2;
-      case 1:
-        for(index = block_width; index < stride; index += block_width) {
-          retval += abs(samp_row[index] - samp_row[index - 1]);
-        }
-        break;
-      default:
-        int current_comp;
-        int block;
-        for(block = block_width; block < stride; block += block_width) {
-          for(current_comp = 0; current_comp < components; current_comp++) {
-            index = block + current_comp;
-            retval += abs(samp_row[index] - samp_row[index - components]);
-          }
-        }
+    int current_comp;
+    int block;
+    for(block = block_width; block < stride; block += block_width) {
+      for(current_comp = 0; current_comp < components; current_comp++) {
+        index = block + current_comp;
+        retval += abs(samp_row[index] - samp_row[index - components]);
+      }
     }
   }
   return retval;
 }
 
 /**
- * Process the first row of a block, when we know for sure that we have the
- * last row of the previous component.
- * @param components the number of components in the block
+ * Process the blockiness in between the row given, and that of the previous
+ * component; this does NOT get the horizontal blockiness of the actual row
+ * given; that is left to the caller, if needed.
  * @param stride the row stride: its pixel width * component count
  * @param row the row
  * @param previous_row the last row of the previous row; non NULL
  * @return the blockiness for this single row, taking the last one into account
  */
-static int firstRow(int components, int stride,
-                    JSAMPROW row, JSAMPROW previous_row) {
-  int result = 0, val, index, index_in_component;
+static unsigned int firstRow(int stride, JSAMPROW row, JSAMPROW previous_row) {
+  int index;
+  unsigned int result = 0, val;
   for(index = 0; index < stride; index++) {
     val = row[index];
     result += abs(val - previous_row[index]);
-    index_in_component = index / components;
-    if(index_in_component && !(index_in_component % 8)) {
-      result += abs(val - row[index - components]);
-    }
   }
   return result;
 }
@@ -99,7 +69,7 @@ int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
   int current_comp;
   int block;
   if(previous_block_last_row) {
-    result += firstRow(components, stride, buffer[0], previous_block_last_row);
+    result += firstRow(stride, buffer[0], previous_block_last_row);
   } else {
     for(block = block_width; block < stride; block += block_width) {
       for(current_comp = 0; current_comp < components; current_comp++) {
@@ -108,7 +78,7 @@ int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
       }
     }
   }
-  for(row = (previous_block_last_row ? 1 : 0); row < row_count; row++) {
+  for(row = 0; row < row_count; row++) {
     int current_comp;
     int block;
     JSAMPROW samp_row = buffer[row];
@@ -158,14 +128,15 @@ int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
   int current_comp;
   int block;
   int prev;
-  JSAMPROW buf1 = buffer[1], buf2 = buffer[2], buf3 = buffer[3],
-           buf4 = buffer[4], buf5 = buffer[5], buf6 = buffer[6],
-           buf7 = buffer[7];
-  result = firstRow(components, stride, buffer[0], previous_block_last_row);
+  JSAMPROW buf0 = buffer[0], buf1 = buffer[1], buf2 = buffer[2],
+           buf3 = buffer[3], buf4 = buffer[4], buf5 = buffer[5],
+           buf6 = buffer[6], buf7 = buffer[7];
+  result = firstRow(stride, buffer[0], previous_block_last_row);
   for(block = block_width; block < stride; block += block_width) {
     for(current_comp = 0; current_comp < components; current_comp++) {
       index = block + current_comp;
       prev = index - components;
+      result += abs(buf0[index] - buf0[prev]);
       result += abs(buf1[index] - buf1[prev]);
       result += abs(buf2[index] - buf2[prev]);
       result += abs(buf3[index] - buf3[prev]);
@@ -180,26 +151,47 @@ int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
 
 int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
                            int row_count, JSAMPROW previous_block_last_row) {
-  return blockinessForRows(components, stride, buffer, row_count,
-                           previous_block_last_row);
+  int result = 0;
+  int row, index;
+  JSAMPROW r;
+  unsigned int tmp1 = 0, tmp2 = 0, tmp3 = 0;
+  const int block_width = 24;
+  if(previous_block_last_row) {
+    result += firstRow(stride, buffer[0], previous_block_last_row);
+  }
+  for(row = 0; row < row_count; row++) {
+    for(index = block_width; index < stride; index += block_width) {
+      r = buffer[row];
+      tmp1 += abs(r[index] - r[index - 3]);
+      tmp2 += abs(r[index + 1] - r[index - 2]);
+      tmp3 += abs(r[index + 2] - r[index - 1]);
+    }
+  }
+  return result + tmp1 + tmp2 + tmp3;
 }
 
 int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
                                  JSAMPROW previous_block_last_row) {
   const int block_width = 24;
   int result, index;
-  int index_m_1, index_m_2, index_m_3, index_p_1, index_p_2;
-  int tmp1 = 0, tmp2 = 0, tmp3 = 0;
-  JSAMPROW buf1 = buffer[1], buf2 = buffer[2], buf3 = buffer[3],
-           buf4 = buffer[4], buf5 = buffer[5], buf6 = buffer[6],
-           buf7 = buffer[7];
-  result = firstRow(components, stride, buffer[0], previous_block_last_row);
+  unsigned int index_m_1, index_m_2, index_m_3, index_p_1, index_p_2;
+  unsigned int tmp1 = 0, tmp2 = 0, tmp3 = 0;
+  JSAMPROW buf0 = buffer[0], buf1 = buffer[1], buf2 = buffer[2],
+           buf3 = buffer[3], buf4 = buffer[4], buf5 = buffer[5],
+           buf6 = buffer[6], buf7 = buffer[7];
+  result = firstRow(stride, buffer[0], previous_block_last_row);
   for(index = block_width; index < stride; index += block_width) {
+    assert(index < stride);
+    assert(index > 0);
     index_m_1 = index - 1;
     index_m_2 = index - 2;
     index_m_3 = index - 3;
     index_p_1 = index + 1;
     index_p_2 = index + 2;
+
+    tmp1 += abs(buf0[index] - buf0[index_m_3]);
+    tmp2 += abs(buf0[index_p_1] - buf0[index_m_2]);
+    tmp3 += abs(buf0[index_p_2] - buf0[index_m_1]);
 
     tmp1 += abs(buf1[index] - buf1[index_m_3]);
     tmp2 += abs(buf1[index_p_1] - buf1[index_m_2]);
