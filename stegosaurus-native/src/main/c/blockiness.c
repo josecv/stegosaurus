@@ -181,8 +181,6 @@ int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
            buf6 = buffer[6], buf7 = buffer[7];
   result = firstRow(stride, buffer[0], previous_block_last_row);
   for(index = block_width; index < stride; index += block_width) {
-    assert(index < stride);
-    assert(index > 0);
     index_m_1 = index - 1;
     index_m_2 = index - 2;
     index_m_3 = index - 3;
