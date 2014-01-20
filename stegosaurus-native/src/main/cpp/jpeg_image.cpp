@@ -245,7 +245,9 @@ static void chooseBlockinessCalc(int comp_count, blockinessCalcSafe *safe,
  * write them into the compression object given.
  */
 static int calculateDecompBlockiness(j_decompress_ptr decomp,
-                                     j_compress_ptr comp) {
+                                     j_compress_ptr comp,
+                                     blockinessCalcSafe safe,
+                                     blockinessCalcUnsafe unsafe) {
   int value = 0;
   const int off = 4;
   int read;
@@ -262,9 +264,6 @@ static int calculateDecompBlockiness(j_decompress_ptr decomp,
     ((j_common_ptr) decomp, JPOOL_IMAGE, row_stride, 8);
   /* The total number of samples to crop, from the left. */
   const int samples_cropped = off * decomp->output_components;
-  blockinessCalcSafe safe;
-  blockinessCalcUnsafe unsafe;
-  chooseBlockinessCalc(decomp->output_components, &safe, &unsafe);
   /* We have to deal with the first 8 rows in a special manner, and we're
    * somewhat better served by hardcoding it than by placing it in the loop.
    */
@@ -306,16 +305,20 @@ double JPEGImage::calculateReciprocalROB(void) throw (JPEGLibException) {
   long outlen = len;
   reset();
   prepareCrop(&outlen, &output, 4, 4);
-  double blockiness = calculateDecompBlockiness(decomp, comp);
+  blockinessCalcSafe safe;
+  blockinessCalcUnsafe unsafe;
+  chooseBlockinessCalc(component_count, &safe, &unsafe);
+  double blockiness = calculateDecompBlockiness(decomp, comp, safe, unsafe);
   jpeg_finish_compress(comp);
   jpeg_finish_decompress(decomp);
   steg_src_mgr_for(decomp, output, outlen);
   jpeg_read_header(decomp, 1);
   jpeg_start_decompress(decomp);
-  double cropped_blockiness = calculateDecompBlockiness(decomp, NULL);
+  double crop_blockiness = calculateDecompBlockiness(decomp, NULL, safe,
+                                                     unsafe);
   jpeg_finish_decompress(decomp);
   headers_read = false;
   free(output);
   steg_src_mgr_for(decomp, image, len);
-  return cropped_blockiness / blockiness;
+  return crop_blockiness / blockiness;
 }
