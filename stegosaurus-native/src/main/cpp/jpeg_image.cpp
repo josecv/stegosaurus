@@ -222,6 +222,14 @@ static int processRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
   return retval;
 }
 
+/**
+ * Use the component count given to choose appropriate blockiness
+ * calculation functions.
+ * @param comp_count the number of components in the image.
+ * @param safe output parameter; the safe function to use.
+ * @param unsafe output parameter; the unsafe function to use.
+ * TODO make me into a method!
+ */
 static void chooseBlockinessCalc(int comp_count, blockinessCalcSafe *safe,
                                  blockinessCalcUnsafe *unsafe) {
   switch(comp_count) {
@@ -241,8 +249,12 @@ static void chooseBlockinessCalc(int comp_count, blockinessCalcSafe *safe,
 
 /**
  * Calculate the spatial blockiness for the decompression object given.
- * If requested (decomp != NULL), crop it by 4 pixels, top and right, and
+ * If requested (comp != NULL), crop it by 4 pixels, top and right, and
  * write them into the compression object given.
+ * @param decomp the decompressor to read from
+ * @param comp the compressor to write to; may be NULL.
+ * @param safe the safe blockiness calculation function.
+ * @param unsafe the non-safe blockiness calculation function.
  */
 static int calculateDecompBlockiness(j_decompress_ptr decomp,
                                      j_compress_ptr comp,
