@@ -97,13 +97,13 @@ public class ImagePermuter {
    */
   public void walk(TIntIntProcedure proc) {
     boolean go = true;
-    for(int i = 0; i < permutation.getSize() && go; i++) {
+    final int size = permutation.getSize();
+    for(int i = 0; i < size && go; i++) {
       int index = permutation.get(i);
       /* getCoefficient is a native call, so we want to avoid it if possible,
        * which is why we ensure the coefficient is not DC before going any
        * further */
       if(!locked.get(index)) {
-        assert index < accessor.getUsableCoefficientCount();
         int trueIndex = usables.getitem(index);
         int value = accessor.getCoefficient(trueIndex);
         locked.set(index);
