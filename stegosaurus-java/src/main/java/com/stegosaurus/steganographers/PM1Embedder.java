@@ -104,8 +104,8 @@ public class PM1Embedder extends PM1Algorithm {
    * @return the number of changes required for the embed.
    */
   private int doEmbed(BitInputStream in, CoefficientAccessor acc,
-      ImagePermuter permuter, boolean real) {
-    EmbedProcedure proc = new EmbedProcedure(in, acc, sequence, real);
+                      ImagePermuter permuter, boolean real) {
+    EmbedProcedure proc = EmbedProcedure.build(in, acc, sequence, real);
     permuter.walk(proc);
     return proc.getChanges();
   }
