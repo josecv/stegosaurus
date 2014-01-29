@@ -208,7 +208,8 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
       elites--;
     }
     int i = elites;
-    while(i < population.size()) {
+    final int popSize = population.size();
+    while(i < popSize) {
       int firstIndex = selection.select(population.subList(i,
         population.size()), random) + i;
       Collections.swap(population, i, firstIndex);
