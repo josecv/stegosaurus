@@ -1,6 +1,5 @@
 package com.stegosaurus.steganographers;
 
-import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.stegostreams.BitInputStream;
 
 
