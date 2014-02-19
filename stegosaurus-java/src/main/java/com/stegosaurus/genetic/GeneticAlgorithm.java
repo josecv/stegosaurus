@@ -55,6 +55,12 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    * The number of genes in any given individual's chromosome.
    */
   protected final int chromosomeSize;
+
+  /**
+   * The number of individuals that will be classed as elites each generation.
+   */
+  protected final int elites;
+
   /**
    * The random number generator.
    */
@@ -86,6 +92,17 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
     this.factory = factory;
     this.selection = selection;
     this.random = random;
+    int elitesTmp = (int) Math.floor(popSize * elitismRate);
+    /*
+     * We need to have an even amount of non-elites, for obvious
+     * reproductive reasons. In addition, the population size is guaranteed
+     * to be even. Thus, if we have an odd amount of elites, we have an odd
+     * amount of non-elites, and we need to correct that.
+     */
+    if (elitesTmp % 2 != 0) {
+      elitesTmp--;
+    }
+    this.elites = elitesTmp;
     if (popSize % 2 != 0) {
       throw new IllegalArgumentException("Population size must be even");
     }
@@ -197,16 +214,6 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
       return;
     }
     List<? extends Individual<T>> population = getPopulation();
-    int elites = (int) Math.floor(popSize * elitismRate);
-    /*
-     * We need to have an even amount of non-elites, for obvious
-     * reproductive reasons. In addition, the population size is guaranteed
-     * to be even. Thus, if we have an odd amount of elites, we have an odd
-     * amount of non-elites, and we need to correct that.
-     */
-    if (elites % 2 != 0) {
-      elites--;
-    }
     int i = elites;
     final int popSize = population.size();
     while(i < popSize) {
