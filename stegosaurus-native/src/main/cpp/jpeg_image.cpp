@@ -256,15 +256,15 @@ static void chooseBlockinessCalc(int comp_count, blockinessCalcSafe *safe,
  * @param safe the safe blockiness calculation function.
  * @param unsafe the non-safe blockiness calculation function.
  */
-static int calculateDecompBlockiness(j_decompress_ptr decomp,
+static unsigned long calculateDecompBlockiness(j_decompress_ptr decomp,
                                      j_compress_ptr comp,
                                      blockinessCalcSafe safe,
                                      blockinessCalcUnsafe unsafe) {
-  int value = 0;
+  unsigned long value = 0;
   const int off = 4;
   int read;
   JSAMPARRAY buffer;
-  /* This second buffer merely exists to prevent memory re-allocation in
+  /* This second buffer merely exists to prevent memory re-allocation
    * when cropping. It's messy, but it works */
   JSAMPARRAY buffer2 = new JSAMPROW[8];
   JSAMPROW   previous_row;

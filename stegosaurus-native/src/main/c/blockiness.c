@@ -1,8 +1,8 @@
 #include "blockiness.h"
 #include <assert.h>
 
-int blockinessForRow(int components, int width, JSAMPROW samp_row,
-                     int row_index, JSAMPROW previous_row) {
+unsigned int blockinessForRow(int components, int width, JSAMPROW samp_row,
+                              int row_index, JSAMPROW previous_row) {
   int index;
   int retval = 0;
   const int stride = width * components;
@@ -61,8 +61,9 @@ static unsigned int firstRow(int stride, JSAMPROW row, JSAMPROW previous_row) {
   return result;
 }
 
-int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
-                      int row_count, JSAMPROW previous_block_last_row) {
+unsigned int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
+                               int row_count,
+                               JSAMPROW previous_block_last_row) {
   int result = 0;
   const int block_width = components * 8;
   int index, row;
@@ -120,8 +121,9 @@ int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
   return result;
 }
 
-int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
-                            JSAMPROW previous_block_last_row) {
+unsigned int blockinessForRowsUnsafe(int components, int stride,
+                                     JSAMPARRAY buffer,
+                                     JSAMPROW previous_block_last_row) {
   int result = 0;
   const int block_width = components * 8;
   int index;
@@ -149,8 +151,9 @@ int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
   return result;
 }
 
-int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
-                           int row_count, JSAMPROW previous_block_last_row) {
+unsigned int blockinessForRows3Comp(int components, int stride,
+                                    JSAMPARRAY buffer, int row_count,
+                                    JSAMPROW previous_block_last_row) {
   int result = 0;
   int row, index;
   JSAMPROW r;
@@ -170,8 +173,9 @@ int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
   return result + tmp1 + tmp2 + tmp3;
 }
 
-int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
-                                 JSAMPROW previous_block_last_row) {
+unsigned int blockinessForRows3CompUnsafe(int components, int stride,
+                                          JSAMPARRAY buffer,
+                                          JSAMPROW previous_block_last_row) {
   const int block_width = 24;
   int result, index;
   unsigned int index_m_1, index_m_2, index_m_3, index_p_1, index_p_2;
@@ -222,14 +226,16 @@ int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
   return result + tmp1 + tmp2 + tmp3;
 }
 
-int blockinessForRows1Comp(int components, int stride, JSAMPARRAY buffer,
-                           int row_count, JSAMPROW previous_block_last_row) {
+unsigned int blockinessForRows1Comp(int components, int stride,
+                                    JSAMPARRAY buffer, int row_count,
+                                    JSAMPROW previous_block_last_row) {
   return blockinessForRows(components, stride, buffer, row_count,
                            previous_block_last_row);
 }
 
-int blockinessForRows1CompUnsafe(int components, int stride, JSAMPARRAY buffer,
-                                 JSAMPROW previous_block_last_row) {
+unsigned int blockinessForRows1CompUnsafe(int components, int stride,
+                                          JSAMPARRAY buffer,
+                                          JSAMPROW previous_block_last_row) {
   return blockinessForRows(components, stride, buffer, 8,
                            previous_block_last_row);
 }

@@ -14,14 +14,14 @@
  * A function that will calculate the blockiness of a number of rows, and
  * may make use of the last row of the previous block, if it is non-null.
  */
-typedef int (*blockinessCalcSafe) (int, int, JSAMPARRAY, int, JSAMPROW);
+typedef unsigned int (*blockinessCalcSafe) (int, int, JSAMPARRAY, int, JSAMPROW);
 
 /**
  * A function that will calculate the blockiness of exactly 8 rows, making use
  * of the last row of the previous block.
  * Such functions do not do any safety checks.
  */
-typedef int (*blockinessCalcUnsafe) (int, int, JSAMPARRAY, JSAMPROW);
+typedef unsigned int (*blockinessCalcUnsafe) (int, int, JSAMPARRAY, JSAMPROW);
 
 /**
  * Calculate the blockiness for a single row. The firstRow parameter is
@@ -37,8 +37,8 @@ typedef int (*blockinessCalcUnsafe) (int, int, JSAMPARRAY, JSAMPROW);
  * @param row_index the row above the one to process.
  * @return the blockiness for these rows.
  */
-int blockinessForRow(int components, int width, JSAMPROW samp_row,
-                     int row_index, JSAMPROW previous_row);
+unsigned int blockinessForRow(int components, int width, JSAMPROW samp_row,
+                              int row_index, JSAMPROW previous_row);
 
 
 /**
@@ -54,8 +54,9 @@ int blockinessForRow(int components, int width, JSAMPROW samp_row,
  * @param previous_block_last_row the last row of the previous block
  * @return the blockiness for these rows.
  */
-int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
-                      int row_count, JSAMPROW previous_block_last_row);
+unsigned int blockinessForRows(int components, int stride,
+                               JSAMPARRAY buffer, int row_count,
+                               JSAMPROW previous_block_last_row);
 
 
 /**
@@ -69,8 +70,9 @@ int blockinessForRows(int components, int stride, JSAMPARRAY buffer,
  * @param previous_block_last_row the last row of the previous block; non NULL
  * @return the blockiness for these rows.
  */
-int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
-                            JSAMPROW previous_block_last_row);
+unsigned int blockinessForRowsUnsafe(int components, int stride,
+                                     JSAMPARRAY buffer,
+                                     JSAMPROW previous_block_last_row);
 
 /**
  * Like the blockinessForRows function, but assumes that the image contains
@@ -88,8 +90,9 @@ int blockinessForRowsUnsafe(int components, int stride, JSAMPARRAY buffer,
  * @param previous_block_last_row the last row of the previous block
  * @return the blockiness for these rows.
  */
-int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
-                           int row_count, JSAMPROW previous_block_last_row);
+unsigned int blockinessForRows3Comp(int components, int stride,
+                                    JSAMPARRAY buffer, int row_count,
+                                    JSAMPROW previous_block_last_row);
 
 
 /**
@@ -101,8 +104,9 @@ int blockinessForRows3Comp(int components, int stride, JSAMPARRAY buffer,
  * @param previous_block_last_row the last row of the previous block; non NULL
  * @return the blockiness for these rows.
  */
-int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
-                                 JSAMPROW previous_block_last_row);
+unsigned int blockinessForRows3CompUnsafe(int components, int stride,
+                                          JSAMPARRAY buffer,
+                                          JSAMPROW previous_block_last_row);
 
 
 /**
@@ -117,8 +121,9 @@ int blockinessForRows3CompUnsafe(int components, int stride, JSAMPARRAY buffer,
  * @param previous_block_last_row the last row of the previous block
  * @return the blockiness for these rows.
  */
-int blockinessForRows1Comp(int components, int stride, JSAMPARRAY buffer,
-                           int row_count, JSAMPROW previous_block_last_row);
+unsigned int blockinessForRows1Comp(int components, int stride,
+                                    JSAMPARRAY buffer, int row_count,
+                                    JSAMPROW previous_block_last_row);
 
 
 /**
@@ -130,7 +135,8 @@ int blockinessForRows1Comp(int components, int stride, JSAMPARRAY buffer,
  * @param previous_block_last_row the last row of the previous block; non NULL
  * @return the blockiness for these rows.
  */
-int blockinessForRows1CompUnsafe(int components, int stride, JSAMPARRAY buffer,
-                                 JSAMPROW previous_block_last_row);
+unsigned int blockinessForRows1CompUnsafe(int components, int stride,
+                                          JSAMPARRAY buffer,
+                                          JSAMPROW previous_block_last_row);
 
 #endif /* STEGOSAURUS_BLOCKINESS */
