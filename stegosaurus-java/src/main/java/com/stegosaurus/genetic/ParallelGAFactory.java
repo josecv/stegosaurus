@@ -27,9 +27,10 @@ public class ParallelGAFactory implements GAFactory {
      * {@inheritDoc}
      */
     @Override
-	public <C extends Individual<C>> GeneticAlgorithm<C> build(
+    public <C extends Individual<C>> GeneticAlgorithm<C> build(
         IndividualFactory<C> factory,
-        SelectionOperator<C> selection, Random random,
+        SelectionOperator<C> selection,
+        Random random,
         GAParameters params) {
       return new ParallelGA<C>(factory, selection, random, params, service);
     }

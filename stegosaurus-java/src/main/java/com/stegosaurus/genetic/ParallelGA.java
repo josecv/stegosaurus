@@ -15,7 +15,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  * <p>As such, for this to work, the individual in use MUST have a thread-safe
  * fitness function. Usually declaring it as synchronized is enough. In
  * addition, if the implementing individual does not cache its fitness
- * but instead recalculates it every time, using this class will do probably
+ * but instead recalculates it every time, using this class will probably
  * do you no good.</p>
  */
 public class ParallelGA<T extends Individual<T>>
