@@ -116,15 +116,14 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    * @return the fittest individual.
    */
   public Individual<T> runWithThreshold(double threshold) {
-    double best;
     List<? extends Individual<T>> population = getPopulation();
-    int i = 0;
-    do {
-      nextGeneration(i);
+    runGeneration();
+    double best = population.get(0).calculateFitness();
+    while(best > threshold) {
+      nextGeneration();
       runGeneration();
       best = population.get(0).calculateFitness();
-      i++;
-    } while (best > threshold);
+    }
     return population.get(0);
   }
 
@@ -132,12 +131,13 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
    * Run this algorithm for a fixed number of generations; return the fittest
    * individual produced.
    *
-   * @param n the number of generations.
+   * @param n the number of generations; should be greater than 0.
    * @return the fittest individual.
    */
   public Individual<T> runNGenerations(int n) {
-    for (int i = 0; i < n; i++) {
-      nextGeneration(i);
+    runGeneration();
+    for(int i = 1; i < n; i++) {
+      nextGeneration();
       runGeneration();
     }
     return getPopulation().get(0);
@@ -204,15 +204,9 @@ public abstract class GeneticAlgorithm<T extends Individual<T>> {
   }
 
   /**
-   * Generate the next generation, unless current is 0, in which case we have
-   * no information whatsoever to do so, and so nothing is done.
-   * 
-   * @param current the index of the current generation (from 0).
+   * Produce the next generation by a process of crossover and mutation.
    */
-  private void nextGeneration(int current) {
-    if (current == 0) {
-      return;
-    }
+  private void nextGeneration() {
     List<? extends Individual<T>> population = getPopulation();
     int i = elites;
     final int popSize = population.size();
