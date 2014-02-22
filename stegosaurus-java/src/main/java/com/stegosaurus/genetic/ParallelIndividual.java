@@ -38,7 +38,8 @@ public class ParallelIndividual<T extends Individual<T>>
    */
   public synchronized Individual<T> simulate() {
     fitnessFuture = null;
-    return decorated.simulate();
+    decorated.simulate();
+    return this;
   }
 
   /**
