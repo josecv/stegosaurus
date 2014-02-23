@@ -3,7 +3,7 @@ package com.stegosaurus.stegostreams;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.lang3.ArrayUtils;
+import com.google.common.primitives.Bytes;
 
 /**
  * Produces, bit by bit, the byte array given. Operates in Big Endian, which
@@ -34,17 +34,18 @@ public class BitInputStream extends InputStream {
   }
 
   /**
-   * Reset the input stream, to handle different byte array.
+   * Reset the input stream, to handle a different byte array.
    * @param in the array of bytes whose bits we'll return
    * @param additional further byte arrays to return.
    */
   public final void reset(byte[] in, byte... additional) {
-    this.data = ArrayUtils.addAll(in, additional);
+    this.data = Bytes.concat(in, additional);
     reset();
   }
 
   /**
-   * Reset the input stream to handle the same byte array as currently.
+   * Reset the input stream to handle the same byte array it is currently
+   * handling.
    */
   public final void reset() {
     index = 0;

@@ -4,8 +4,7 @@ import java.nio.ByteBuffer;
 import java.util.BitSet;
 import java.util.Random;
 
-import org.apache.commons.lang3.ArrayUtils;
-
+import com.google.common.primitives.Bytes;
 import com.stegosaurus.steganographers.PMSequence;
 
 /**
@@ -157,7 +156,7 @@ public class Chromosome implements PMSequence {
   private byte[] asByteArray(int minSize) {
     byte[] retval = set.toByteArray();
     if(retval.length < minSize) {
-      retval = ArrayUtils.addAll(retval, new byte[minSize - retval.length]);
+      retval = Bytes.concat(retval, new byte[minSize - retval.length]);
     }
     return retval;
   }

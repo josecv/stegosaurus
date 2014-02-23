@@ -3,8 +3,7 @@ package com.stegosaurus.stegutils;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.commons.io.IOUtils;
-
+import com.google.common.io.ByteStreams;
 import com.stegosaurus.cpp.JoctetArray;
 
 /**
@@ -65,7 +64,7 @@ public final class NativeUtils {
      * Unfortunately the correct way of reading an entire InputStream
      * is highly elusive, and growing these JoctetArrays is _tough_.
      */
-    byte[] b = IOUtils.toByteArray(in);
+    byte[] b = ByteStreams.toByteArray(in);
     StegJoctetArray retval = new StegJoctetArray(b.length);
     for(int i = 0; i < b.length; i++) {
       retval.setitem(i, b[i]);
