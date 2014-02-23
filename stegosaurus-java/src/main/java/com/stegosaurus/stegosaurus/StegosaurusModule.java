@@ -1,5 +1,9 @@
 package com.stegosaurus.stegosaurus;
 
+import java.nio.charset.Charset;
+
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.inject.AbstractModule;
 import com.stegosaurus.concurrent.ListeningExecutorServiceProvider;
@@ -27,5 +31,7 @@ public class StegosaurusModule extends AbstractModule {
     bind(GAFactory.class).to(ParallelGAFactory.class);
     bind(ListeningExecutorService.class)
       .toProvider(ListeningExecutorServiceProvider.class);
+    bind(HashFunction.class).toInstance(Hashing.sipHash24());
+    bind(Charset.class).toInstance(Charset.defaultCharset());
   }
 }

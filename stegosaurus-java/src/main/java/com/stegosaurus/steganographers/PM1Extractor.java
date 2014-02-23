@@ -43,7 +43,7 @@ public class PM1Extractor extends PM1Algorithm {
    */
   public byte[] extract(JPEGImage carrier, String key) {
     CoefficientAccessor acc = getAccessorForImage(carrier);
-    ImagePermuter permuter = permFactory.build(acc, key.hashCode());
+    ImagePermuter permuter = permFactory.build(acc, key);
     doExtract(permuter, Short.SIZE);
     short seed = getClearedBuffer().put(os.data()).getShort(0);
     permuter.setSeed(seed);

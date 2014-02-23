@@ -79,7 +79,7 @@ public class PM1Embedder extends PM1Algorithm {
     String key = request.getKey();
     byte[] msg = request.getMessage();
     CoefficientAccessor acc = getAccessorForImage(cover);
-    ImagePermuter permuter = permuterFactory.build(acc, key.hashCode());
+    ImagePermuter permuter = permuterFactory.build(acc, key);
     byte[] seedBytes = getClearedBuffer().putShort(seed).array();
     BitInputStream in = new BitInputStream(seedBytes);
     int changed = doEmbed(in, acc, permuter, real);

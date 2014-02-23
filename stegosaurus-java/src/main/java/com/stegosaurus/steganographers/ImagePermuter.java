@@ -2,8 +2,10 @@ package com.stegosaurus.steganographers;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
+import java.nio.charset.Charset;
 import java.util.BitSet;
 
+import com.google.common.hash.HashFunction;
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.cppIntArray;
@@ -120,15 +122,30 @@ public class ImagePermuter {
     /**
      * The permutation provider that will be injected to built instances.
      */
-    PermutationProvider provider;
+    private PermutationProvider provider;
+
+    /**
+     * The hash function to use to hash keys into seeds.
+     */
+    private HashFunction hashFunction;
+
+    /**
+     * The charset to encode keys with.
+     */
+    private Charset charset;
 
     /**
      * Build a new ImagePermuter Factory; should only be invoked via Guice.
      * @param provider the permutation provider to use for built permuters.
+     * @param hashFunction the hash function to hash String keys to seeds.
+     * @param charset the charset to encode keys with.
      */
     @Inject
-    public Factory(PermutationProvider provider) {
+    public Factory(PermutationProvider provider, HashFunction hashFunction,
+                   Charset charset) {
       this.provider = provider;
+      this.hashFunction = hashFunction;
+      this.charset = charset;
     }
 
     /**
@@ -138,6 +155,17 @@ public class ImagePermuter {
      */
     public ImagePermuter build(CoefficientAccessor acc, long seed) {
       return new ImagePermuter(acc, seed, provider);
+    }
+
+    /**
+     * Build a new ImagePermuter to permute the CoefficientAccessor given.
+     * Serves as a shortcut to the other build method, and will somehow
+     * produce an integer valued seed from the key.
+     * @param accessor the accessor whose coefficients will be permuted.
+     * @param key the key, as a String, to generate the actual permutation.
+     */
+    public ImagePermuter build(CoefficientAccessor acc, String key) {
+      return build(acc, hashFunction.hashString(key, charset).asLong());
     }
   }
 }
