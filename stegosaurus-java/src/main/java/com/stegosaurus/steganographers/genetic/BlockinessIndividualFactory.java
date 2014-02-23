@@ -49,8 +49,7 @@ public class BlockinessIndividualFactory
      * has not been manipulated in any significant way, writeNew is a pretty
      * fast operation here.
      */
-    EmbedRequest r = new EmbedRequest(request.getCover().writeNew(),
-        request.getMessage(), request.getKey());
+    EmbedRequest r = new EmbedRequest(request);
     return new BlockinessIndividual(c, r, seed, embedderFactory);
   }
 }

@@ -35,6 +35,17 @@ public class EmbedRequest {
   }
 
   /**
+   * Copy contructor; will copy the image in the other request, using the
+   * writeNew() method.
+   * @param other the image to copy.
+   */
+  public EmbedRequest(EmbedRequest other) {
+    this.message = other.message;
+    this.key = other.key;
+    this.cover = other.cover.writeNew();
+  }
+
+  /**
    * Get the cover image for this object.
    * @return the cover
    */
