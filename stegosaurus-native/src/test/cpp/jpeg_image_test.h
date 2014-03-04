@@ -3,7 +3,6 @@
 
 #include "gtest/gtest.h"
 #include "test_with_image.h"
-#include "../../main/cpp/jpeg_context.h"
 #include "../../main/cpp/jpeg_image.h"
 #include "../../main/cpp/coefficient_accessor.h"
 #include "../../main/c/steg_utils.h"

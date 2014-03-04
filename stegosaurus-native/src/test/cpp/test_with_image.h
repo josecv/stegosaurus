@@ -2,7 +2,6 @@
 #define STEG_TEST_WITH_IMAGE
 
 #include "gtest/gtest.h"
-#include "../../main/cpp/jpeg_context.h"
 #include "../../main/cpp/jpeg_image.h"
 #include "../../main/cpp/coefficient_accessor.h"
 #include "../../main/c/steg_utils.h"
@@ -21,7 +20,6 @@ class TestWithImage : public ::testing::Test {
    * Set up the test by constructing our image.
    */
   virtual void SetUp() {
-    context = new JPEGContext();
     testImage = readPath(filename);
   }
 
@@ -29,8 +27,7 @@ class TestWithImage : public ::testing::Test {
    * Tear down the test by smashing the image and whatnot.
    */
   virtual void TearDown() {
-    context->destroyImage(testImage);
-    delete context;
+    delete testImage;
   }
 
   /**
@@ -53,13 +50,8 @@ class TestWithImage : public ::testing::Test {
     reffile = fopen(path, "rb");
     read_file(&imgbuf, &imglen, reffile);
     fclose(reffile);
-    return context->buildImage(imgbuf, imglen);
+    return new JPEGImage(imgbuf, imglen);
   }
-
-  /**
-   * The JPEG Context, used to create images and whatnot.
-   */
-  JPEGContext *context;
 
   /**
    * The JPEGImage object under test.

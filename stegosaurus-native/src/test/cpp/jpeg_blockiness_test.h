@@ -35,7 +35,7 @@ class JPEGBlockinessTest : public TestWithImage {
    * Tear down the test.
    */
   virtual void TearDown(void) {
-    context->destroyImage(stego);
+    delete stego;
     TestWithImage::TearDown();
   }
 

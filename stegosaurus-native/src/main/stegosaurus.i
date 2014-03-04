@@ -7,7 +7,6 @@
 #include "cpp/jpeg_component.h"
 #include "cpp/jpeg_image.h"
 #include "cpp/coefficient_accessor.h"
-#include "cpp/jpeg_context.h"
 %}
 
 /* Create the JoctetArray class, to wrap around (gasp) JOCTET arrays */
@@ -51,4 +50,3 @@
 %include "cpp/jpeg_image.h"
 
 %include "cpp/coefficient_accessor.h"
-%include "cpp/jpeg_context.h"
