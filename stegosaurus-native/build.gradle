@@ -1,0 +1,56 @@
+apply plugin: 'cpp'
+
+libraries {
+  stegosaurus {}
+}
+
+executables {
+  stegotest {}
+}
+
+binaries.all {
+  if(toolChain in Gcc) {
+    cppCompiler.args "-O2", "-Wall", "-Wextra", "-g", "-pedantic",
+                     "-Wsign-compare"
+    linker.args "-ljpeg", "-lgtest"
+
+  }
+}
+
+task swig(type:Exec) {
+  ext.swigPath = "src/main/cpp/stegosaurus.i"
+  ext.swigOut = "src/main/cpp/stegosaurus_wrap.cpp"
+  ext.swigOutDir = "src/main/java/com/stegosaurus/cpp"
+  ext.swigPackage = "com.stegosaurus.cpp"
+  commandLine "swig", "-package", swigPackage, "-c++", "-java",
+              "-outdir", swigOutDir, "-o", swigOut, swigPath
+}
+
+sources {
+  stegosaurus {
+    cpp {
+      source {
+        srcDirs "src/main/cpp", "src/main/c"
+        include "**/*.cpp", "**/*.c"
+      }
+      exportedHeaders {
+        srcDirs "src/main/cpp", "src/main/c"
+        include "**/*.h"
+      }
+    }
+  }
+
+  stegotest {
+    cpp {
+      lib libraries.stegosaurus
+      source {
+        srcDir "src/test/cpp/"
+        include "**/*.cpp"
+      }
+    }
+  }
+}
+
+/* This is somewhat hackish, but the stegosaurusSharedLibrary task
+ * gets declared later, so we can't patch into that one */
+stegosaurusCppExtractHeaders.dependsOn swig

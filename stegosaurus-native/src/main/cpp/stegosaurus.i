@@ -4,9 +4,9 @@
 /* For good measure */
 #include "jpeglib.h"
 /* Pull in some includes */
-#include "cpp/jpeg_component.h"
-#include "cpp/jpeg_image.h"
-#include "cpp/coefficient_accessor.h"
+#include "jpeg_component.h"
+#include "jpeg_image.h"
+#include "coefficient_accessor.h"
 %}
 
 /* Create the JoctetArray class, to wrap around (gasp) JOCTET arrays */
@@ -18,7 +18,7 @@
 
 /* Now bring in our classes */
 
-%include "cpp/jpeg_component.h"
+%include "jpeg_component.h"
 
 /* JPEGLibException has to be properly mapped to a java exception. */
 
@@ -29,7 +29,7 @@
   }
 %}
 
-%include "cpp/jpeg_lib_exception.h"
+%include "jpeg_lib_exception.h"
 
 /* We need to ensure that the JPEGImages returned by other JPEGImages are
  * garbage collected apropriately.
@@ -47,6 +47,6 @@
   return $null;
 }
 
-%include "cpp/jpeg_image.h"
+%include "jpeg_image.h"
 
-%include "cpp/coefficient_accessor.h"
+%include "coefficient_accessor.h"

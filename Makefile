@@ -20,7 +20,7 @@ SWIGDIR=stegosaurus-java/src/main/java/com/stegosaurus/cpp
 SWIGPACKAGE=com.stegosaurus.cpp
 SWIGFLAGS=-package com.stegosaurus.cpp -outdir $(SWIGDIR)
 SWIG=swig
-SWIGWRAP=$(SRCROOT)/stegosaurus_wrap.cxx
+SWIGWRAP=$(SRCROOT)/cpp/stegosaurus_wrap.cpp
 WRAPOBJ=build/stegosaurus_wrap.o
 JAVAINC=-I/usr/lib/jvm/icedtea-bin-7/include -I/usr/lib/jvm/icedtea-bin-7/include/linux
 
@@ -47,7 +47,7 @@ build/stegosaurus_wrap.o: $(SWIGWRAP)
 build/:
 	mkdir -p build/
 
-$(SWIGWRAP): $(SRCROOT)/stegosaurus.i $(OBJECTS) $(SWIGDIR)
+$(SWIGWRAP): $(SRCROOT)/cpp/stegosaurus.i $(OBJECTS) $(SWIGDIR)
 	$(SWIG) $(SWIGFLAGS) -c++ -java $<
 
 $(SWIGDIR):
