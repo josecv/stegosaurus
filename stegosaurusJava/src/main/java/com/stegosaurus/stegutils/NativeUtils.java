@@ -15,8 +15,7 @@ import com.stegosaurus.cpp.JoctetArray;
  */
 public final class NativeUtils {
   static {
-    /* TODO THIS IS VERY TEMPORARY!! */
-    System.load("/home/joe/code/stegosaurus/libstegosaurus.so");
+    System.loadLibrary("stegosaurus");
   }
   /**
    * Private CTOR.

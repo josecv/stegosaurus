@@ -1,0 +1,29 @@
+apply plugin: 'java'
+evaluationDependsOn(':stegosaurusNative')
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile "com.google.guava:guava:15.0", "junit:junit:4.11",
+          "net.sf.trove4j:trove4j:3.0.3", "com.google.inject:guice:3.0"
+}
+
+/* This isn't exactly idiomatic, but to hell with that */
+ext.cppProject = rootProject.childProjects['stegosaurusNative']
+
+task(copyClasses, type:Copy,
+     dependsOn: ":stegosaurusNative:stegosaurusSharedLibrary") {
+  /* Again, not really kosher. But to hell with kosher. */
+  from(file(cppProject.buildDir.getPath() + "/swigClasses"))
+  into(file("src/main/java/"))
+}
+
+task(copyLibrary, type:Copy,
+     dependsOn: ":stegosaurusNative:stegosaurusSharedLibrary") {
+  from(file(cppProject.buildDir.getPath() + "/binaries/stegosaurusSharedLibrary/"))
+  into(file("."))
+}
+
+compileJava.dependsOn copyClasses, copyLibrary
