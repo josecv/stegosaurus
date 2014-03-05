@@ -20,8 +20,9 @@ binaries.all {
 task swig(type:Exec) {
   ext.swigPath = "src/main/cpp/stegosaurus.i"
   ext.swigOut = "src/main/cpp/stegosaurus_wrap.cpp"
-  ext.swigOutDir = "src/main/java/com/stegosaurus/cpp"
+  ext.swigOutDir = "build/swigClasses/com/stegosaurus/cpp"
   ext.swigPackage = "com.stegosaurus.cpp"
+  (new File(swigOutDir)).mkdirs()
   commandLine "swig", "-package", swigPackage, "-c++", "-java",
               "-outdir", swigOutDir, "-o", swigOut, swigPath
 }
