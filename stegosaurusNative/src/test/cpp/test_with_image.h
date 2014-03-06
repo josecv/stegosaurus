@@ -40,7 +40,7 @@ class TestWithImage : public ::testing::Test {
   /**
    * Read in the image at the path given, and return it.
    * @param path the path to the image file to read.
-   * @return the image, as a (gasp) JPEGImage object (a pointer to one)
+   * @return the image, as a JPEGImage object (a pointer to one)
    */
   JPEGImage *readPath(const char* path) {
     JOCTET *imgbuf = NULL;
@@ -59,7 +59,6 @@ class TestWithImage : public ::testing::Test {
   JPEGImage *testImage;
 };
 
-const char* TestWithImage::filename =
-  "stegosaurus-native/src/test/resources/cpp/lena-colour.jpeg";
+const char* TestWithImage::filename = "resources/lena-colour.jpeg";
 
 #endif

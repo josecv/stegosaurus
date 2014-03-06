@@ -60,7 +60,7 @@ TEST_F(JPEGImageTest, testCopy) {
   JPEGImage *copyImage = testImage->writeNew();
   CoefficientAccessor *test_acc = testImage->getCoefficientAccessor(),
                       *copy_acc = copyImage->getCoefficientAccessor();
-  int i;
+  unsigned int i;
   EXPECT_EQ(test_acc->getLength(), copy_acc->getLength());
   for(i = 0; i < test_acc->getLength(); ++i) {
     EXPECT_EQ(test_acc->getCoefficient(i), copy_acc->getCoefficient(i));
@@ -134,7 +134,7 @@ TEST_F(JPEGImageTest, testCoefficientAccess) {
  * TODO This test makes no sense now, at least not the way it's written.
  */
 TEST_F(JPEGImageTest, testManyAccessors) {
-  int i;
+  unsigned int i;
   CoefficientAccessor* first = testImage->getCoefficientAccessor();
   /* This will force coefficient access */
   for(i = 0; i < first->getLength(); ++i) {

@@ -7,8 +7,7 @@
  * The stego file we'll be testing with.
  * TODO This is a terrible way to keep the filename stored.
  */
-static const char* steg_filename =
-  "stegosaurus-native/src/test/resources/cpp/lena-stego.jpeg";
+static const char* steg_filename = "resources/lena-stego.jpeg";
 
 /**
  * Test the blockiness calculation methods.

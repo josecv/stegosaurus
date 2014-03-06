@@ -44,7 +44,7 @@ class CoefficientAccessor {
    * accessed.
    * @return the length.
    */
-  int getLength(void);
+  unsigned int getLength(void);
 
   /**
    * Figure out whether the coefficient at a given index is a DC coefficient, 

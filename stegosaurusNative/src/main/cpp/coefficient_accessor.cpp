@@ -54,7 +54,7 @@ void CoefficientAccessor::setCoefficient(unsigned int index, JCOEF value) {
   *(getInComponent(index, comp)) = value;
 }
 
-int CoefficientAccessor::getLength(void) {
+unsigned int CoefficientAccessor::getLength(void) {
   if(length > 0) {
     return length;
   }
