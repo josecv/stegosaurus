@@ -20,6 +20,7 @@ binaries.all {
 task swig(type:Exec) {
   ext.swigPath = "src/main/cpp/stegosaurus.i"
   ext.swigOut = "src/main/cpp/stegosaurus_wrap.cpp"
+  /* XXX This is no good */
   ext.swigOutDir = buildDir.getPath() + "/swigClasses/com/stegosaurus/cpp"
   ext.swigPackage = "com.stegosaurus.cpp"
   (new File(swigOutDir)).mkdirs()
@@ -43,7 +44,7 @@ sources {
 
   stegotest {
     cpp {
-      lib libraries.stegosaurus
+      lib libraries.stegosaurus/*.static*/
       source {
         srcDir "src/test/cpp/"
         include "**/*.cpp"
@@ -52,6 +53,25 @@ sources {
   }
 }
 
-/* This is somewhat hackish, but the stegosaurusSharedLibrary task
- * gets declared later, so we can't patch into that one */
+/* Not all the tasks we need to add dependencies to exist at first, so
+ * we have to wait until the project has been evaluated in its entirety.
+ */
+afterEvaluate { project ->
+  /* Make the installStegotestExecutable task depend on us copying over
+   * the resources */
+  task resourcesCopy(type:Copy) {
+    ext.resourcePath = "src/test/resources/cpp"
+    /* XXX again, bad copying */
+    ext.targetPath = installStegotestExecutable.destinationDir.getPath() +
+                     "/resources"
+    file(targetPath).mkdirs()
+    from(file(resourcePath))
+    into(file(targetPath))
+  }
+  installStegotestExecutable.dependsOn resourcesCopy
+}
+
+/* SWIG generates some sources, so it's best to have it generated as early
+ * as possible, and extractHeaders is the first in the dependency chain of
+ * compilation */
 stegosaurusCppExtractHeaders.dependsOn swig
