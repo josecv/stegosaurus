@@ -69,6 +69,11 @@ afterEvaluate { project ->
     into(file(targetPath))
   }
   installStegotestExecutable.dependsOn resourcesCopy
+
+  task test(type:Exec, dependsOn: installStegotestExecutable) {
+    workingDir installStegotestExecutable.destinationDir.getPath()
+    commandLine "./stegotest"
+  }
 }
 
 /* SWIG generates some sources, so it's best to have it generated as early
