@@ -9,3 +9,5 @@ steg_tests
 target/
 .project
 .settings/
+.gradle/
+stegosaurus_wrap.cpp
