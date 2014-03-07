@@ -26,4 +26,11 @@ task(copyLibrary, type:Copy,
   into(file("."))
 }
 
+task cleanCopied(type: Delete) {
+  /* XXX What about .dlls? */
+  delete 'libstegosaurus.so', 'src/main/java/com/stegosaurus/cpp/'
+}
+
+clean.dependsOn cleanCopied
+
 compileJava.dependsOn copyClasses, copyLibrary

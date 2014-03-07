@@ -53,6 +53,12 @@ sources {
   }
 }
 
+task cleanSwig(type: Delete)  {
+  delete 'src/main/cpp/stegosaurus_wrap.cpp'
+}
+
+clean.dependsOn cleanSwig
+
 /* Not all the tasks we need to add dependencies to exist at first, so
  * we have to wait until the project has been evaluated in its entirety.
  */
@@ -75,6 +81,7 @@ afterEvaluate { project ->
     commandLine "./stegotest"
   }
 }
+
 
 /* SWIG generates some sources, so it's best to have it generated as early
  * as possible, and extractHeaders is the first in the dependency chain of
