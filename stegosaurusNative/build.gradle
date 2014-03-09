@@ -5,14 +5,20 @@ libraries {
 }
 
 executables {
-  stegotest {}
+  stegotest {
+    binaries.all {
+      if(toolChain in Gcc) {
+        linker.args "-lgtest"
+      }
+    }
+  }
 }
 
 binaries.all {
   if(toolChain in Gcc) {
     cppCompiler.args "-O2", "-Wall", "-Wextra", "-g", "-pedantic",
                      "-Wsign-compare"
-    linker.args "-ljpeg", "-lgtest"
+    linker.args "-ljpeg"
 
   }
 }
