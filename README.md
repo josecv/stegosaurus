@@ -1,1 +1,1 @@
-The Stegosaurus steganography thing
+Stegosaurus JPEG steganography library.

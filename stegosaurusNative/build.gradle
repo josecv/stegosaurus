@@ -1,27 +1,10 @@
 apply plugin: 'cpp'
 
-libraries {
-  stegosaurus {}
+task cleanSwig(type: Delete)  {
+  delete 'src/main/cpp/stegosaurus_wrap.cpp'
 }
 
-executables {
-  stegotest {
-    binaries.all {
-      if(toolChain in Gcc) {
-        linker.args "-lgtest"
-      }
-    }
-  }
-}
-
-binaries.all {
-  if(toolChain in Gcc) {
-    cppCompiler.args "-O2", "-Wall", "-Wextra", "-g", "-pedantic",
-                     "-Wsign-compare"
-    linker.args "-ljpeg"
-
-  }
-}
+clean.dependsOn cleanSwig
 
 task swig(type:Exec) {
   ext.swigPath = "src/main/cpp/stegosaurus.i"
@@ -34,62 +17,77 @@ task swig(type:Exec) {
               "-outdir", swigOutDir, "-o", swigOut, swigPath
 }
 
-sources {
-  stegosaurus {
-    cpp {
-      source {
-        srcDirs "src/main/cpp", "src/main/c"
-        include "**/*.cpp", "**/*.c"
+model {
+  components {
+    stegosaurus(NativeLibrarySpec) {
+      sources {
+        cpp {
+          source {
+            srcDirs "src/main/cpp", "src/main/c"
+            include "**/*.cpp", "**/*.c"
+          }
+          exportedHeaders {
+            srcDirs "src/main/cpp", "src/main/c"
+            include "**/*.h"
+          }
+        }
       }
-      exportedHeaders {
-        srcDirs "src/main/cpp", "src/main/c"
-        include "**/*.h"
+      binaries.all {
+        if(toolChain in Gcc) {
+          cppCompiler.args "-O2", "-Wall", "-Wextra", "-g", "-pedantic",
+                           "-Wsign-compare", "-I", System.properties.'java.home' + "/../include",
+                           "-I", System.properties.'java.home' + "/../include/linux"
+          linker.args "-ljpeg"
+        }
+      }
+    }
+    stegotest(NativeExecutableSpec) {
+      binaries.all {
+        if(toolChain in Gcc) {
+          linker.args "-lgtest", "-ljpeg", "-lpthread"
+        }
+      }
+      sources {
+        cpp {
+          lib library: 'stegosaurus', linkage: 'static'
+          source {
+            srcDir "src/test/cpp/"
+            include "**/*.cpp"
+          }
+        }
       }
     }
   }
 
-  stegotest {
-    cpp {
-      lib libraries.stegosaurus/*.static*/
-      source {
-        srcDir "src/test/cpp/"
-        include "**/*.cpp"
-      }
-    }
-  }
 }
-
-task cleanSwig(type: Delete)  {
-  delete 'src/main/cpp/stegosaurus_wrap.cpp'
-}
-
-clean.dependsOn cleanSwig
 
 /* Not all the tasks we need to add dependencies to exist at first, so
  * we have to wait until the project has been evaluated in its entirety.
  */
-afterEvaluate { project ->
+tasks.whenTaskAdded { t ->
   /* Make the installStegotestExecutable task depend on us copying over
    * the resources */
-  task resourcesCopy(type:Copy) {
-    ext.resourcePath = "src/test/resources/cpp"
-    /* XXX again, bad copying */
-    ext.targetPath = installStegotestExecutable.destinationDir.getPath() +
-                     "/resources"
-    file(targetPath).mkdirs()
-    from(file(resourcePath))
-    into(file(targetPath))
+  if (t.name == "installStegotestExecutable") {
+    //task(resourcesCopy, type:Copy) {
+    //  ext.resourcePath = "src/test/resources/cpp"
+    //  /* XXX again, bad copying */
+    //  ext.targetPath = installStegotestExecutable.destinationDir.getPath() +
+    //                   "/resources"
+    //  file(targetPath).mkdirs()
+    //  from(file(resourcePath))
+    //  into(file(targetPath))
+    //}
+    //t.dependsOn resourcesCopy
+    //task(test, type:Exec, dependsOn: installStegotestExecutable) {
+    //  workingDir installStegotestExecutable.destinationDir.getPath()
+    //  commandLine "./stegotest"
+    //}
   }
-  installStegotestExecutable.dependsOn resourcesCopy
+  if (t.name == "compileStegosaurusSharedLibraryStegosaurusCpp") {
+    /* SWIG generates some sources, so it's best to have it generated as early
+     * as possible, and extractHeaders is the first in the dependency chain of
+     * compilation */
+    t.dependsOn swig
+  }
 
-  task test(type:Exec, dependsOn: installStegotestExecutable) {
-    workingDir installStegotestExecutable.destinationDir.getPath()
-    commandLine "./stegotest"
-  }
 }
-
-
-/* SWIG generates some sources, so it's best to have it generated as early
- * as possible, and extractHeaders is the first in the dependency chain of
- * compilation */
-stegosaurusCppExtractHeaders.dependsOn swig
