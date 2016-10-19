@@ -167,7 +167,7 @@ TEST_F(JPEGBlockinessTest, testReciprocalROB) {
  * as of commit 32017c088770866a
  */
 TEST_F(JPEGBlockinessTest, testConsistency) {
-  const double permissible_distance = 0.0001;
+  const double permissible_distance = 0.001;
   const double expected = 0.972323;
   double result = testImage->calculateReciprocalROB();
   double distance = fabs(result - expected);
