@@ -22,13 +22,18 @@ task(copyClasses, type:Copy,
 
 task(copyLibrary, type:Copy,
      dependsOn: ":stegosaurusNative:stegosaurusSharedLibrary") {
-  from(file(cppProject.buildDir.getPath() + "/binaries/stegosaurusSharedLibrary/"))
+  from(file(cppProject.buildDir.getPath() + "/libs/stegosaurus/shared/"))
   into(file("."))
 }
 
 task cleanCopied(type: Delete) {
   /* XXX What about .dlls? */
   delete 'libstegosaurus.so', 'src/main/java/com/stegosaurus/cpp/'
+}
+
+
+test {
+  systemProperty 'java.library.path', "."
 }
 
 clean.dependsOn cleanCopied
