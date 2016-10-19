@@ -68,20 +68,21 @@ tasks.whenTaskAdded { t ->
   /* Make the installStegotestExecutable task depend on us copying over
    * the resources */
   if (t.name == "installStegotestExecutable") {
-    //task(resourcesCopy, type:Copy) {
-    //  ext.resourcePath = "src/test/resources/cpp"
-    //  /* XXX again, bad copying */
-    //  ext.targetPath = installStegotestExecutable.destinationDir.getPath() +
-    //                   "/resources"
-    //  file(targetPath).mkdirs()
-    //  from(file(resourcePath))
-    //  into(file(targetPath))
-    //}
-    //t.dependsOn resourcesCopy
-    //task(test, type:Exec, dependsOn: installStegotestExecutable) {
-    //  workingDir installStegotestExecutable.destinationDir.getPath()
-    //  commandLine "./stegotest"
-    //}
+    /* Inexplicably, t.destinationDir is null. Docs say it shouldn't be the case,
+     * but there you are. So we manually copy stuff over relative to the top
+     * build dir. */
+    task(resourcesCopy, type:Copy) {
+      ext.resourcePath = projectDir.getPath() + "/src/test/resources/cpp"
+      ext.targetPath = buildDir.getPath() + "/exe/stegotest/resources"
+      file(targetPath).mkdirs()
+      from(file(resourcePath))
+      into(file(targetPath))
+    }
+    t.dependsOn resourcesCopy
+    task(test, type:Exec, dependsOn: t) {
+      workingDir buildDir.getPath() + "/exe/stegotest"
+      commandLine "./stegotest"
+    }
   }
   if (t.name == "compileStegosaurusSharedLibraryStegosaurusCpp") {
     /* SWIG generates some sources, so it's best to have it generated as early
