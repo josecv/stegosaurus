@@ -27,10 +27,8 @@ task(copyLibrary, type:Copy,
 }
 
 task cleanCopied(type: Delete) {
-  /* XXX What about .dlls? */
   delete 'libstegosaurus.so', 'src/main/java/com/stegosaurus/cpp/'
 }
-
 
 test {
   systemProperty 'java.library.path', "."
