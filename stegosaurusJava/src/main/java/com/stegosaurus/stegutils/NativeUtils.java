@@ -2,6 +2,7 @@ package com.stegosaurus.stegutils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.google.common.io.ByteStreams;
 import com.stegosaurus.cpp.JoctetArray;
@@ -69,5 +70,21 @@ public final class NativeUtils {
       retval.setitem(i, b[i]);
     }
     return retval;
+  }
+
+  /**
+   * Write the octet array given into the output stream given.
+   * There's no bounds checking: your length better really be leq the length of
+   * the array.
+   *
+   * @param out the output stream
+   * @param array the octet array
+   * @param len how many bytes to write
+   */
+  public static void writeOctetArray(OutputStream out, JoctetArray array,
+                                     int len) throws IOException {
+    for (int i = 0; i < len; i++) {
+      out.write(array.getitem(i));
+    }
   }
 }

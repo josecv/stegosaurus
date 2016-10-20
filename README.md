@@ -11,5 +11,6 @@ To build stegosaurus you will need:
   - a gcc toolset
   - libgtest (headers and library)
   - libjpeg  (headers and library)
+  - swig 2
 
 Then just go `gradle build`
