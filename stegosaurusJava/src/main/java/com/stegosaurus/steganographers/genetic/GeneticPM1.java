@@ -21,8 +21,8 @@ import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.genetic.RankSelection;
 import com.stegosaurus.genetic.SelectionOperator;
 import com.stegosaurus.steganographers.EmbedRequest;
-import com.stegosaurus.steganographers.PM1Embedder;
-import com.stegosaurus.steganographers.PMSequence;
+import com.stegosaurus.steganographers.pm1.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PMSequence;
 
 /**
  * The core algorithm of Stegosaurus' JPEG capabilities: embeds messages into
@@ -121,6 +121,7 @@ public class GeneticPM1 {
   /**
    * Embeds the request's message into its cover image given, with its key.
    * @param request the embed request.
+   * @return the steganographic JPEG image
    */
   public JPEGImage embed(EmbedRequest request) {
     short seed = optimizeSeed(request);

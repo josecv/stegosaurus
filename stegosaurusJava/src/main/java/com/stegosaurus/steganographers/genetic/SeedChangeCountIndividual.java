@@ -3,7 +3,7 @@ package com.stegosaurus.steganographers.genetic;
 import com.stegosaurus.genetic.AbstractIndividual;
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.steganographers.EmbedRequest;
-import com.stegosaurus.steganographers.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1Embedder;
 
 /**
  * Uses a chromosome as a seed for a PM1Embedding on a JPEG image, and uses

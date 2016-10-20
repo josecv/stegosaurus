@@ -5,7 +5,7 @@ import java.util.BitSet;
 import java.util.Random;
 
 import com.google.common.primitives.Bytes;
-import com.stegosaurus.steganographers.PMSequence;
+import com.stegosaurus.steganographers.pm1.PMSequence;
 
 /**
  * A chromosme for some genetic algorithm. Consists of a sequence of boolean

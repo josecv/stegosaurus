@@ -1,6 +1,6 @@
 package com.stegosaurus.steganographers.utils;
 
-import com.stegosaurus.steganographers.PMSequence;
+import com.stegosaurus.steganographers.pm1.PMSequence;
 
 /**
  * A dummy PM sequence that returns true for every even index and false

@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 /**
  * A plus-minus sequence to use for embedding.

@@ -3,7 +3,7 @@ package com.stegosaurus.steganographers.genetic;
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.steganographers.EmbedRequest;
-import com.stegosaurus.steganographers.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1Embedder;
 
 /**
  * Builds BlockinessIndividuals for a specific image, message, key and seed.

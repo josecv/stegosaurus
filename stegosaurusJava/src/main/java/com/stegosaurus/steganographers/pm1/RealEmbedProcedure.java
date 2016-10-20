@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.stegostreams.BitInputStream;

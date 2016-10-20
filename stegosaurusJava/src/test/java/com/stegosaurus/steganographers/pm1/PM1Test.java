@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assume.assumeNoException;
@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.utils.DummyPMSequence;
 import com.stegosaurus.stegutils.NativeUtils;
 import com.stegosaurus.testing.TestWithInjection;

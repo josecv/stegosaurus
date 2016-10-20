@@ -6,7 +6,7 @@ import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.genetic.AbstractIndividual;
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.steganographers.EmbedRequest;
-import com.stegosaurus.steganographers.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1Embedder;
 
 /**
  * An individual to be used in an algorithm to optimize the blockiness ratio

@@ -4,7 +4,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.stegosaurus.cpp.JPEGImage;
-import com.stegosaurus.steganographers.PM1Test;
+import com.stegosaurus.steganographers.pm1.PM1Test;
 
 /**
  * Tests the GeneticPM1 class.

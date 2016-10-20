@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
@@ -9,7 +9,7 @@ import com.stegosaurus.stegostreams.BitInputStream;
  * The abstract callables used to embed data into images.
  * The class provides a method to actually construct an EmbedProcedure
  * depending on what is required.
- * Should be used with an ImagePermutation instance.
+ * Should be used with an ImagePermutater instance.
  * Construction is cheap, so it is safe to use this in a throwaway manner.
  */
 abstract class EmbedProcedure implements TIntIntProcedure {

@@ -1,4 +1,4 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 import java.nio.ByteBuffer;
 
@@ -20,7 +20,6 @@ public abstract class PM1Algorithm {
 
   /**
    * CTOR.
-   * @param random the random object this object will use. Will be reseeded.
    * @param buffers an object that can provide us with ByteBuffers.
    */
   protected PM1Algorithm(ByteBufferHelper buffers) {

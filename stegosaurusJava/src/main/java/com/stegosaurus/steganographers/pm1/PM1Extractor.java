@@ -1,17 +1,19 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.steganographers.Extractor;
+import com.stegosaurus.steganographers.ImagePermuter;
 import com.stegosaurus.stegostreams.BitOutputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
 /**
  * Extracts messages from carrier images.
  */
-public class PM1Extractor extends PM1Algorithm {
+public class PM1Extractor extends PM1Algorithm implements Extractor {
 
   /**
    * A BitOutputStream to use for extracting steganographic bits in an image.
@@ -87,7 +89,7 @@ public class PM1Extractor extends PM1Algorithm {
     private ImagePermuter.Factory permFactory;
 
     /**
-     * CTOR; should be called by Guava.
+     * CTOR; should be called by Guice.
      * @param helper the ByteBufferHelper that will be given to built objects.
      * @param permFactory the permuter factory to inject into instances.
      * @param provider the permutation provider for built objects.

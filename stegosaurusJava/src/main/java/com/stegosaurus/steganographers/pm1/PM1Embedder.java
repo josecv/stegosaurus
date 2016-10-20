@@ -1,9 +1,11 @@
-package com.stegosaurus.steganographers;
+package com.stegosaurus.steganographers.pm1;
 
 
 import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
+import com.stegosaurus.steganographers.EmbedRequest;
+import com.stegosaurus.steganographers.ImagePermuter;
 import com.stegosaurus.stegostreams.BitInputStream;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 
