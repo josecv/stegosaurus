@@ -20,6 +20,7 @@ import com.stegosaurus.genetic.Individual;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.genetic.RankSelection;
 import com.stegosaurus.genetic.SelectionOperator;
+import com.stegosaurus.steganographers.Embedder;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.pm1.PM1Embedder;
 import com.stegosaurus.steganographers.pm1.PMSequence;
@@ -36,7 +37,7 @@ import com.stegosaurus.steganographers.pm1.PMSequence;
  * blockiness to a lossily cropped equivalent's blockiness</p>
  * @see PM1Embedder for a discussion of the structure of the stego image.
  */
-public class GeneticPM1 {
+public class GeneticPM1 implements Embedder {
 
   /**
    * The embedder factory in use.
