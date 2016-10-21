@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Before;
-import org.junit.Test;
 
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
@@ -58,7 +57,7 @@ public class AbstractPM1Test extends TestWithInjection {
   public void setUp() {
     super.setUp();
     extractorFactory = injector.getInstance(PM1ExtractorFactory.class);
-    InputStream in = PM1Test.class.getResourceAsStream("lena-colour.jpeg");
+    InputStream in = AbstractPM1Test.class.getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
       in.close();

@@ -31,5 +31,6 @@ public class StegosaurusModule extends AbstractModule {
       .toProvider(ListeningExecutorServiceProvider.class);
     bind(HashFunction.class).toInstance(Hashing.sipHash24());
     bind(Charset.class).toInstance(Charset.defaultCharset());
+    bind(StegosaurusFacade.class).to(StegosaurusFacadeImpl.class);
   }
 }
