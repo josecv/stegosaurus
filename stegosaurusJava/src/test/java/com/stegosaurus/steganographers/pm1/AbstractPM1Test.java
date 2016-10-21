@@ -12,6 +12,7 @@ import org.junit.Test;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.steganographers.EmbedRequest;
+import com.stegosaurus.steganographers.Extractor;
 import com.stegosaurus.steganographers.utils.DummyPMSequence;
 import com.stegosaurus.stegutils.NativeUtils;
 import com.stegosaurus.testing.TestWithInjection;
@@ -43,7 +44,7 @@ public class AbstractPM1Test extends TestWithInjection {
   /**
    * An object capable of building PM1Exctractors.
    */
-  private PM1Extractor.Factory extractorFactory;
+  private PM1ExtractorFactory extractorFactory;
 
   /**
    * The EmbedRequest crafted from this object's fields.
@@ -56,7 +57,7 @@ public class AbstractPM1Test extends TestWithInjection {
   @Before
   public void setUp() {
     super.setUp();
-    extractorFactory = injector.getInstance(PM1Extractor.Factory.class);
+    extractorFactory = injector.getInstance(PM1ExtractorFactory.class);
     InputStream in = PM1Test.class.getResourceAsStream("lena-colour.jpeg");
     try {
       NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
@@ -78,7 +79,7 @@ public class AbstractPM1Test extends TestWithInjection {
    */
   protected void assertImageContainsMessage(String msg,
       JPEGImage image, String key, byte[] expected) {
-    PM1Extractor ex = extractorFactory.build();
+    Extractor ex = extractorFactory.build();
     byte[] out = ex.extract(image, key);
     assertArrayEquals(msg, expected, out);
   }

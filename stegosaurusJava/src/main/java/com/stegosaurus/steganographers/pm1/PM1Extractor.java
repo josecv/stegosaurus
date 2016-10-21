@@ -2,7 +2,6 @@ package com.stegosaurus.steganographers.pm1;
 
 import gnu.trove.procedure.TIntIntProcedure;
 
-import com.google.inject.Inject;
 import com.stegosaurus.cpp.CoefficientAccessor;
 import com.stegosaurus.cpp.JPEGImage;
 import com.stegosaurus.steganographers.Extractor;
@@ -72,40 +71,5 @@ public class PM1Extractor extends PM1Algorithm implements Extractor {
         return count < len;
       }
     });
-  }
-
-  /**
-   * Builds PM1Extractors.
-   */
-  public static class Factory {
-    /**
-     * The ByteBufferHelper that will be injected into built instances.
-     */
-    private ByteBufferHelper helper;
-
-    /**
-     * The image permuter factory to give to created instances.
-     */
-    private ImagePermuter.Factory permFactory;
-
-    /**
-     * CTOR; should be called by Guice.
-     * @param helper the ByteBufferHelper that will be given to built objects.
-     * @param permFactory the permuter factory to inject into instances.
-     * @param provider the permutation provider for built objects.
-     */
-    @Inject
-    public Factory(ByteBufferHelper helper,
-                   ImagePermuter.Factory permFactory) {
-      this.helper = helper;
-      this.permFactory = permFactory;
-    }
-
-    /**
-     * Construct a new PM1Extractor.
-     */
-    public PM1Extractor build() {
-      return new PM1Extractor(helper, permFactory);
-    }
   }
 }
