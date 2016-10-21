@@ -23,7 +23,7 @@ public class PM1Test extends AbstractPM1Test {
   /**
    * An object capable of building PM1Embedders.
    */
-  private PM1Embedder.Factory embedderFactory;
+  private PM1EmbedderFactory embedderFactory;
 
   /**
    * The seed for the PM1Embedder.
@@ -36,7 +36,7 @@ public class PM1Test extends AbstractPM1Test {
   @Before
   public void setUp() {
     super.setUp();
-    embedderFactory = injector.getInstance(PM1Embedder.Factory.class);
+    embedderFactory = injector.getInstance(PM1EmbedderFactory.class);
   }
 
   /**

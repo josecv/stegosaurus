@@ -6,6 +6,7 @@ import com.stegosaurus.genetic.GAFactory;
 import com.stegosaurus.steganographers.EmbedderFactory;
 import com.stegosaurus.steganographers.Embedder;
 import com.stegosaurus.steganographers.pm1.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1EmbedderFactory;
 
 /**
  * Creates new GeneticPM1 embedders factory.
@@ -15,7 +16,7 @@ public class GeneticPM1Factory implements EmbedderFactory {
   /**
    * The embedder factory.
    */
-  private PM1Embedder.Factory embedderFactory;
+  private PM1EmbedderFactory embedderFactory;
 
   /**
    * The genetic algorithm factory.
@@ -28,7 +29,7 @@ public class GeneticPM1Factory implements EmbedderFactory {
    * @param gaFactory the factory for genetic algorithms
    */
   @Inject
-  public GeneticPM1Factory(PM1Embedder.Factory embedderFactory,
+  public GeneticPM1Factory(PM1EmbedderFactory embedderFactory,
                            GAFactory gaFactory) {
     this.embedderFactory = embedderFactory;
     this.gaFactory = gaFactory;

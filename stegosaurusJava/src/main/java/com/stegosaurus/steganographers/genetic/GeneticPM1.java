@@ -23,6 +23,7 @@ import com.stegosaurus.genetic.SelectionOperator;
 import com.stegosaurus.steganographers.Embedder;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.pm1.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1EmbedderFactory;
 import com.stegosaurus.steganographers.pm1.PMSequence;
 
 /**
@@ -42,7 +43,7 @@ public class GeneticPM1 implements Embedder {
   /**
    * The embedder factory in use.
    */
-  private PM1Embedder.Factory embedderFactory;
+  private PM1EmbedderFactory embedderFactory;
 
   /**
    * The random object involved in the mutation of individual solutions.
@@ -63,7 +64,7 @@ public class GeneticPM1 implements Embedder {
    * @param embedderFactory the embedder factory to use.
    */
   @Inject
-  public GeneticPM1(PM1Embedder.Factory embedderFactory,
+  public GeneticPM1(PM1EmbedderFactory embedderFactory,
                     GAFactory gaFactory) {
     this.embedderFactory = embedderFactory;
     this.gaFactory = gaFactory;

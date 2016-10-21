@@ -4,6 +4,7 @@ import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.pm1.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1EmbedderFactory;
 import com.stegosaurus.steganographers.utils.DummyPMSequence;
 
 /**
@@ -30,7 +31,7 @@ public class SeedChangeCountIndividualFactory
    * @see SeedChangeCountIndividual for info on the PM1Embedders built here.
    */
   public SeedChangeCountIndividualFactory(EmbedRequest request,
-                                          PM1Embedder.Factory factory) {
+                                          PM1EmbedderFactory factory) {
     this.embedder = factory.build(new DummyPMSequence());
     this.request = request;
   }

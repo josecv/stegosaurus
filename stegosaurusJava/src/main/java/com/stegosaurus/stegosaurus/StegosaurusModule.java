@@ -11,6 +11,7 @@ import com.stegosaurus.crypt.DefaultPermutationProvider;
 import com.stegosaurus.crypt.PermutationProvider;
 import com.stegosaurus.genetic.GAFactory;
 import com.stegosaurus.genetic.ParallelGAFactory;
+import com.stegosaurus.steganographers.SteganographersModule;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 import com.stegosaurus.stegutils.ByteBufferHelperImpl;
 
@@ -26,6 +27,7 @@ public class StegosaurusModule extends AbstractModule {
    */
   @Override
   protected void configure() {
+    install(new SteganographersModule());
     bind(ByteBufferHelper.class).to(ByteBufferHelperImpl.class);
     bind(PermutationProvider.class).to(DefaultPermutationProvider.class);
     bind(GAFactory.class).to(ParallelGAFactory.class);

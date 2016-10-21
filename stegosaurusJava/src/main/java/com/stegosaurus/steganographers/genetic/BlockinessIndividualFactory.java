@@ -4,6 +4,7 @@ import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.genetic.IndividualFactory;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.pm1.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1EmbedderFactory;
 
 /**
  * Builds BlockinessIndividuals for a specific image, message, key and seed.
@@ -19,7 +20,7 @@ public class BlockinessIndividualFactory
   /**
    * The embedder factory in use.
    */
-  private PM1Embedder.Factory embedderFactory;
+  private PM1EmbedderFactory embedderFactory;
 
   /**
    * The request to optimize for.
@@ -33,7 +34,7 @@ public class BlockinessIndividualFactory
    * @param embedderFactory a factory to construct PM1Embedders.
    */
   public BlockinessIndividualFactory(EmbedRequest request, short seed,
-                                     PM1Embedder.Factory embedderFactory) {
+                                     PM1EmbedderFactory embedderFactory) {
     this.request = request;
     this.seed = seed;
     this.embedderFactory = embedderFactory;

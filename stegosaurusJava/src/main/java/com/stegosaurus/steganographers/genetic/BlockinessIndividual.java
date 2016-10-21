@@ -7,6 +7,7 @@ import com.stegosaurus.genetic.AbstractIndividual;
 import com.stegosaurus.genetic.Chromosome;
 import com.stegosaurus.steganographers.EmbedRequest;
 import com.stegosaurus.steganographers.pm1.PM1Embedder;
+import com.stegosaurus.steganographers.pm1.PM1EmbedderFactory;
 
 /**
  * An individual to be used in an algorithm to optimize the blockiness ratio
@@ -23,7 +24,7 @@ public class BlockinessIndividual
   /**
    * The embedder factory.
    */
-  private PM1Embedder.Factory embedderFactory;
+  private PM1EmbedderFactory embedderFactory;
 
   /**
    * The last stego image produced.
@@ -49,7 +50,7 @@ public class BlockinessIndividual
    */
   public BlockinessIndividual(Chromosome c, EmbedRequest request,
                               short seed,
-                              PM1Embedder.Factory embedderFactory) {
+                              PM1EmbedderFactory embedderFactory) {
     super(c);
     this.seed = seed;
     this.embedderFactory = embedderFactory;
