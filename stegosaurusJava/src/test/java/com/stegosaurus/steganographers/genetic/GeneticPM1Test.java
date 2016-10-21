@@ -1,24 +1,30 @@
 package com.stegosaurus.steganographers.genetic;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import com.stegosaurus.cpp.JPEGImage;
-import com.stegosaurus.steganographers.pm1.PM1Test;
+import com.stegosaurus.steganographers.Embedder;
+import com.stegosaurus.steganographers.pm1.AbstractPM1Test;
 
 /**
  * Tests the GeneticPM1 class.
- * TODO extending from another test class is completely nuts. Need a mixin.
  */
-public class GeneticPM1Test extends PM1Test {
+public class GeneticPM1Test extends AbstractPM1Test {
+  /**
+   * The algorithm factory.
+   */
+  private GeneticPM1Factory factory;
 
-  /* Ensure JUnit doesn't try to run these tests. */
-  
-  @Override @Test @Ignore
-  public void testEmbedExtract() { }
-
-  @Override @Test @Ignore
-  public void testFakeEmbedImmutability() { }
+  /**
+   * Set up the test.
+   */
+  @Before
+  public void setUp() {
+    super.setUp();
+    factory = injector.getInstance(GeneticPM1Factory.class);
+  }
 
   /**
    * One of the all-or-nothing-in-a-huge-operation tests that stegosaurus is
@@ -26,7 +32,7 @@ public class GeneticPM1Test extends PM1Test {
    */
   @Test
   public void testAllTheThings() {
-    GeneticPM1 algo = injector.getInstance(GeneticPM1.class);
+    Embedder algo = factory.build();
     JPEGImage stego = algo.embed(request);
     assertImageContainsMessage("Stego image lacks message", stego, KEY,
                                MSG.getBytes());
