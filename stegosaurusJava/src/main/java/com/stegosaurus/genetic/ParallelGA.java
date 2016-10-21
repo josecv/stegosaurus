@@ -18,8 +18,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
  * but instead recalculates it every time, using this class will probably
  * do you no good.</p>
  */
-public class ParallelGA<T extends Individual<T>>
-  extends GeneticAlgorithm<T> {
+class ParallelGA<T extends Individual<T>> extends GeneticAlgorithm<T> {
 
   /**
    * The ExecutorService we're using for concurrently-run tasks.

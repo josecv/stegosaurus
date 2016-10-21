@@ -9,8 +9,7 @@ import com.google.inject.AbstractModule;
 import com.stegosaurus.concurrent.ListeningExecutorServiceProvider;
 import com.stegosaurus.crypt.DefaultPermutationProvider;
 import com.stegosaurus.crypt.PermutationProvider;
-import com.stegosaurus.genetic.GAFactory;
-import com.stegosaurus.genetic.ParallelGAFactory;
+import com.stegosaurus.genetic.GeneticModule;
 import com.stegosaurus.steganographers.SteganographersModule;
 import com.stegosaurus.stegutils.ByteBufferHelper;
 import com.stegosaurus.stegutils.ByteBufferHelperImpl;
@@ -22,15 +21,12 @@ import com.stegosaurus.stegutils.ByteBufferHelperImpl;
  * Stegosaurus classes.
  */
 public class StegosaurusModule extends AbstractModule {
-  /**
-   * Set up the service.
-   */
   @Override
   protected void configure() {
     install(new SteganographersModule());
+    install(new GeneticModule());
     bind(ByteBufferHelper.class).to(ByteBufferHelperImpl.class);
     bind(PermutationProvider.class).to(DefaultPermutationProvider.class);
-    bind(GAFactory.class).to(ParallelGAFactory.class);
     bind(ListeningExecutorService.class)
       .toProvider(ListeningExecutorServiceProvider.class);
     bind(HashFunction.class).toInstance(Hashing.sipHash24());

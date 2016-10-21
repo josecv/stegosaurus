@@ -8,7 +8,7 @@ import com.google.inject.Inject;
 /**
  * Builds Parallel genetic algorithms.
  */
-public class ParallelGAFactory implements GAFactory {
+class ParallelGAFactory implements GAFactory {
     /**
      * The executor service to provide to children instances.
      */
