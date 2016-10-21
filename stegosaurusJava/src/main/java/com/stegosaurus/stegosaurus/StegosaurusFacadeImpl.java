@@ -48,24 +48,6 @@ class StegosaurusFacadeImpl implements StegosaurusFacade {
   }
 
   @Override
-  public void embed(Path in, Path out, String message, String key)
-      throws IOException {
-    if(!out.toFile().getParentFile().mkdirs()) {
-      throw new IllegalArgumentException("Could not create directory "
-          + out.getParent().toString());
-    }
-    try {
-      InputStream inStream = new FileInputStream(in.toFile());
-      OutputStream outStream = new FileOutputStream(out.toFile());
-      embed(inStream, outStream, message, key);
-      inStream.close();
-      outStream.close();
-    } catch(FileNotFoundException e) {
-      throw new IllegalArgumentException(e.getMessage(), e);
-    }
-  }
-
-  @Override
   public void embed(InputStream in, OutputStream out, String message, String key)
       throws IOException {
     NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
@@ -75,18 +57,6 @@ class StegosaurusFacadeImpl implements StegosaurusFacade {
     JPEGImage result = embedder.embed(request);
     JoctetArray outArray = JoctetArray.frompointer(result.getData());
     NativeUtils.writeOctetArray(out, outArray, result.getDataLen());
-  }
-
-  @Override
-  public String extract(Path in, String key) throws IOException {
-    try {
-      InputStream inStream = new FileInputStream(in.toFile());
-      String retval = extract(inStream, key);
-      inStream.close();
-      return retval;
-    } catch(FileNotFoundException e) {
-      throw new IllegalArgumentException(e.getMessage(), e);
-    }
   }
 
   @Override
