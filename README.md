@@ -87,7 +87,7 @@ Algorithm details
 Stegosaurus makes use of an exceedingly clever [algorithm](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.705.779&rep=rep1&type=pdf)
 described by Lifang Yu et al. 
 
-The algorithm embeds messages into JPEG images by permutting the image's DC
+The algorithm embeds messages into JPEG images by permutting the image's AC
 coefficients using a permutation initially derived from the user's key, then
 rekeyed with a seed selected to minimize changes to the image. A plus-minus
 sequence is used to decide how each bit of data is embedded into the image:
