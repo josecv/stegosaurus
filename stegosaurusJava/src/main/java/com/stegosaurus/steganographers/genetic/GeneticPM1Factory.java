@@ -24,15 +24,21 @@ public class GeneticPM1Factory implements EmbedderFactory {
   private GAFactory gaFactory;
 
   /**
+   * The parameters for the algorithm.
+   */
+  private GeneticPM1Parameters params;
+
+  /**
    * CTOR.
    * @param embedderFactory the factory for embedders
    * @param gaFactory the factory for genetic algorithms
    */
   @Inject
   public GeneticPM1Factory(PM1EmbedderFactory embedderFactory,
-                           GAFactory gaFactory) {
+      GAFactory gaFactory, GeneticPM1Parameters params) {
     this.embedderFactory = embedderFactory;
     this.gaFactory = gaFactory;
+    this.params = params;
   }
 
   /**
@@ -40,6 +46,6 @@ public class GeneticPM1Factory implements EmbedderFactory {
    */
   @Override
   public Embedder build() {
-    return new GeneticPM1(embedderFactory, gaFactory);
+    return new GeneticPM1(embedderFactory, gaFactory, params);
   }
 }

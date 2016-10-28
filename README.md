@@ -1,28 +1,22 @@
 Stegosaurus JPEG steganography library.
 =======================================
 
-
-Building
---------
-
-To build stegosaurus you will need:
-  - a jdk
-  - gradle
-  - a gcc toolset
-  - libgtest (headers and library)
-  - libjpeg  (headers and library)
-  - swig 2
-
-Then just go `gradle build`
-
 Usage
 -----
 
 Stegosaurus uses [Guice](https://github.com/google/guice) to do dependency
 injection, so it is really simple to integrate into any Guice-using project.
 
-All you have to do is get your hands on an instance of `com.stegosaurus.stegosaurus.StegosaurusFacade`,
-then to create the steganographic image:
+All you have to do to integrate it is install the module
+`com.stegosaurus.stegosaurus.StegosaurusModule`.
+For example:
+
+```java
+  Injector injector = Guice.createInjector(new StegosaurusModule())
+```
+
+Once you've done that, to use Stegosaurus you just have get your hands on an instance
+of `com.stegosaurus.stegosaurus.StegosaurusFacade`, then to create the steganographic image:
 
 ```java
   StegosaurusFacade stegosaurus = injector.getInstance(StegosaurusFacade.class);
@@ -43,6 +37,44 @@ Getting a message out of an image is equally simple:
   String key = "Secret!";
   String result = stegosaurus.extract(myImageWithPayload, key);
 ```
+
+You may want to fiddle with the parameters in use by the genetic algorithms.
+In order to do this, just write a new module that extends from `StegosaurusModule` and
+replaces the appropriate protected parameter getter with one that returns what you want.
+
+Thus, say you wish to have 100 generations instead of the default 50 for the blockiness
+optimizer:
+
+```java
+  public class MyCustomModule extends StegosaurusModule {
+    @Override
+    protected int getBNumberOfGenerations() {
+      return 100;
+    }
+  }
+```
+
+And install this module instead:
+
+```java
+  Injector = Guice.createInjector(new MyCustomModule());
+```
+
+See `StegosaurusModule` to see the list of all available parameters
+and their default values.
+
+Building
+--------
+
+To build stegosaurus you will need:
+  - a jdk
+  - gradle
+  - a gcc toolset
+  - libgtest (headers and library)
+  - libjpeg  (headers and library)
+  - swig 2
+
+Then just go `gradle build`
 
 Algorithm details
 -----------------

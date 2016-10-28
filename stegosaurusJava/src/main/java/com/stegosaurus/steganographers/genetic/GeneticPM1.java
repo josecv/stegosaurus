@@ -1,14 +1,5 @@
 package com.stegosaurus.steganographers.genetic;
 
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_ELITISM_RATE;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_MUTATION_RATE;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_NUMBER_OF_GENERATIONS;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_POP_SIZE;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.B_SELECTION_GRADIENT;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_NUMBER_OF_GENERATIONS;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_PARAMS;
-import static com.stegosaurus.steganographers.genetic.GeneticPM1Parameters.S_SELECTION_GRADIENT;
-
 import java.util.Random;
 
 import com.google.inject.Inject;
@@ -38,7 +29,7 @@ import com.stegosaurus.steganographers.pm1.PMSequence;
  * blockiness to a lossily cropped equivalent's blockiness</p>
  * @see PM1Embedder for a discussion of the structure of the stego image.
  */
-public class GeneticPM1 implements Embedder {
+class GeneticPM1 implements Embedder {
 
   /**
    * The embedder factory in use.
@@ -60,14 +51,21 @@ public class GeneticPM1 implements Embedder {
   private GAFactory gaFactory;
 
   /**
-   * Construct a new GeneticPM1 object. Ought to be invoked by Guava.
-   * @param embedderFactory the embedder factory to use.
+   * The genetic parameters to startup both algorithms.
    */
-  @Inject
-  public GeneticPM1(PM1EmbedderFactory embedderFactory,
-                    GAFactory gaFactory) {
+  private GeneticPM1Parameters globalParams;
+
+  /**
+   * Construct a new GeneticPM1 object.
+   * @param embedderFactory the embedder factory to use.
+   * @param gaFactory the genetic algorithm factory
+   * @param globalParams the global parameters
+   */
+  GeneticPM1(PM1EmbedderFactory embedderFactory,
+      GAFactory gaFactory, GeneticPM1Parameters globalParams) {
     this.embedderFactory = embedderFactory;
     this.gaFactory = gaFactory;
+    this.globalParams = globalParams;
   }
 
   /**
@@ -99,7 +97,9 @@ public class GeneticPM1 implements Embedder {
     SeedChangeCountIndividualFactory factory =
       new SeedChangeCountIndividualFactory(request, embedderFactory);
     Individual<SeedChangeCountIndividual> result = optimize(request,
-        S_SELECTION_GRADIENT, S_NUMBER_OF_GENERATIONS, factory, S_PARAMS);
+        globalParams.getSSelectionGradient(),
+        globalParams.getSNumberOfGenerations(),
+        factory, globalParams.getSParams());
     return result.getChromosome().asShort();
   }
 
@@ -112,11 +112,13 @@ public class GeneticPM1 implements Embedder {
   private PMSequence optimizeSequence(EmbedRequest request, short seed) {
     BlockinessIndividualFactory factory =
       new BlockinessIndividualFactory(request, seed, embedderFactory);
-    GAParameters params = new GAParameters(B_POP_SIZE,
-      (request.getMessage().length * 8) + 16, B_ELITISM_RATE,
-      B_MUTATION_RATE);
+    GAParameters params = new GAParameters(globalParams.getBPopSize(),
+      (request.getMessage().length * 8) + 16, globalParams.getBElitismRate(),
+      globalParams.getBMutationRate());
     Individual<BlockinessIndividual> result = optimize(request,
-        B_SELECTION_GRADIENT, B_NUMBER_OF_GENERATIONS, factory, params);
+        globalParams.getBSelectionGradient(),
+        globalParams.getBNumberOfGenerations(),
+        factory, params);
     return result.getChromosome();
   }
 
