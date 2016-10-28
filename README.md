@@ -1,6 +1,11 @@
 Stegosaurus JPEG steganography library.
 =======================================
 
+Stegosaurus does [Steganography](https://en.wikipedia.org/wiki/Steganography) on JPEG
+images, allowing you to embed a message into a cover image using a key.
+It makes use of a genetic algorithm to attempt to defeat detection of a hidden message through
+statistical methods.
+
 Usage
 -----
 
