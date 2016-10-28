@@ -93,7 +93,7 @@ public class BitInputStream extends InputStream {
     try {
       return super.read(b);
     } catch(IOException e) {
-      /* XXX */
+      /* This really shouldn't happen, so whatever */
       throw new RuntimeException(e);
     }
   }

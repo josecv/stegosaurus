@@ -67,10 +67,14 @@ class StegosaurusFacadeImpl implements StegosaurusFacade {
   @Override
   public void embed(InputStream in, OutputStream out, String message, String key)
       throws IOException {
+    Embedder embedder = embedderFactory.build();
+    if (embedder.getMaximumMessageSize() < message.length()) {
+      throw new IllegalArgumentException("Message is too long; must be under " +
+          embedder.getMaximumMessageSize());
+    }
     NativeUtils.StegJoctetArray arr = NativeUtils.readInputStream(in);
     JPEGImage cover = new JPEGImage(arr.cast(), arr.length());
     EmbedRequest request = new EmbedRequest(cover, message.getBytes(), key);
-    Embedder embedder = embedderFactory.build();
     JPEGImage result = embedder.embed(request);
     JoctetArray outArray = JoctetArray.frompointer(result.getData());
     NativeUtils.writeOctetArray(out, outArray, result.getDataLen());

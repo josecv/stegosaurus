@@ -67,7 +67,6 @@ public class ParallelIndividual<T extends Individual<T>>
       try {
         return fitnessFuture.get();
       } catch(InterruptedException | ExecutionException e) {
-        /* XXX */
         throw new RuntimeException(e);
       }
     } else {

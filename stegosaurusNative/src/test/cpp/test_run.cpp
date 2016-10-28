@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-/* TODO THIS IS HORRIBLE!! IT COSTS NOTHING TO LINK THIS IN! I SUCK! */
+/* Just include the tests. They're not used anywhere else. */
 #include "coefficient_accessor_test.h"
 #include "jpeg_image_test.h"
 #include "jpeg_component_test.h"

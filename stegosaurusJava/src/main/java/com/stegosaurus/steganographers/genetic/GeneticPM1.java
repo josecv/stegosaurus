@@ -85,6 +85,11 @@ class GeneticPM1 implements Embedder {
     this.globalParams = globalParams;
   }
 
+  @Override
+  public long getMaximumMessageSize() {
+    return Short.MAX_VALUE;
+  }
+
   /**
    * Run a GA to optimize some thing or another.
    * @param <C> the specific individual type in use.

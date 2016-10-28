@@ -77,6 +77,11 @@ public class PM1EmbedderImpl extends PM1Algorithm implements PM1Embedder {
     return embed(request, (short) 0);
   }
 
+  @Override
+  public long getMaximumMessageSize() {
+    return Short.MAX_VALUE;
+  }
+
   /**
    * Embed (or pretend to) the request's message into its cover image.
    * @param request the embed request.
@@ -95,8 +100,6 @@ public class PM1EmbedderImpl extends PM1Algorithm implements PM1Embedder {
     BitInputStream in = new BitInputStream(seedBytes);
     int changed = doEmbed(in, acc, permuter, real);
     permuter.setSeed(seed);
-    /* TODO THIS IS AWFUL! */
-    /* XXX */
     short len = (short) msg.length;
     byte[] lenBytes = getClearedBuffer().putShort(len).array();
     in.reset(lenBytes, msg);

@@ -29,4 +29,13 @@ public interface Embedder {
    * @return the image containing the message
    */
   JPEGImage embed(EmbedRequest request);
+
+  /**
+   * Get the maximum size of a message supported by this algorithm, in bits.
+   * This is obviously contingent on the image being able to cover that many
+   * bits.
+   * Note that embed has no obligation to check that the message is of the right
+   * size, and may cut it off it comes to that: checking is on you.
+   */
+  long getMaximumMessageSize();
 }
