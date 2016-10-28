@@ -94,3 +94,9 @@ In particular, the genetic algorithm for the plus-minus sequence seeks to
 minimize a second order property of the image known as "blockiness" which
 represents the degree to which 64-pixel blocks differ from their neighbors
 in the decompressed, color-space image.
+
+License
+-------
+
+Stegosaurus is licensed under the AGPL 3 License.
+See the LICENSE file for details.
