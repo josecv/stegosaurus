@@ -1,6 +1,8 @@
 apply plugin: 'java'
 evaluationDependsOn(':stegosaurusNative')
 
+version = 1.0
+
 repositories {
   mavenCentral()
 }

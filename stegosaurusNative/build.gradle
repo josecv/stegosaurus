@@ -1,5 +1,7 @@
 apply plugin: 'cpp'
 
+version = 1.0
+
 task cleanSwig(type: Delete)  {
   delete 'src/main/cpp/stegosaurus_wrap.cpp'
 }
